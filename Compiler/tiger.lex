@@ -7,7 +7,7 @@ type ('a,'b) token = ('a,'b) Tokens.token
 type lexresult = (svalue, pos) token
 
 (* Second parameter (yypos + size yytext) never gets used. *)
-(* Regarding String matchine, we just want to match string inside double quotes, but we need to be careful with when double quote is part of the string or when it is string terminator *)
+(* Regarding String matching, we just want to match string inside double quotes, but we need to be careful with when double quote is part of the string or when it is string terminator *)
 (* Remember that we cannot put comments inside rules *)
 val lineNo = ErrorMsg.lineNum
 val linePos = ErrorMsg.linePos
@@ -16,14 +16,29 @@ val givenString = ref ""
 val stringOpen = ref 0
 val commentDepth = ref 0
 
-fun printError () = (print ("LEXER ERROR: Error is at line no: " ^ Int.toString (!lineNo) ^ " and column no is: " ^ Int.toString (!colNo) ^ "\n")) (*); raise ErrorMsg.Error)*)
+fun printError (errorCode, yytext) = 
+(
+  print ("LEXER ERROR: Error is at line no: " ^ Int.toString (!lineNo) ^ " and column no is: " ^ Int.toString (!colNo) ^ ". Message: ");
+  if (errorCode = 1) then
+    print ("Reached EOF with comment not terminated\n")
+  else if (errorCode = 2) then  
+    print ("Reached EOF with string not terminated\n")
+  else if (errorCode = 3) then
+    print ("Found comment terminator without corresponding comment beginner\n")
+  else if (errorCode = 4) then
+    print ("Newline without terminating string\n")
+  else 
+    print ("Symbol: " ^ yytext ^ " not valid, remember that identifier should begin with a lower case character\n")
+  ; 
+  raise ErrorMsg.Error
+)
 
 fun eof() = 
 let 
     val CStatus = !commentDepth
     val SStatus = !stringOpen
-    val _ = if (CStatus = 1) then printError () else ()
-    val _ = if (SStatus = 1) then printError () else ()
+    val _ = if (CStatus = 1) then printError (1, "") else ()
+    val _ = if (SStatus = 1) then printError (2, "") else ()
 in  
     Tokens.EOF(!lineNo, !colNo)
 end
@@ -34,7 +49,7 @@ end
 
 %%
 
-<INITIAL, COMMENT>\n	=>                   (colNo := 1; lineNo := !lineNo + 1; linePos := yypos :: (!linePos); continue());
+<INITIAL, COMMENT>\n	=>                     (colNo := 1; lineNo := !lineNo + 1; linePos := yypos :: (!linePos); continue());
 <INITIAL, COMMENT>[\ \t]+ =>                 (colNo := !colNo + size yytext; continue());
 <INITIAL>"type" =>                           (colNo := !colNo + size yytext; Tokens.TYPE(yypos, yypos + size yytext));
 <INITIAL>"var" =>                            (colNo := !colNo + size yytext; Tokens.VAR(yypos, yypos + size yytext));
@@ -79,7 +94,7 @@ end
 <INITIAL>[0-9]* =>                           (colNo := !colNo + size yytext; Tokens.INT(valOf (Int.fromString yytext), yypos, yypos + size yytext));
 <INITIAL>[a-zA-Z][a-zA-Z0-9_]* =>            (colNo := !colNo + size yytext; Tokens.ID(yytext, yypos, yypos + size yytext));
 <INITIAL>"/*" =>                             (colNo := !colNo + size yytext; commentDepth := 1; YYBEGIN COMMENT; continue());
-<INITIAL>"*/" =>                             (printError (); continue());
+<INITIAL>"*/" =>                             (printError (3, yytext); continue());
 <COMMENT>"/*" =>                             (colNo := !colNo + size yytext; commentDepth := (!commentDepth + 1); continue());
 <COMMENT>"*/" =>                             (colNo := !colNo + size yytext; commentDepth := (!commentDepth - 1); if (!commentDepth = 0) then YYBEGIN INITIAL else (); continue());
 <COMMENT>. =>                                (colNo := !colNo + size yytext; continue());
@@ -87,5 +102,5 @@ end
 <STRING>[^\n\"]+ =>                          (colNo := !colNo + size yytext; givenString := !givenString ^ yytext; continue());
 <STRING>\\\" =>                              (colNo := !colNo + size yytext; givenString := !givenString ^ yytext; continue());
 <STRING>\" =>                                (colNo := !colNo + size yytext; stringOpen := 0; YYBEGIN INITIAL; Tokens.STRING(!givenString, yypos, yypos + size yytext));
-<STRING>\n =>                                (printError (); continue());
-<INITIAL>. =>                                (printError (); continue());
+<STRING>\n =>                                (printError (4, yytext); continue());
+<INITIAL>. =>                                (printError (5, yytext); continue());
