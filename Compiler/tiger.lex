@@ -18,7 +18,7 @@ val commentDepth = ref 0
 
 fun printError (errorCode, yytext) = 
 (
-  print ("LEXER ERROR: Error is at line no: " ^ Int.toString (!lineNo) ^ " and column no is: " ^ Int.toString (!colNo) ^ ". Message: ");
+  print ("LEXING ERROR: Error is at line no: " ^ Int.toString (!lineNo) ^ " and column no is: " ^ Int.toString (!colNo) ^ ". Message: ");
   if (errorCode = 1) then
     print ("Reached EOF with comment not terminated\n")
   else if (errorCode = 2) then  

@@ -1,0 +1,380 @@
+(* Format: user declarations %% parser declarations %% grammar rules *)
+(* By default, ML-Yacc resolves shift-reduce conflicts by shifting, and reduce-reduce conflicts by using the rule that appears earlier in the grammar. *)
+(* If then (else) shift-reduce conflict is thus not harmful *)
+structure A = Absyn
+
+fun forSyntaxHighlighting () = () 
+
+%%
+%term
+    EOF 
+  | ID of string
+  | INT of int | STRING of string 
+  | COMMA | COLON | SEMICOLON | LPAREN | RPAREN | LBRACK | RBRACK 
+  | LBRACE | RBRACE | DOT 
+  | PLUS | MINUS | TIMES | DIVIDE | EQ | NEQ | LT | LE | GT | GE | UMINUS
+  | AND | OR | ASSIGN
+  | ARRAY | IF | THEN | ELSE | WHILE | FOR | TO | DO | LET | IN | END | OF 
+  | BREAK | NIL
+  | FUNCTION | VAR | TYPE
+
+%nonterm  exp of A.exp | program of A.exp | decs of A.dec list | decsaux of A.dec list | tydecs of A.auxTypeDec list | tydec of A.auxTypeDec | ty of A.ty | record of (A.symbol * A.exp * pos) list | recordaux of (A.symbol * A.exp * pos) list | exps of (A.exp * pos) list | expsaux of (A.exp * pos) list | funas of A.exp list | funasaux of A.exp list | lvalue of A.var | dec of A.dec | tyfields of A.field list | tyfieldsaux of A.field list | vardec of A.dec | fundecs of A.fundec list | fundec of A.fundec list
+
+%pos int  (* should be same as what is given in lexer *)
+%start program  (* start state *)
+%eop EOF  (* End of parse is when we see EOF *)
+%noshift EOF  (* Our EOF terminal cannot be shifted, thus an error message will be printed if a non shiftable terminal is found on the right hand side of any rule *)
+%name Tiger  (* Name of our parser *)
+%verbose  (* To produce verbose description of the LALR parser, written in .desc file *)
+
+(* Precedence should be written in the order of increasing precedence *)
+(* Consider for example: 
+  E -> E * E.   (+)
+  E -> E. + E   (any)
+  The precedence declarations (%left, etc.) give priorities to the tokens; the priority of a rule is given by the last token occurring on the right-hand side of that rule. Thus the choice here is between a rule with priority * and a token with priority + ; the rule has higher priority, so the conflict is resolved in favor of reducing. *)
+(* When the rule and token have equal priority, then a %left precedence favors reducing, %right favors shifting, and %nonassoc yields an error action. *)
+(* Instead of using the default "rule has precedence of its last token," we can assign a specific precedence to a rule using the %prec directive. This is commonly used to solve the "unary minus" problem. In most programming languages a unary minus binds tighter than any binary operator, so —6 * 8 is parsed as (—6) * 8, not —(6 * 8). *)
+
+(* The following is written to guide the conflicts *)
+%nonassoc ASSIGN 
+%nonassoc ID
+%nonassoc DO
+%right THEN 
+%right ELSE
+%nonassoc LPAREN LBRACK OF
+(* The following is the precedence order given in book *)
+%left OR
+%left AND
+%nonassoc EQ NEQ LT LE GT GE
+%left PLUS MINUS
+%left TIMES DIVIDE
+%left UMINUS
+
+(* Note: when an LR parser encounters an error action it stops parsing and reports failure. This behavior would be unkind to the programmer, who would like to have all the errors in her program reported, not just the first error *)
+(* These optional declarations improve error-recovery, I took it as a standard glue from Modern Compiler Implementation in ML *)
+(* Note: ML-YACC does "Global error repair" which finds the smallest set of insertions and deletions that would turn the source string into a syntactically correct string, even if the insertions and deletions are not at a point where an LL or LR parser would first report an error. *)
+(* Specify all keywords in a grammar here. The %keyword should be followed by a list of terminal names. Fixes involving keywords are generally dangerous; they are prone to substantially altering the syntactic meaning of the program. They are subject to a more rigorous parse check than other fixes. *)
+%keyword WHILE FOR TO BREAK LET IN END FUNCTION VAR TYPE ARRAY IF THEN ELSE 
+	DO OF NIL
+
+(* List terminals to prefer for insertion after the %prefer. Corrections which insert a terminal on this list will be chosen over other corrections, all other things being equal. *)
+%prefer THEN ELSE LPAREN
+
+(* The error-correction algorithm may also insert terminals with values. You must supply a value for such a terminal. *)
+%value ID ("bogus")
+%value INT (1)
+%value STRING ("")
+
+%%
+(* In Tiger, declarations appear only in the let expression *)
+(* 
+  Certain expressions produce no value: procedure calls, assignments, if-then, while, break, and sometimes if-then-else. Therefore the expression (a := b) + c is syntactically correct but fails to type check.
+  For no value we have given the type UNIT in types.sml 
+*)
+(* 
+  Array and record assignment: When an array or record variable "a" is assigned a value "b", then "a" references the same array or record as "b". Future updates of elements of "a" will affect "b", and vice versa, until "a" is reassigned. So Tiger array and record are pointers. Parameter passing of arrays and records is similarly by reference, not by copying. 
+*)
+(* 
+  We say that an integer or pointer value is a "scalar," since it has only one component. Such a value occupies just one word of memory and can fit in a register. All the variables and l-values in Tiger are scalar. 
+*)
+(* Extent: Records and arrays have infinite extent: each record or array value lasts forever, even after control exits from the scope in which it was created. *)
+
+program:                exp				                          (
+                                                            exp
+                                                            )
+                        (* Literals *)
+                        (* The expression nil (a reserved word) denotes a value nil belonging to every record type. If a record variable v contains the value nil, it is a checked runtime error to select a field from v. Nil must be used in a context where its type can be determined, that is:
+                        var a : my_record := nil OK
+                        a := nil OK
+                        if a <> nil then ... OK
+                        if nil <> a then ... OK
+                        if a = nil then ... OK
+                        function f(p: my_record) = ... f(nil) OK
+                        var a : = nil Illegal
+                        if nil = nil then ... Illegal *)
+exp:                    NIL                                 (
+                                                            A.NilExp
+                                                            )
+                        | INT                               (
+                                                            A.IntExp(INT)
+                                                            )
+                        | STRING                            (
+                                                            A.StringExp(STRING, STRINGleft)
+                                                            )
+                        (* Function Call *)
+                        (* As always funas is evaluated left to right. 
+                        The actual parameters are bound to the corresponding formal parameters of the function definition and the function body is bound using conventional static scoping rules to obtain a result. If "ID" actually stands for a procedure (a function returning no result), then the function body must produce no value, and the function application also produces no value *)
+                        | ID LPAREN funas RPAREN            (
+                                                            A.CallExp({func = Symbol.symbol ID, args = funas, pos = IDleft})
+                                                            )
+                        (* Array Creation *)
+                        (* Form: "type-id [exp1] of exp2", exp1 -> n, exp2 -> initial value. The type-id must be declared as an array type.
+                        Example:
+                        type intArray = array of int
+                        var diagl := intArray [N+N-l] of 0 *)
+                        | ID LBRACK exp RBRACK OF exp       (
+                                                            A.ArrayExp({typ = Symbol.symbol ID, size = exp1, init = exp2, pos = IDleft})
+                                                            )
+                        (* Record Creation *)
+                        (* Similar to array creation *)
+                        | ID LBRACE record RBRACE           (
+                                                            A.RecordExp({fields = record, typ = Symbol.symbol ID, pos = IDleft})
+                                                            )
+                        (* --- Operations Begin --- *)
+                        (* The directive %prec UMINUS gives the rule exp: MINUS exp the highest precedence, so  reducing by this rule takes precedence over shifting any operator, even a minus *)
+                        | MINUS exp       %prec UMINUS      (
+                                                            A.OpExp({left = A.IntExp(0), oper = A.MinusOp, right = exp, pos = MINUSleft})
+                                                            )
+                        (* In tiger, arithmetic requires both left and right side to be integer, as we saw there is no float (real) type. So the result is also integer *)
+                        | exp PLUS exp                      (
+                                                            A.OpExp({left = exp1, oper = A.PlusOp, right = exp2, pos = exp1left})
+                                                            )
+                        | exp MINUS exp                     (
+                                                            A.OpExp({left = exp1, oper = A.MinusOp, right = exp2, pos = exp1left})
+                                                            )
+                        | exp TIMES exp                     (
+                                                            A.OpExp({left = exp1, oper = A.TimesOp, right = exp2, pos = exp1left})
+                                                            )
+                        | exp DIVIDE exp                    (
+                                                            A.OpExp({left = exp1, oper = A.DivideOp, right = exp2, pos = exp1left})
+                                                            )
+                        (* Comparision produces the integer 1 for true and integer 0 for false. All these operators can be applied to integer operands. The equals and not equals operators can also be applied to two record or array operands of the same type, and compare for reference or pointer equality (they test whether two records are the same instance, not whether they have the same contents). *)
+                        (* The comparison operator may also be applied to strings. Two strings are equal if their contents are equal. Ineq is acc. to lex. ordering. *)
+                        | exp EQ   exp                      (
+                                                            A.OpExp({left = exp1, oper = A.EqOp, right = exp2, pos = exp1left})
+                                                            )
+                        | exp NEQ  exp                      (
+                                                            A.OpExp({left = exp1, oper = A.NeqOp, right = exp2, pos = exp1left})
+                                                            )
+                        | exp LT   exp                      (
+                                                            A.OpExp({left = exp1, oper = A.LtOp, right = exp2, pos = exp1left})
+                                                            )
+                        | exp LE   exp                      (
+                                                            A.OpExp({left = exp1, oper = A.LeOp, right = exp2, pos = exp1left})
+                                                            )
+                        | exp GT   exp                      (
+                                                            A.OpExp({left = exp1, oper = A.GtOp, right = exp2, pos = exp1left})
+                                                            )
+                        | exp GE   exp                      (
+                                                            A.OpExp({left = exp1, oper = A.GeOp, right = exp2, pos = exp1left})
+                                                            )
+                        (* Boolean operators, they do not evaluate the right-hand operand if the result is detemined by the left-hand one. Any nonzero integer value is considered true, and an integer value of zero is false. *)
+                        | exp AND  exp                      (
+                                                            A.IfExp({test = exp1, then' = exp2, else' = SOME(A.IntExp(0)), pos = exp1left})
+                                                            )
+                                                        
+                        | exp OR   exp                      (
+                                                            A.IfExp({test = exp1, then' = A.IntExp(1), else' = SOME exp2, pos = exp1left})
+                                                            )
+                            
+                        (* (exp1; exp2; exp3; ...; expn) -> result will be expn and expressions are evaluated in that order *)
+                        (* IMP NOTE: In book LPAREN RPAREN i.e. () is treated specially as no value, the case which I have handled in semant.sml *)
+                        | LPAREN exps RPAREN                (
+                                                            A.SeqExp(exps)
+                                                            )
+                        (* --- Operations End --- *)
+                        (* Control Structures *)
+                        (* Evaluates the integer expression exp1. If the result is nonzero it yields the result of evaluating exp2, otherwise it yields the result of exp3. The expressions exp2 and exp3 must have the same type, which is also the type of the entire if-expression (or both expressions must produce no value *)
+                        | IF exp THEN exp ELSE exp          (
+                                                            A.IfExp({test = exp1, then' = exp2, else' = SOME exp3, pos = IFleft})
+                                                            )
+                        (* Evaluates the integer expression exp1. If the result is nonzero, then exp2 (which must produce no value) is evaluated. The entire if-expression produces no value. *)
+                        | IF exp THEN exp                   (
+                                                            A.IfExp({test = exp1, then' = exp2, else' = NONE, pos = IFleft})
+                                                            )
+                        (* Evaluates the integer expression exp1. If the result is nonzero, then exp2 (which must produce no value) is executed, and then the entire while-expression is reevaluated. *)
+                        | WHILE exp DO exp                  (
+                                                            A.WhileExp({test = exp1, body = exp2, pos = WHILEleft})
+                                                            )
+                        (* "decs" is 0 or more declaraions *)
+                        (* The expression "let decs in expseq end" evaluates the declarations decs,  binding types, variables, and procedures whose scope then extends over the  expseq. The expseq is a sequence of zero or more expressions, separated by  semicolons. The result (if any) of the last exp in the sequence is then the result of the entire let-expression. *)
+                        | LET decs IN exps END              (
+                                                            A.LetExp({decs = decs, body = A.SeqExp(exps), pos = LETleft})
+                                                            )
+                        (* Iterates "exp3" over each integer value of "id" between "exp1" and "exp2". The variable "id" is a new variable implicitly declared by the for statement, whose scope covers only exp3, and may not be assigned to. The body exp3 must produce no value. The upper and lower bounds are evaluated only once, prior to entering the body of the loop. If the upper bound is less than the lower, the body is not executed. *)
+                        | FOR ID ASSIGN exp TO exp DO exp   (
+                                                            A.ForExp({var = Symbol.symbol ID, escape = (ref true), lo = exp1, hi = exp2, body = exp3, pos = FORleft})
+                                                            )
+                        (* like in normal languages *)
+                        | BREAK                             (
+                                                            A.BreakExp(BREAKleft)
+                                                            )
+                        (* lvalue - Variables, procedure parameters, fields of records, elements of array.
+                        lvalue when used as an expression, evaluates to the contents of the corresponding location *)
+                        | lvalue                            (
+                                                            A.VarExp(lvalue)
+                                                            )
+                        (* Assignment *)
+                        | lvalue ASSIGN exp                 (
+                                                            A.AssignExp({var = lvalue, exp = exp, pos = lvalueleft})
+                                                            )
+
+
+
+
+record:                 recordaux                           (
+                                                            recordaux
+                                                            )
+                        |                                   (
+                                                            []
+                                                            )
+recordaux:              ID EQ exp                           (
+                                                            [(Symbol.symbol ID, exp, IDleft)]
+                                                            )
+                        | recordaux COMMA ID EQ exp         (
+                                                            recordaux @ [(Symbol.symbol ID, exp, IDleft)]
+                                                            )
+
+
+
+exps:                   expsaux                             (
+                                                            expsaux
+                                                            )
+                        |                                   (
+                                                            []
+                                                            )
+expsaux:                exp                                 (
+                                                            [(exp, expleft)]
+                                                            )
+                        | expsaux SEMICOLON exp             (
+                                                            expsaux @ [(exp, expleft)]
+                                                            )
+
+funas:                  funasaux                            (
+                                                            funasaux
+                                                            )
+                        |                                   (
+                                                            []
+                                                            )
+funasaux:               exp                                 (
+                                                            [exp]
+                                                            )
+                        | funasaux COMMA exp                (
+                                                            funasaux @ [exp]
+                                                            )
+
+lvalue:                 ID                                  (
+                                                            A.SimpleVar(Symbol.symbol ID, IDleft)
+                                                            )
+                        (* The dot notation allows the selection of the corresponding named field of a record value *)
+                        | lvalue DOT ID                     (
+                                                            A.FieldVar(lvalue, Symbol.symbol ID, lvalueleft)
+                                                            )
+                        (* Array subscript *)
+                        | ID LBRACK exp RBRACK              (
+                                                            A.SubscriptVar(A.SimpleVar(Symbol.symbol ID, IDleft), exp, IDleft)
+                                                            )
+                        | lvalue LBRACK exp RBRACK          (
+                                                            A.SubscriptVar(lvalue, exp, lvalueleft)
+                                                            )
+
+
+decs:                   decsaux                             (
+                                                            decsaux
+                                                            )
+                        |                                   (
+                                                            []
+                                                            )
+decsaux:                dec                                 (
+                                                            [dec]
+                                                            )
+                        | decsaux dec                       (
+                                                            decsaux @ [dec]
+                                                            )
+                        (* Type declarations (to declare new type or can also redefine previous ones) *)
+dec:                    tydecs                              (
+                                                            A.TypeDec(tydecs)
+                                                            ) 
+                        (* Variable declaration *)
+                        | vardec                            (
+                                                            vardec
+                                                            )
+                        (* Function declaration *)
+                        | fundecs                           (
+                                                            A.FunctionDec(fundecs)
+                                                            )
+(* Note: Mutually recursive types: A collection of types may be recursive or mutually
+recursive. Mutually recursive types are declared by a consecutive sequence
+of type declarations without intervening value or function declarations. Each
+recursion cycle must pass through a record or array type.
+-- Ex --
+type intlist = {hd: int, tl: intlist}
+type tree = {key: int, children: treelist}
+type treelist = {hd: tree, tl: treelist}
+-- End -- 
+But the following declaration sequence is illegal:
+type b = c
+type c = b 
+Field name reusability: Different record types may use the same field names
+(such as the hd field of intlist and treelist in the example above). *)
+
+                        (* This "ID" is type-id *)
+tydecs:                 tydec                               (
+                                                            [tydec]
+                                                            )
+                        | tydec tydecs                      (
+                                                            tydecs @ [tydec]
+                                                            )
+
+tydec:                  TYPE ID EQ ty                       (
+                                                            {name = Symbol.symbol ID, ty = ty, pos = TYPEleft}
+                                                            )
+
+                        (* Redefination *)
+ty:                     ID                                  (
+                                                            A.NameTy(Symbol.symbol ID, IDleft)
+                                                            )
+                        (* Could be of record type *)
+                        | LBRACE tyfields RBRACE            (
+                                                            A.RecordTy(tyfields)
+                                                            )
+                        (* Length would be decided at runtime *)
+                        (* Again this "ID" is type-id *)
+                        | ARRAY OF ID                       (
+                                                            A.ArrayTy(Symbol.symbol ID, ARRAYleft)
+                                                            )
+
+tyfields:               tyfieldsaux                         (
+                                                            tyfieldsaux
+                                                            )
+                        |                                   (
+                                                            []
+                                                            )
+
+                        (* Here "ID2" is type-id *)
+tyfieldsaux:            ID COLON ID                         (
+                                                            [{name = Symbol.symbol ID1, escape = (ref true), typ = Symbol.symbol ID2, pos = ID1left}]
+                                                            )
+                        | tyfieldsaux COMMA ID COLON ID     (
+                                                            tyfieldsaux @ [{name = Symbol.symbol ID1, escape = (ref true), typ = Symbol.symbol ID2, pos = ID1left}]
+                                                            )
+                        (* In this case the type of the identifier is determined from the type of the expression and in the other case the expression must have the same type as type-id
+                        If the initializing expression is nil, then the long form must be used.
+                        Each variable declaration creates a new variable, which lasts as long as the scope of the declaration. *)
+vardec:                 VAR ID ASSIGN exp                   (
+                                                            A.VarDec({name = Symbol.symbol ID, escape = (ref true), typ = NONE, init = exp, pos = VARleft})
+                                                            )
+                        (* Here "ID2" is type-id *)
+                        | VAR ID COLON ID ASSIGN exp        (
+                                                            A.VarDec({name = Symbol.symbol ID1, escape = (ref true), typ = SOME (Symbol.symbol ID2, ID2left), init = exp, pos = VARleft})
+                                                            )
+                        (* The first of these is a procedure declaration; the second is a function declaration. Procedures do not return result values; functions do, and the type is specified after the colon. The exp is the body of the procedure or function, and the tyfields specify the names and type of the parameters. All parameters are passed by values Functions may be recursive. Mutually recursive functions and procedures are declared by a sequence of consecutive function declarations (with no intervening type or variable declarations) *)
+fundecs:                fundec                              (
+                                                            fundec 
+                                                            )
+                        | fundec fundecs %prec UMINUS       (
+                                                            fundecs @ fundec
+                                                            )
+
+                        (* This is actually procedure declaration *)
+fundec:                 FUNCTION ID LPAREN tyfields RPAREN EQ exp  (
+                                                            [
+                                                                        {name = Symbol.symbol ID, params = tyfields,
+                                                                        result = NONE, body = exp, pos = FUNCTIONleft}]
+                                                            )
+                        | FUNCTION ID LPAREN tyfields RPAREN COLON ID EQ exp (
+                                                            [
+                                                                        {name = Symbol.symbol ID1, params = tyfields,
+                                                                        result = SOME(Symbol.symbol ID2, ID2left), body = exp,
+                                                                        pos = FUNCTIONleft}]
+                                                            )
