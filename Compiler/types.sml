@@ -23,7 +23,7 @@ struct
   It is not the type declaration that causes a new and distinct type to be made, but the type expression {x : int, y : int}.
   In Tiger, the expression nil belongs to any record type. We handle this exceptional case by inventing a special "nil" type. There are also expressions that return "no value," so we invent a type unit.
   When processing mutually recursive types, we will need a place-holder for types whose name we know but whose definition we have not yet seen. The type NAME(sym, ref(SOME(t))) is equivalent to type t; but NAME(sym, ref(NONE)) is just the place-holder.
-*)
+  *)
             RECORD of (Symbol.symbol * ty) list * unique
           | NIL
           | INT
