@@ -78,6 +78,7 @@ fun forSyntaxHighlighting () = ()
   We say that an integer or pointer value is a "scalar," since it has only one component. Such a value occupies just one word of memory and can fit in a register. All the variables and l-values in Tiger are scalar. 
 *)
 (* Extent: Records and arrays have infinite extent: each record or array value lasts forever, even after control exits from the scope in which it was created. *)
+(* Record entries are nothing but pointers. So, one word for storing pointer is sufficient. *)
 
 program:                exp				                          (
                                                             exp
@@ -117,6 +118,12 @@ exp:                    NIL                                 (
                                                             )
                         (* Record Creation *)
                         (* Similar to array creation *)
+                        (*  type any = {any : int} 
+                            var any = any{any = 0}
+                            type list = {first: int, rest: list} 
+                            var myList = list{first = 3, rest = readlist()
+                        *)
+
                         | ID LBRACE record RBRACE           (
                                                             A.RecordExp({fields = record, typ = Symbol.symbol ID, pos = IDleft})
                                                             )
@@ -293,10 +300,7 @@ dec:                    tydecs                              (
                         | fundecs                           (
                                                             A.FunctionDec(fundecs)
                                                             )
-(* Note: Mutually recursive types: A collection of types may be recursive or mutually
-recursive. Mutually recursive types are declared by a consecutive sequence
-of type declarations without intervening value or function declarations. Each
-recursion cycle must pass through a record or array type.
+(* Note: Mutually recursive types: A collection of types may be recursive or mutually recursive. Mutually recursive types are declared by a consecutive sequence of type declarations without intervening value or function declarations. Each recursion cycle must pass through a record or array type.
 -- Ex --
 type intlist = {hd: int, tl: intlist}
 type tree = {key: int, children: treelist}

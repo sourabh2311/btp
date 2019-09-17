@@ -20,7 +20,7 @@ struct
     val base_funs =
     (* function name, input parameters (formals), return type *)
     [("print", [T.STRING], T.UNIT),
-     ("printi", [T.INT], T.UNIT),
+     (* ("printi", [T.INT], T.UNIT), *)
      ("flush", [], T.UNIT),
      ("getchar", [], T.STRING),
      ("ord", [T.STRING], T.INT),
