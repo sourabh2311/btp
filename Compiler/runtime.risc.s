@@ -29,7 +29,7 @@ exit:
 
 not:
     # Not of non zero integer is 0 whereas not of 0 is 1.
-    beq a0, zero, retOne
+    beqz a0, retOne
     li a0, 0
     jr ra 
     retOne:
@@ -43,7 +43,7 @@ size:
     mv a0, zero
     sizeLoop:
         lb t1, (t0)
-        beq t1, zero sizeExit
+        beqz t1, sizeExit
         addi a0, a0, 1
         addi t0, t0, 1
         j sizeLoop
@@ -60,7 +60,7 @@ stringCopy:
         addi a1, a1, 1
         j stringCopyLoop
     stringCopyExit:
-    jr ra
+        jr ra
 
 concat:
     # Contain str1 present in a0 with str2 present in a1.
@@ -187,10 +187,10 @@ initArray:
 	mv t0, a0
 	add t1, t1, t0
 	initArrayLoop:
-	sw a1, (t0)
-	addi t0, t0, 4
-	bne t0, t1, initArrayLoop
-	jr ra
+        sw a1, (t0)
+        addi t0, t0, 4
+        bne t0, t1, initArrayLoop
+        jr ra
 
 allocRecord:
     # Very similar to initArray
@@ -207,8 +207,8 @@ strcmp:
     strcmpTest:
         lb a2 (a0)
         lb a3 (a1)
-        beq a2, zero, strcmpEnd
-        beq a3, zero, strcmpEnd
+        beqz a2, strcmpEnd
+        beqz a3, strcmpEnd
         bgt a2, a3  strcmpGreat
         blt a2, a3  strcmpLess
         addi a0, a0, 1
