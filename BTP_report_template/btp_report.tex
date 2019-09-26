@@ -1,0 +1,85 @@
+\documentclass{CSEThesis}
+% Standard packages
+\usepackage{amsmath}        % Extra math definitions
+\usepackage{graphics}       % PostScript figures
+\usepackage{setspace}       % 1.5 spacing
+%\usepackage{psfig,epsfig}
+\usepackage{multicol}
+\usepackage{subfigure}
+\usepackage{hyperref}
+\usepackage{epsfig,color}
+\usepackage{minted}
+% Custom packages
+%\usepackage[first]{datestamp}   % Datestamp on first page of each chapter
+
+
+\usepackage{color}
+%===== page layout
+% Define the side margins for a right-side page
+%\insidemargin = 1.3in \outsidemargin = 0.9in
+% Above margin is space above the header
+% Below margin is space below footer
+%\abovemargin = 1.5in \belowmargin = 0.05in
+
+
+\newcommand{\git}{https://github.com/sourabh2311/btp/blob/master/Compiler/}
+\btptitle = {Tiger to RISC V Compiler} % { and } are needed around your name
+\name = {Sourabh Aggarwal}          % and other feilds. don't remove.
+\rollno = {111601025}
+\email = {111601025@smail.iitpkd.ac.in}
+\guide = {Dr. Piyush P. Kurur}
+
+\setminted{breaklines=true, tabsize=2, breaksymbolleft=}
+
+\begin{document}
+
+\include{title}
+
+% \include{certificate}
+
+% \include{acknowledgement}
+
+\tableofcontents 
+
+% \cleardoublepage
+% \phantomsection
+% \addcontentsline{toc}{chapter}{List of Figures} 
+% \listoffigures 
+
+% \cleardoublepage
+% \phantomsection
+% \addcontentsline{toc}{chapter}{List of Tables} 
+% \listoftables
+
+\pagenumbering{arabic}
+\def\headrulehook{\color{black}}      % Color the header rule
+
+%========== Chapters
+\typeout{}
+\include{chapter1}
+\cleardoublepage 
+\typeout{}
+\include{chapter2}
+\cleardoublepage 
+\typeout{}
+\include{chapter3}
+\cleardoublepage 
+\typeout{}
+\include{chapter4}
+\cleardoublepage 
+\typeout{}
+\include{futurework}
+\typeout{}
+
+% \bibliographystyle{IEEEtran}
+% \bibliography{btp}
+\begin{thebibliography}{9}
+  \bibitem{tigerbook} 
+  \href{https://www.cs.princeton.edu/~appel/modern/ml/}{Modern Compiler Implementation in ML}.   
+  \bibitem{risc} 
+  \href{https://github.com/TheThirdOne/rars/wiki}{RARS wiki}.   
+  \bibitem{mllexyacc}
+  \href{http://www.cs.tufts.edu/comp/181/ug.pdf}{User's Guide to ML-Lex and ML-Yacc}.
+  \end{thebibliography}
+\end{document}
+

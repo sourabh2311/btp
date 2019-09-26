@@ -1,0 +1,30 @@
+\chapter{Introduction}
+\pagenumbering{arabic}\hspace{3mm}
+
+During $6^{th}$ Semester, I wrote a compiler to compile Tiger to MIPS. Now is my attempt to build upon this compiler, to improve its functionality, efficiency and fix various issues/bugs. Also now instead of MIPS, I'll be compiling to RISC V.
+
+\section{Issues to resolve}
+
+\begin{itemize}
+  \item Currently the number of arguments that can be given to a function is exactly the number of available argument registers. This is to be fixed to support any number of function arguments.
+  \item Register allocation currently works only on saved registers and temporaries, this can be augmented to use free argument registers as well. (Subjective move)
+  \item Register allocation algorithm has to be implemented with better heuristics.
+  \item Basic blocks has to optimized with optimizations like constant propagation, constant folding, etc.
+  \item Error messages has to improved in semantic phase. 
+  \item To implement additional arithmetic operations like left/right shift.
+  \item String comparison has to be made as simple as "str1 $>$ str2", etc.,  instead of calling the string comparison functions to determine it.
+  \item To implement ability to include pre-written code (header) files.
+  \item To implement garbage collection.
+  \item Add support for compile time (initial) arguments.
+  \item And much more is possible, its like in a product.
+\end{itemize}
+
+\section{Goal for this semester}
+
+For this semester, my main focus is on translating everything from MIPS to RISC V (along with removing redundancy and refactoring of code) and if there is time then I'll work on the issues mentioned above. Translating to RISC V is taking time as I am doing three things simultaneously, viz., Recollecting what I did previously, simultaneously refactoring and converting those files to RISC V and writing a good documentation for it so that any new comer can easily grasp it with minimum prerequisites. 
+
+
+\section{Organization of The Report}
+
+The code written for this compiler is enormous and this report gives documentation on each of these files in an understandable order. But before proceeding it is important to read about Tiger language from \href{https://www.cs.princeton.edu/~appel/modern/ml/}{this book} (read Tiger Reference Manual in Appendix). 
+

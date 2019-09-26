@@ -1,0 +1,111 @@
+\chapter{Phase I : Constructing Abstract Syntax Tree}
+
+In this phase, files of interest are:-
+
+\begin{itemize}
+  \item \href{\git parse.sml}{parse.sml}
+  \item \href{\git errormsg.sml}{errormsg.sml}
+  \item \href{\git tiger.lex}{tiger.lex}
+  \item \href{\git table.sml}{table.sml}, \href{\git table.sig}{table.sig}
+  \item \href{\git symbol.sml}{symbol.sml} 
+  \item \href{\git tiger.grm}{tiger.grm}, \href{\git absyn.sml}{absyn.sml} 
+\end{itemize}
+
+Each of these is explained below.
+
+\section{parse.sml}
+
+We know the compiler follows "Lexical Analysis $\rightarrow$ Parsing $\rightarrow$ \dots". \texttt{parse.sml} is the one which does these two and ties the various files associated with it and finally returns the desired abstract syntax tree.
+
+\section{errormsg.sml}
+
+Besides errors encountered in lexical analysis phase, they'll be print using \texttt{errormsg.sml} which will print these errors in an elaborate manner.
+
+I'll be explaining the signature of this file here, which is sufficient to understand the working of this file.
+
+\begin{minted}{sml}
+(* In our lexer, each line will occur at a particular "pos" which is incremented for each character ("pos" is nothing but the number of characters read till now). For each line, we maintain its "pos". Our goal is that given "pos", we have to determine the line number and column number, this can now be easily done, just determine that line with maximum "pos" which is less than the given "pos", the difference now gives the column number. Reason of doing this in such an odd way is because in our grammar, lexer and in abstract syntax file we define "pos" to be int and not as a tuple (int, int) where first parameter could denote line number and other one as column number. *)
+
+signature ERRORMSG =
+sig
+    val anyErrors : bool ref  (* has their been an occurance of any error? *)
+    val fileName : string ref (* Updated in parse.sml, used when printing errors *)
+    val lineNum : int ref (* Number of lines in the read file *)
+    val linePos : int list ref (* as defined in the top most comment, it is the list containing value of "pos" at each line *)
+    val error : int -> string -> unit (* it should take "pos" and error message to print, from "pos" it will determine the line number and the column number, and will print abstractly "filename:lineNo.ColNo:Message". *)
+    exception Error
+    val impossible : string -> 'a   (* raises Error, for a behavior we didn't expect *)
+    val reset : unit -> unit  (* reset the parameters, so that we can move on to read new file *)
+end
+\end{minted}
+
+\section{tiger.lex}
+
+Simple lexer for our language, just that for some of the errors like non terminated string, etc. are easily detected in this phase and thus are printed now with putting an end to the compilation phase. Usually one detects many errors and print them all instead of just printing one error and stopping. But I feel that errors in lexical phase, if found, are critical and should be handled first most. 
+
+\subsubsection{Guidelines}
+
+Few important rules to keep in mind:
+
+\begin{itemize}
+  \item Longest match: The longest initial substring of the input that can match any regular expression is taken as the next token.
+  \item Rule priority: For a particular longest initial substring, the first regular expression that can match determines its token type. This means that the order of writing down the regular-expression rules has significance.
+  \item An individual character stands for itself, except for the reserved characters 
+    \begin{minted}{cpp}
+     ? * + | ( ) ^ / ; . = < > [ { " \  $
+    \end{minted}
+  \item A backslash followed by one of the reserved characters stands for that character. 
+  \item Inside the brackets, only the symbols 
+  \begin{minted}{cpp} 
+    \ - ^ 
+  \end{minted}
+    are reserved. An initial up-arrow \^{} stands for the complement of the characters listed, e.g. [\^{}abc] stands any character except a, b, or c.
+  \item  To include \^{} literally in a bracketed set, put it anywhere but first; to include - literally in a set, put it first or last. 
+  \item The dot . character stands for any character except newline, i.e. the same as 
+  \begin{minted}{cpp}
+    [^\n]
+  \end{minted}
+  \item The following special escape sequences are available, inside or outside of square brackets: 
+    \begin{minted}{SML}
+    \b backspace
+    \n newline
+    \t horizontal tab
+    \ddd where ddd is a 3 digit decimal escape
+    \end{minted}
+    \item Any regular expression may be enclosed in parentheses ( ) for syntactic (but, as
+    usual, not semantic) effect
+    \item A sequence of characters will stand for itself (reserved characters will be taken literally) if it is enclosed in double quotes " ".
+    \item A postfix repetition range \{a, b\} where a and b are small integers stands for any number of repetitions between a and b of the preceding expression. The notation \{a\} stands for exactly a repetitions. Ex: [0-9]\{3\}
+    Any three-digit decimal number. 
+    \item The rules should match all possible input. If some input occurs that does not match any rule, the lexer created by ML-Lex will raise an exception LexError.
+\end{itemize}
+
+\section{table.sml, table.sig}
+
+For our immediate steps, we would need a way to map our "keys" to a particular "value", for this we create a functor, "IntMapTable" which takes the type of "key" and a function to get an integer corresponding to that "key". Then this functor uses "IntBinaryMap", a hash map to represent our map. This "IntBinaryMap" is polymorphic, so we can use it for any value corresponding to our int (which we obtained from our key). This is the purpose served by "table.sig" and "table.sml". 
+
+\section{symbol.sml}
+
+Each of the variable, function declaration etc. will be stored as "symbols" (a pair of (string, int)). Where each symbol will have a unique integer. We can then map this integer to anything using our "IntBinaryMap". Purpose of keeping this symbols is that we would like to see whether this variable is declared before or not, whether this type exists or not, etc.
+
+\section{tiger.grm, absyn.sml}
+
+\texttt{tiger.grm} is the parser for our language, it will read the tokens from lexer and build AST using \texttt{absyn.sml}. Grammar directly follows the rules given in the book. 
+
+\subsubsection{Guidelines}
+
+\begin{itemize}
+  \item Format of ML-YACC: user declarations \%\% parser declarations \%\% grammar rules.
+  \item By default, ML-YACC resolves shift-reduce conflicts by shifting, and reduce-reduce conflicts by using the rule that appears earlier in the grammar. If then (else) shift-reduce conflict is thus not harmful.
+  \item Consider for example: 
+  \begin{minted}{bash}
+  E -> E * E.   (+)
+  E -> E. + E   (any)
+  \end{minted}
+  The precedence declarations (\%left, etc.) give priorities to the tokens; the priority of a rule is given by the last token occurring on the right-hand side of that rule. Thus the choice here is between a rule with priority "*" and a token with priority "+"; the rule has higher priority, so the conflict is resolved in favor of reducing.
+  \item When the rule and token have equal priority, then a \%left precedence favors reducing, \%right favors shifting, and \%nonassoc yields an error action.
+  \item Instead of using the default "rule has precedence of its last token," we can assign a specific precedence to a rule using the \%prec directive. This is commonly used to solve the "unary minus" problem. In most programming languages a unary minus binds tighter than any binary operator, so —6 * 8 is parsed as (—6) * 8, not —(6 * 8).
+  \item Precedence declaration should be written in the order of increasing precedence. 
+\end{itemize}
+
+For more description, please see the comments in the file \texttt{tiger.grm}.

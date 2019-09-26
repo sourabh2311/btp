@@ -19,18 +19,22 @@ struct
 
     val base_funs =
     (* function name, input parameters (formals), return type *)
-    [("print", [T.STRING], T.UNIT),
-     (* ("printi", [T.INT], T.UNIT), *)
-     ("flush", [], T.UNIT),
-     ("getchar", [], T.STRING),
-     ("ord", [T.STRING], T.INT),
-     ("chr", [T.INT], T.STRING),
-     ("size", [T.STRING], T.INT),
-     ("substring", [T.STRING, T.INT, T.INT], T.INT),
-     ("concat", [T.STRING, T.STRING], T.STRING),
-     ("not", [T.INT], T.INT),
-     ("strcmp", [T.STRING, T.STRING], T.INT),
-     ("exit", [T.INT],  T.UNIT)]
+    [
+        ("exit", [T.INT], T.UNIT),
+        ("not", [T.INT], T.INT),
+        ("size", [T.STRING], T.INT),
+        ("concat", [T.STRING, T.STRING], T.STRING),
+        ("substring", [T.STRING, T.INT, T.INT], T.STRING),
+        ("stringGreat", [T.STRING, T.STRING], T.INT),
+        ("stringLess", [T.STRING, T.STRING], T.INT),
+        ("stringEqual", [T.STRING, T.STRING], T.INT),
+        ("chr", [T.INT], T.STRING),
+        ("ord", [T.STRING], T.INT),
+        ("getchar", [], T.STRING),
+        ("flush", [], T.UNIT),
+        ("print", [T.STRING], T.UNIT)
+        (* initArray, allocRecord are external calls *)
+    ]
 
     (* predefined functions *)
     (* With every call to newLevel, Semant must pass the enclosing level value. When creating the level for the "main" Tiger program (one not within any Tiger function), Semant should pass a special level value: Translate. outermost. This is not the level of the Tiger main program, it is the level within which that program is nested. All "library" functions are declared (as described at the end of Section 5.2) at this outermost level, which does not contain a frame or formal parameter list. *)
@@ -40,7 +44,7 @@ struct
             let 
                 val label = Temp.namedlabel name 
             in
-                (* making no variable escape now, will handle later in newFrame method of mipsframe.sml *)
+                (* making no variable escape now, will handle later in newFrame method of risc.sml *)
                 S.enter (env, S.symbol(name), FunEntry{level = Translate.newLevel {parent = Translate.outermost, name = label, formals = map (fn _ => false) formals}, label = label, formals = formals, result = result})
             end)
             S.empty base_funs

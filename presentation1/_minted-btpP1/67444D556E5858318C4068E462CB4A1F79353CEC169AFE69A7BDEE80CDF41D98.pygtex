@@ -1,0 +1,5 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{|} \PYG{n}{LET} \PYG{n}{decs} \PYG{n}{IN} \PYG{n}{exps} \PYG{n}{END}              \PYG{p}{(}
+  \PYG{n+nn}{A}\PYG{p}{.}\PYG{n}{LetExp}\PYG{p}{(\PYGZob{}}\PYG{n}{decs} \PYG{p}{=} \PYG{n}{decs}\PYG{p}{,} \PYG{n}{body} \PYG{p}{=} \PYG{n+nn}{A}\PYG{p}{.}\PYG{n}{SeqExp}\PYG{p}{(}\PYG{n}{exps}\PYG{p}{),} \PYG{n}{pos} \PYG{p}{=} \PYG{n}{LETleft}\PYG{p}{\PYGZcb{})}
+  \PYG{p}{)}
+\end{Verbatim}

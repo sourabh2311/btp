@@ -1,0 +1,16 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{function} \PYG{n}{try} \PYG{p}{(}\PYG{n}{c} \PYG{p}{:} \PYG{n}{int}\PYG{p}{)} \PYG{p}{=}
+\PYG{p}{(}
+  \PYG{k+kr}{if} \PYG{n}{c} \PYG{p}{=} \PYG{n}{N}
+  \PYG{k+kr}{then} \PYG{n}{printboard} \PYG{p}{()}
+  \PYG{k+kr}{else}
+    \PYG{n}{for} \PYG{n}{r} \PYG{n}{:=} \PYG{l+m+mi}{0} \PYG{n}{to} \PYG{n}{N} \PYG{n}{\PYGZhy{}} \PYG{l+m+mi}{1} \PYG{k+kr}{do}
+      \PYG{k+kr}{if} \PYG{n}{row}\PYG{p}{[}\PYG{n}{r}\PYG{p}{]} \PYG{p}{=} \PYG{l+m+mi}{0} \PYG{n}{\PYGZam{}} \PYG{n}{diag1}\PYG{p}{[}\PYG{n}{r} \PYG{n}{+} \PYG{n}{c}\PYG{p}{]} \PYG{p}{=} \PYG{l+m+mi}{0} \PYG{n}{\PYGZam{}} \PYG{n}{diag2}\PYG{p}{[}\PYG{n}{r} \PYG{n}{+} \PYG{l+m+mi}{7} \PYG{n}{\PYGZhy{}} \PYG{n}{c}\PYG{p}{]} \PYG{p}{=} \PYG{l+m+mi}{0} \PYG{k+kr}{then}
+      \PYG{p}{(}
+        \PYG{n}{row}\PYG{p}{[}\PYG{n}{r}\PYG{p}{]} \PYG{n}{:=} \PYG{l+m+mi}{1}\PYG{p}{;} \PYG{n}{diag1}\PYG{p}{[}\PYG{n}{r} \PYG{n}{+} \PYG{n}{c}\PYG{p}{]} \PYG{n}{:=} \PYG{l+m+mi}{1}\PYG{p}{;} \PYG{n}{diag2}\PYG{p}{[}\PYG{n}{r} \PYG{n}{+} \PYG{l+m+mi}{7} \PYG{n}{\PYGZhy{}} \PYG{n}{c}\PYG{p}{]} \PYG{n}{:=} \PYG{l+m+mi}{1}\PYG{p}{;}
+        \PYG{n}{col}\PYG{p}{[}\PYG{n}{c}\PYG{p}{]} \PYG{n}{:=} \PYG{n}{r}\PYG{p}{;}
+        \PYG{n}{try}\PYG{p}{(}\PYG{n}{c} \PYG{n}{+} \PYG{l+m+mi}{1}\PYG{p}{);}
+        \PYG{n}{row}\PYG{p}{[}\PYG{n}{r}\PYG{p}{]} \PYG{n}{:=} \PYG{l+m+mi}{0}\PYG{p}{;} \PYG{n}{diag1}\PYG{p}{[}\PYG{n}{r} \PYG{n}{+} \PYG{n}{c}\PYG{p}{]} \PYG{n}{:=} \PYG{l+m+mi}{0}\PYG{p}{;} \PYG{n}{diag2}\PYG{p}{[}\PYG{n}{r} \PYG{n}{+} \PYG{l+m+mi}{7} \PYG{n}{\PYGZhy{}} \PYG{n}{c}\PYG{p}{]} \PYG{n}{:=} \PYG{l+m+mi}{0}
+      \PYG{p}{)}
+  \PYG{p}{)}
+\end{Verbatim}

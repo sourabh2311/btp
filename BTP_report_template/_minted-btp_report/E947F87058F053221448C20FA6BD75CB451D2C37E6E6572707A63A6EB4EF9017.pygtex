@@ -1,0 +1,266 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n+na}{.data}
+
+\PYG{n+nl}{\PYGZus{}\PYGZus{}exitMessage:} \PYG{n+na}{.string} \PYG{l+s}{\PYGZdq{}Exited with code: \PYGZdq{}}
+\PYG{n+nl}{\PYGZus{}\PYGZus{}newLine:} \PYG{n+na}{.string} \PYG{l+s}{\PYGZdq{}\PYGZbs{}n\PYGZdq{}}
+
+\PYG{n+na}{.text}
+
+\PYG{c}{\PYGZsh{} Many of the below written functions assume that the given input is correct.}
+
+\PYG{c}{\PYGZsh{} Given the exit code (in a0 ofc), terminate with that exit code.}
+\PYG{n+nl}{exit:}
+    \PYG{n+nf}{mv} \PYG{n+no}{t0}\PYG{p}{,} \PYG{n+no}{a0}
+    \PYG{c}{\PYGZsh{} Print exit message}
+    \PYG{n+nf}{la} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{\PYGZus{}\PYGZus{}exitMessage}
+    \PYG{n+nf}{li} \PYG{n+no}{a7}\PYG{p}{,} \PYG{l+m+mi}{4}
+    \PYG{n+nf}{ecall}
+    \PYG{c}{\PYGZsh{} Print code}
+    \PYG{n+nf}{mv} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{t0}
+    \PYG{n+nf}{li} \PYG{n+no}{a7}\PYG{p}{,} \PYG{l+m+mi}{1}
+    \PYG{n+nf}{ecall}
+    \PYG{c}{\PYGZsh{} Print new line}
+    \PYG{n+nf}{la} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{\PYGZus{}\PYGZus{}newLine}
+    \PYG{n+nf}{li} \PYG{n+no}{a7}\PYG{p}{,} \PYG{l+m+mi}{4}
+    \PYG{n+nf}{ecall}
+    \PYG{c}{\PYGZsh{} Exit}
+    \PYG{n+nf}{li} \PYG{n+no}{a7}\PYG{p}{,} \PYG{l+m+mi}{10}
+    \PYG{n+nf}{ecall}
+
+\PYG{c}{\PYGZsh{} Not of non zero integer is 0 whereas not of 0 is 1.}
+\PYG{n+nl}{not:}
+    \PYG{n+nf}{beqz} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{retOne}
+    \PYG{n+nf}{li} \PYG{n+no}{a0}\PYG{p}{,} \PYG{l+m+mi}{0}
+    \PYG{n+nf}{jr} \PYG{n+no}{ra}
+    \PYG{n+nl}{retOne:}
+        \PYG{n+nf}{li} \PYG{n+no}{a0}\PYG{p}{,} \PYG{l+m+mi}{1}
+        \PYG{n+nf}{jr} \PYG{n+no}{ra}
+
+\PYG{c}{\PYGZsh{} Given the string s in a0, return the number of characters in it.}
+\PYG{c}{\PYGZsh{} This is aswell needed for string concatenation.}
+\PYG{n+nl}{size:}
+    \PYG{n+nf}{mv} \PYG{n+no}{t0}\PYG{p}{,} \PYG{n+no}{a0}
+    \PYG{n+nf}{mv} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{zero}
+    \PYG{n+nl}{sizeLoop:}
+        \PYG{n+nf}{lb} \PYG{n+no}{t1}\PYG{p}{,} \PYG{p}{(}\PYG{n+no}{t0}\PYG{p}{)}
+        \PYG{n+nf}{beqz} \PYG{n+no}{t1}\PYG{p}{,} \PYG{n+no}{sizeExit}
+        \PYG{n+nf}{addi} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{a0}\PYG{p}{,} \PYG{l+m+mi}{1}
+        \PYG{n+nf}{addi} \PYG{n+no}{t0}\PYG{p}{,} \PYG{n+no}{t0}\PYG{p}{,} \PYG{l+m+mi}{1}
+        \PYG{n+nf}{j} \PYG{n+no}{sizeLoop}
+    \PYG{n+nl}{sizeExit:}
+        \PYG{n+nf}{jr} \PYG{n+no}{ra}
+
+\PYG{c}{\PYGZsh{} Copy the string completely (i.e. including zero / null character) whose address is at a1, to the address starting at a0, returning the address of the last character of copied string.}
+\PYG{n+nl}{stringCopy:}
+    \PYG{n+nl}{stringCopyLoop:}
+        \PYG{n+nf}{lb} \PYG{n+no}{t0}\PYG{p}{,} \PYG{p}{(}\PYG{n+no}{a1}\PYG{p}{)}
+        \PYG{n+nf}{sb} \PYG{n+no}{t0}\PYG{p}{,} \PYG{p}{(}\PYG{n+no}{a0}\PYG{p}{)}
+        \PYG{n+nf}{beqz} \PYG{n+no}{t0}\PYG{p}{,} \PYG{n+no}{stringCopyExit}
+        \PYG{n+nf}{addi} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{a0}\PYG{p}{,} \PYG{l+m+mi}{1}
+        \PYG{n+nf}{addi} \PYG{n+no}{a1}\PYG{p}{,} \PYG{n+no}{a1}\PYG{p}{,} \PYG{l+m+mi}{1}
+        \PYG{n+nf}{j} \PYG{n+no}{stringCopyLoop}
+    \PYG{n+nl}{stringCopyExit:}
+        \PYG{n+nf}{jr} \PYG{n+no}{ra}
+
+\PYG{c}{\PYGZsh{} Concatenate str1 present in a0 with str2 present in a1.}
+\PYG{n+nl}{concat:}
+    \PYG{n+nf}{addi} \PYG{n+no}{sp}\PYG{p}{,} \PYG{n+no}{sp}\PYG{p}{,} \PYG{p}{\PYGZhy{}}\PYG{l+m+mi}{12}
+    \PYG{n+nf}{sw} \PYG{n+no}{a0}\PYG{p}{,} \PYG{p}{(}\PYG{n+no}{sp}\PYG{p}{)}
+    \PYG{n+nf}{sw} \PYG{n+no}{a1}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{(}\PYG{n+no}{sp}\PYG{p}{)}
+    \PYG{n+nf}{sw} \PYG{n+no}{ra}\PYG{p}{,} \PYG{l+m+mi}{8}\PYG{p}{(}\PYG{n+no}{sp}\PYG{p}{)}
+    \PYG{n+nf}{jal} \PYG{n+no}{size}
+    \PYG{n+nf}{li} \PYG{n+no}{t0}\PYG{p}{,} \PYG{l+m+mi}{1}  \PYG{c}{\PYGZsh{} Will contain len(str1) + len(str2) + 1. \PYGZsq{}+1\PYGZsq{} for null character.}
+    \PYG{n+nf}{add} \PYG{n+no}{t0}\PYG{p}{,} \PYG{n+no}{t0}\PYG{p}{,} \PYG{n+no}{a0}
+    \PYG{n+nf}{addi} \PYG{n+no}{sp}\PYG{p}{,} \PYG{n+no}{sp}\PYG{p}{,} \PYG{p}{\PYGZhy{}}\PYG{l+m+mi}{4}
+    \PYG{n+nf}{sw} \PYG{n+no}{t0}\PYG{p}{,} \PYG{p}{(}\PYG{n+no}{sp}\PYG{p}{)}
+    \PYG{n+nf}{lw} \PYG{n+no}{a0}\PYG{p}{,} \PYG{l+m+mi}{8}\PYG{p}{(}\PYG{n+no}{sp}\PYG{p}{)}  \PYG{c}{\PYGZsh{} offset is changed}
+    \PYG{n+nf}{jal} \PYG{n+no}{size}
+    \PYG{n+nf}{lw} \PYG{n+no}{t0}\PYG{p}{,} \PYG{p}{(}\PYG{n+no}{sp}\PYG{p}{)}
+    \PYG{n+nf}{add} \PYG{n+no}{t0}\PYG{p}{,} \PYG{n+no}{t0}\PYG{p}{,} \PYG{n+no}{a0}
+    \PYG{n+nf}{addi} \PYG{n+no}{sp}\PYG{p}{,} \PYG{n+no}{sp}\PYG{p}{,} \PYG{l+m+mi}{4}
+    \PYG{n+nf}{mv} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{t0}
+    \PYG{n+nf}{li} \PYG{n+no}{a7}\PYG{p}{,} \PYG{l+m+mi}{9}
+    \PYG{n+nf}{ecall}
+    \PYG{n+nf}{addi} \PYG{n+no}{sp}\PYG{p}{,} \PYG{n+no}{sp}\PYG{p}{,} \PYG{p}{\PYGZhy{}}\PYG{l+m+mi}{4}
+    \PYG{n+nf}{sw} \PYG{n+no}{a0}\PYG{p}{,} \PYG{p}{(}\PYG{n+no}{sp}\PYG{p}{)}
+    \PYG{n+nf}{lw} \PYG{n+no}{a1}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{(}\PYG{n+no}{sp}\PYG{p}{)}
+    \PYG{n+nf}{jal} \PYG{n+no}{stringCopy}
+    \PYG{n+nf}{lw} \PYG{n+no}{a1}\PYG{p}{,} \PYG{l+m+mi}{8}\PYG{p}{(}\PYG{n+no}{sp}\PYG{p}{)}
+    \PYG{n+nf}{jal} \PYG{n+no}{stringCopy}
+    \PYG{n+nf}{lw} \PYG{n+no}{a0}\PYG{p}{,} \PYG{p}{(}\PYG{n+no}{sp}\PYG{p}{)}
+    \PYG{n+nf}{lw} \PYG{n+no}{ra}\PYG{p}{,} \PYG{l+m+mi}{12}\PYG{p}{(}\PYG{n+no}{sp}\PYG{p}{)}
+    \PYG{n+nf}{addi} \PYG{n+no}{sp}\PYG{p}{,} \PYG{n+no}{sp}\PYG{p}{,} \PYG{l+m+mi}{16}
+    \PYG{n+nf}{jr} \PYG{n+no}{ra}
+
+\PYG{c}{\PYGZsh{} \PYGZdq{}function substring (s: string, first : int, n : int) : string\PYGZdq{} Substring of string s, starting with character first, n characters long.}
+\PYG{c}{\PYGZsh{} Hoping that given input is valid.}
+\PYG{n+nl}{substring:}
+    \PYG{c}{\PYGZsh{} Allocate space}
+    \PYG{n+nf}{mv} \PYG{n+no}{a3}\PYG{p}{,} \PYG{n+no}{a0}  \PYG{c}{\PYGZsh{} saving a0}
+    \PYG{n+nf}{mv} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{a2}
+    \PYG{n+nf}{addi} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{a0}\PYG{p}{,} \PYG{l+m+mi}{1}  \PYG{c}{\PYGZsh{} for null character}
+    \PYG{n+nf}{li} \PYG{n+no}{a7}\PYG{p}{,} \PYG{l+m+mi}{9}
+    \PYG{n+nf}{ecall}
+    \PYG{c}{\PYGZsh{} making a3 point to the desired substring}
+    \PYG{n+nf}{add} \PYG{n+no}{a3}\PYG{p}{,} \PYG{n+no}{a3}\PYG{p}{,} \PYG{n+no}{a1}
+    \PYG{n+nf}{mv} \PYG{n+no}{t0}\PYG{p}{,} \PYG{n+no}{a0}  \PYG{c}{\PYGZsh{} we need to return this}
+    \PYG{n+nl}{substringLoop:}
+        \PYG{n+nf}{lb} \PYG{n+no}{t1}\PYG{p}{,} \PYG{p}{(}\PYG{n+no}{a3}\PYG{p}{)}
+        \PYG{n+nf}{sb} \PYG{n+no}{t1}\PYG{p}{,} \PYG{p}{(}\PYG{n+no}{a0}\PYG{p}{)}
+        \PYG{n+nf}{beqz} \PYG{n+no}{a2}\PYG{p}{,} \PYG{n+no}{substringExit}
+        \PYG{n+nf}{addi} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{a0}\PYG{p}{,} \PYG{l+m+mi}{1}
+        \PYG{n+nf}{addi} \PYG{n+no}{a3}\PYG{p}{,} \PYG{n+no}{a3}\PYG{p}{,} \PYG{l+m+mi}{1}
+        \PYG{n+nf}{addi} \PYG{n+no}{a2}\PYG{p}{,} \PYG{n+no}{a2}\PYG{p}{,} \PYG{p}{\PYGZhy{}}\PYG{l+m+mi}{1}
+        \PYG{n+nf}{j} \PYG{n+no}{substringLoop}
+    \PYG{n+nl}{substringExit:}
+        \PYG{n+nf}{mv} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{t0}
+        \PYG{n+nf}{jr} \PYG{n+no}{ra}
+
+\PYG{c}{\PYGZsh{} str1 \PYGZgt{} str2 ?}
+\PYG{n+nl}{stringGreat:}
+    \PYG{n+nl}{stringGreatLoop:}
+        \PYG{n+nf}{lb} \PYG{n+no}{a2} \PYG{p}{(}\PYG{n+no}{a0}\PYG{p}{)}
+        \PYG{n+nf}{lb} \PYG{n+no}{a3} \PYG{p}{(}\PYG{n+no}{a1}\PYG{p}{)}
+        \PYG{n+nf}{bgt} \PYG{n+no}{a2}\PYG{p}{,} \PYG{n+no}{a3}  \PYG{n+no}{stringGreatA}
+        \PYG{n+nf}{blt} \PYG{n+no}{a2}\PYG{p}{,} \PYG{n+no}{a3}  \PYG{n+no}{stringGreatB}
+        \PYG{c}{\PYGZsh{} If we have reached this point that means both are equal and if one of them is zero that means other is aswell 0, so in case strings are equal, I must return 0.}
+        \PYG{n+nf}{beqz} \PYG{n+no}{a2}\PYG{p}{,} \PYG{n+no}{stringGreatB}
+        \PYG{n+nf}{addi} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{a0}\PYG{p}{,} \PYG{l+m+mi}{1}
+        \PYG{n+nf}{addi} \PYG{n+no}{a1}\PYG{p}{,} \PYG{n+no}{a1}\PYG{p}{,} \PYG{l+m+mi}{1}
+        \PYG{n+nf}{j} \PYG{n+no}{stringGreatLoop}
+    \PYG{n+nl}{stringGreatA:}
+        \PYG{n+nf}{li} \PYG{n+no}{a0}\PYG{p}{,} \PYG{l+m+mi}{1}
+        \PYG{n+nf}{jr} \PYG{n+no}{ra}
+    \PYG{n+nl}{stringGreatB:}
+        \PYG{n+nf}{li} \PYG{n+no}{a0}\PYG{p}{,} \PYG{l+m+mi}{0}
+        \PYG{n+nf}{jr} \PYG{n+no}{ra}
+
+\PYG{c}{\PYGZsh{} str1 \PYGZlt{} str2 ?}
+\PYG{n+nl}{stringLess:}
+    \PYG{n+nl}{stringLessLoop:}
+        \PYG{n+nf}{lb} \PYG{n+no}{a2} \PYG{p}{(}\PYG{n+no}{a0}\PYG{p}{)}
+        \PYG{n+nf}{lb} \PYG{n+no}{a3} \PYG{p}{(}\PYG{n+no}{a1}\PYG{p}{)}
+        \PYG{n+nf}{blt} \PYG{n+no}{a2}\PYG{p}{,} \PYG{n+no}{a3}  \PYG{n+no}{stringLessA}
+        \PYG{n+nf}{bgt} \PYG{n+no}{a2}\PYG{p}{,} \PYG{n+no}{a3}  \PYG{n+no}{stringLessB}
+        \PYG{c}{\PYGZsh{} If we have reached this point that means both are equal and if one of them is zero that means other is aswell 0, so in case strings are equal, I must return 0.}
+        \PYG{n+nf}{beqz} \PYG{n+no}{a2}\PYG{p}{,} \PYG{n+no}{stringLessB}
+        \PYG{n+nf}{addi} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{a0}\PYG{p}{,} \PYG{l+m+mi}{1}
+        \PYG{n+nf}{addi} \PYG{n+no}{a1}\PYG{p}{,} \PYG{n+no}{a1}\PYG{p}{,} \PYG{l+m+mi}{1}
+        \PYG{n+nf}{j} \PYG{n+no}{stringLessLoop}
+    \PYG{n+nl}{stringLessA:}
+        \PYG{n+nf}{li} \PYG{n+no}{a0}\PYG{p}{,} \PYG{l+m+mi}{1}
+        \PYG{n+nf}{jr} \PYG{n+no}{ra}
+    \PYG{n+nl}{stringLessB:}
+        \PYG{n+nf}{li} \PYG{n+no}{a0}\PYG{p}{,} \PYG{l+m+mi}{0}
+        \PYG{n+nf}{jr} \PYG{n+no}{ra}
+
+\PYG{c}{\PYGZsh{} str1 == str2 ?}
+\PYG{n+nl}{stringEqual:}
+    \PYG{n+nf}{addi} \PYG{n+no}{sp}\PYG{p}{,} \PYG{n+no}{sp}\PYG{p}{,} \PYG{p}{\PYGZhy{}}\PYG{l+m+mi}{12}
+    \PYG{n+nf}{sw} \PYG{n+no}{a0}\PYG{p}{,} \PYG{p}{(}\PYG{n+no}{sp}\PYG{p}{)}
+    \PYG{n+nf}{sw} \PYG{n+no}{a1}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{(}\PYG{n+no}{sp}\PYG{p}{)}
+    \PYG{n+nf}{sw} \PYG{n+no}{ra}\PYG{p}{,} \PYG{l+m+mi}{8}\PYG{p}{(}\PYG{n+no}{sp}\PYG{p}{)}
+    \PYG{n+nf}{jal} \PYG{n+no}{stringGreat}
+    \PYG{n+nf}{bnez} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{stringEqualExit}
+    \PYG{n+nf}{lw} \PYG{n+no}{a0}\PYG{p}{,} \PYG{p}{(}\PYG{n+no}{sp}\PYG{p}{)}
+    \PYG{n+nf}{lw} \PYG{n+no}{a1}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{(}\PYG{n+no}{sp}\PYG{p}{)}
+    \PYG{n+nf}{jal} \PYG{n+no}{stringLess}
+    \PYG{n+nf}{bnez} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{stringEqualExit}
+    \PYG{n+nf}{li} \PYG{n+no}{a0}\PYG{p}{,} \PYG{l+m+mi}{1}
+    \PYG{n+nf}{lw} \PYG{n+no}{ra}\PYG{p}{,} \PYG{l+m+mi}{8}\PYG{p}{(}\PYG{n+no}{sp}\PYG{p}{)}
+    \PYG{n+nf}{addi} \PYG{n+no}{sp}\PYG{p}{,} \PYG{n+no}{sp}\PYG{p}{,} \PYG{l+m+mi}{12}
+    \PYG{n+nf}{jr} \PYG{n+no}{ra}
+    \PYG{n+nl}{stringEqualExit:}
+        \PYG{n+nf}{li} \PYG{n+no}{a0}\PYG{p}{,} \PYG{l+m+mi}{0}
+        \PYG{n+nf}{lw} \PYG{n+no}{ra}\PYG{p}{,} \PYG{l+m+mi}{8}\PYG{p}{(}\PYG{n+no}{sp}\PYG{p}{)}
+        \PYG{n+nf}{addi} \PYG{n+no}{sp}\PYG{p}{,} \PYG{n+no}{sp}\PYG{p}{,} \PYG{l+m+mi}{12}
+        \PYG{n+nf}{jr} \PYG{n+no}{ra}
+
+
+\PYG{c}{\PYGZsh{} Single\PYGZhy{}character string from ASCII value given in a0; halt program if a0 out of range.}
+\PYG{n+nl}{chr:}
+    \PYG{c}{\PYGZsh{} Handling the error part}
+    \PYG{n+nf}{addi} \PYG{n+no}{t0}\PYG{p}{,} \PYG{n+no}{zero}\PYG{p}{,} \PYG{l+m+mi}{127}
+    \PYG{n+nf}{bgt} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{t0}\PYG{p}{,} \PYG{n+no}{chrError}
+    \PYG{n+nf}{bltz} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{chrError}
+    \PYG{c}{\PYGZsh{} Allocating}
+    \PYG{n+nf}{mv} \PYG{n+no}{t0}\PYG{p}{,} \PYG{n+no}{a0}
+    \PYG{n+nf}{li} \PYG{n+no}{a0}\PYG{p}{,} \PYG{l+m+mi}{2}
+    \PYG{n+nf}{li} \PYG{n+no}{a7}\PYG{p}{,} \PYG{l+m+mi}{9}
+    \PYG{n+nf}{ecall}
+    \PYG{c}{\PYGZsh{} Putting the character}
+    \PYG{n+nf}{sb} \PYG{n+no}{t0} \PYG{p}{(}\PYG{n+no}{a0}\PYG{p}{)}
+    \PYG{n+nf}{sb} \PYG{n+no}{zero} \PYG{l+m+mi}{1}\PYG{p}{(}\PYG{n+no}{a0}\PYG{p}{)}
+    \PYG{n+nf}{jr} \PYG{n+no}{ra}
+    \PYG{n+nl}{chrError:}
+        \PYG{n+nf}{addi} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{zero}\PYG{p}{,} \PYG{p}{\PYGZhy{}}\PYG{l+m+mi}{1}
+        \PYG{n+nf}{j} \PYG{n+no}{exit}
+
+\PYG{c}{\PYGZsh{} Given a string in a0, return ASCII value of the first character of it, return \PYGZhy{}1 if the string is empty.}
+\PYG{n+nl}{ord:}
+    \PYG{n+nf}{lb} \PYG{n+no}{t0}\PYG{p}{,} \PYG{p}{(}\PYG{n+no}{a0}\PYG{p}{)}
+    \PYG{n+nf}{beqz} \PYG{n+no}{t0}\PYG{p}{,} \PYG{n+no}{ordEmpty}
+    \PYG{n+nf}{mv} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{t0}
+    \PYG{n+nf}{jr} \PYG{n+no}{ra}
+    \PYG{n+nl}{ordEmpty:}
+        \PYG{n+nf}{li} \PYG{n+no}{a0}\PYG{p}{,} \PYG{p}{\PYGZhy{}}\PYG{l+m+mi}{1}
+        \PYG{n+nf}{jr} \PYG{n+no}{ra}
+
+\PYG{c}{\PYGZsh{} Read a character from standard input and return it as a string; return empty string on end of file.}
+\PYG{n+nl}{getchar:}
+    \PYG{c}{\PYGZsh{} Allocate space}
+    \PYG{n+nf}{li} \PYG{n+no}{a0}\PYG{p}{,} \PYG{l+m+mi}{2}
+    \PYG{n+nf}{li} \PYG{n+no}{a7}\PYG{p}{,} \PYG{l+m+mi}{9}
+    \PYG{n+nf}{ecall}
+    \PYG{n+nf}{sb} \PYG{n+no}{zero}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{(}\PYG{n+no}{a0}\PYG{p}{)}  \PYG{c}{\PYGZsh{} Null character}
+    \PYG{c}{\PYGZsh{} Read the character}
+    \PYG{n+nf}{mv} \PYG{n+no}{t0}\PYG{p}{,} \PYG{n+no}{a0}
+    \PYG{n+nf}{li} \PYG{n+no}{a7}\PYG{p}{,} \PYG{l+m+mi}{12}
+    \PYG{n+nf}{ecall}
+    \PYG{n+nf}{sb} \PYG{n+no}{a0}\PYG{p}{,} \PYG{p}{(}\PYG{n+no}{t0}\PYG{p}{)}  \PYG{c}{\PYGZsh{} Store the character}
+    \PYG{n+nf}{mv} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{t0}
+    \PYG{n+nf}{jr} \PYG{n+no}{ra}
+
+\PYG{c}{\PYGZsh{} Absolete as of now}
+\PYG{n+nl}{flush:}
+    \PYG{n+nf}{jr} \PYG{n+no}{ra}
+
+\PYG{c}{\PYGZsh{} Print the string whose address is in a0}
+\PYG{n+nl}{print:}
+    \PYG{n+nf}{li} \PYG{n+no}{a7}\PYG{p}{,} \PYG{l+m+mi}{4}
+    \PYG{n+nf}{ecall}
+    \PYG{n+nf}{jr} \PYG{n+no}{ra}
+
+\PYG{c}{\PYGZsh{} printInt:}
+\PYG{c}{\PYGZsh{}     \PYGZsh{} Examples in book do complex computation to print an integer, here I am putting an inbuilt function}
+\PYG{c}{\PYGZsh{}     \PYGZsh{} Print the integer in a0}
+\PYG{c}{\PYGZsh{}     li a7, 1}
+\PYG{c}{\PYGZsh{}     ecall}
+\PYG{c}{\PYGZsh{}     jr ra}
+
+\PYG{c}{\PYGZsh{} a0 contains the number of bytes we need to allocate. So, multiply it by 4 and allocate that much space from heap (system call 9). Return value is in a0 which tells the address to the allocated block (lower address value) and remember that in going downwards address decreases. Rest of the code is easy to follow. Note that a1 contains the value to which we need to initialize our array.}
+\PYG{n+nl}{initArray:}
+  \PYG{n+nf}{li} \PYG{n+no}{t0}\PYG{p}{,} \PYG{l+m+mi}{4}
+  \PYG{n+nf}{mul} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{t0}
+    \PYG{n+nf}{mv} \PYG{n+no}{t1}\PYG{p}{,} \PYG{n+no}{a0}
+  \PYG{n+nf}{li} \PYG{n+no}{a7}\PYG{p}{,} \PYG{l+m+mi}{9}
+  \PYG{n+nf}{ecall}
+  \PYG{n+nf}{mv} \PYG{n+no}{t0}\PYG{p}{,} \PYG{n+no}{a0}
+  \PYG{n+nf}{add} \PYG{n+no}{t1}\PYG{p}{,} \PYG{n+no}{t1}\PYG{p}{,} \PYG{n+no}{t0}
+  \PYG{n+nl}{initArrayLoop:}
+        \PYG{n+nf}{sw} \PYG{n+no}{a1}\PYG{p}{,} \PYG{p}{(}\PYG{n+no}{t0}\PYG{p}{)}
+        \PYG{n+nf}{addi} \PYG{n+no}{t0}\PYG{p}{,} \PYG{n+no}{t0}\PYG{p}{,} \PYG{l+m+mi}{4}
+        \PYG{n+nf}{beq} \PYG{n+no}{t0}\PYG{p}{,} \PYG{n+no}{t1}\PYG{p}{,} \PYG{n+no}{initArrayExit}
+        \PYG{n+nf}{j} \PYG{n+no}{initArrayLoop}
+    \PYG{n+nl}{initArrayExit:}
+        \PYG{n+nf}{jr} \PYG{n+no}{ra}
+
+\PYG{c}{\PYGZsh{} Very similar to initArray}
+\PYG{c}{\PYGZsh{} We just need to allocate memory, no need to initialize it with 0.}
+\PYG{n+nl}{allocRecord:}
+    \PYG{n+nf}{li} \PYG{n+no}{t0}\PYG{p}{,} \PYG{l+m+mi}{4}
+    \PYG{n+nf}{mul} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{t0}
+    \PYG{n+nf}{li} \PYG{n+no}{a7}\PYG{p}{,} \PYG{l+m+mi}{9}
+    \PYG{n+nf}{ecall}
+    \PYG{n+nf}{jr} \PYG{n+no}{ra}
+\end{Verbatim}

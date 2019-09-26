@@ -1,12 +1,79 @@
+\chapter{Phase II : Constructing Intermediate Representation Tree}
+
+Now that we have constructed our Abstract Syntax Tree, we will now have to convert it to an Intermediate Representation to solve $m \times n$ problem.
+
+In this phase, files of interest are:-
+
+\begin{itemize}
+  \item \href{\git types.sml}{types.sml}
+  \item \href{\git env.sml}{env.sml}, \href{\git env.sig}{env.sig}
+  \item \href{\git temp.sml}{temp.sml}, \href{\git temp.sig}{temp.sig}
+  \item \href{\git findescape.sml}{findescape.sml}
+  \item \href{\git tree.sml}{tree.sml}
+  \item \href{\git risc.sml}{risc.sml}
+  \item \href{\git translate.sml}{translate.sml}
+  \item \href{\git semant.sml}{semant.sml}
+\end{itemize}
+
+Each of these is explained below.
+
+\section{types.sml}
+
+Our next step is to do type checking of our input AST. For this purpose we need to define auxiliary types. Thus, we have "types.sml" representing the same. Thus now we can easily map a "symbol" to its corresponding type.
+
+\section{env.sml, env.sig, temp.sml, temp.sig}
+
+Now for type checking, we need some environment under which we have to check compatibility of types as for instance, environment can be different for different functions as within let block of each function there can be new declarations etc. By default we have some standard types and functions already present in our environment. Now each of these functions will correspond to some label in our MIPS code, for which we have "temp.sml". Note that "temp.sml" is also used to represent our infinite register in Intermediate Representation.
+
+\section{findescape.sml}
+
+It would be important for us to determine which variable cannot go to a register, i.e., which variable escapes. Idea of finding escapes is straight forward: Just see if this thing was defined in outer scope, note that scope extends only when we are calling a function.
+
+\section{tree.sml, tree.sig}
+
+It is a datatype representing our Intermediate Tree.
+
+\begin{minted}{sml}
+  datatype stm = SEQ of stm * stm (* The statement s2 followed by s2. *)
+  | LABEL of label (* Define the constant value of name n to be the current machine code address. This is like a label definition in assembly language. *)
+  | JUMP of exp * label list (* Transfer control (jump) to address exp. The destination exp may be a literal label, as in NAME(lab), or it may be an address calculated by any other kind of expression. For example, a C-language switch (i) statement may be implemented by doing arithmetic on i. The list of labels labs specifies all the possible locations that the expression exp can evaluate to; this is necessary for dataflow analysis later. The common case of jumping to a known label "l" is written as jump(name l, [l]). *)
+  | CJUMP of relop * exp * exp * label * label (* CJUMP(o, e1, e2, t, f): Evaluate e1, e2 in that order, yielding values a, b. Then compare a, b using the relational operator o. If the result is true, jump to t otherwise jump to f. The relational operators *)
+  | MOVE of exp * exp 
+  (*
+     MOVE(TEMP t, e): Evaluate e and move it into temporary t. 
+     MOVE(MEM(e1), e2) Evaluate e1 yielding address a. Then evaluate e2 and store the result into wordSize bytes of memory starting at a.
+  *)
+  | EXP of exp (* Evaluate exp and discard the result. *)
+
+and exp = BINOP of binop * exp * exp (* The application of binary operators to operands exp1, exp2. *)
+  | MEM of exp (* The contents of wordSize bytes of memory starting at address exp (where wordSize is defined in the Frame module). Note that when MEM is used as the left child of a move, it means "store," but anywhere else it means "fetch." *)
+  | TEMP of Temp.temp (* Temporary t. A temporary in the abstract machine is similar to a register in a real machine. However, the abstract machine has an infinite number of temporaries. *)
+  | ESEQ of stm * exp (* The statement s is evaluated for side effects, then e is evaluated for result *)
+  | NAME of label (* The value NAME(n) may be the target of jumps, calls, etc. *)
+  | CONST of int (* The integer constant int. *)
+  | CALL of exp * exp list (* A procedure call: the application of function exp1 to argument list exp2 list. The subexpression exp1 is evaluated before the arguments which are evaluated left to right. *)
+
+and binop = PLUS | MINUS | MUL | DIV | AND | OR | LSHIFT | RSHIFT | ARSHIFT | XOR
+
+and relop = EQ | NE | LT | GT | LE | GE | ULT | ULE | UGT | UGE
+\end{minted}
+
+\subsubsection{risc.sml}
+
+Here we will define an interface for RISC V, which finds some use in this phase, but is mainly there for code generation phase. Its applications and purpose will become clear by seeing the below written code. Before proceeding please read and understand about \textbf{static links} given at page 132-134. Basic gist is that in languages that allow nested function declarations, the inner functions may use variables declared in outer functions. One way to accomplish this is that whenever a function $f$ is called, it can be passed a pointer to the frame of the function statically enclosing $f$; this pointer is the static link. 
+
+\begin{minted}{sml}
 structure RiscFrame: FRAME = struct
 
 structure T = Temp
 structure Tr = Tree
 
-(* in register or frame? *)
+
+(* in register or in frame? i.e. whether are we putting it in register or in stack? *)
 datatype access = InFrame of int | InReg of T.temp
 
 (* numLocals: How many variables got called by allocLocal which were put in our stack (i.e. not in register but in Frame) *)
+(* name: Name of the frame (function), access list: tells for each formal parameter whether it is in Frame or in reg. *)
 type frame = {name : T.label, formals : access list, numLocals : int ref, shiftInstr : Tr.stm list}
 
 type register = string  (* so type of our register list will be "string list", register list is useful to tell available registers *)
@@ -14,11 +81,11 @@ type register = string  (* so type of our register list will be "string list", r
 (* 
   Given a Tiger function definition comprising a level and an already-translated body expression, the Translate phase should produce a descriptor for the function containing this necessary information: 
     1. frame: The frame descriptor containing machine-specific information about local variables and parameters. 
-    2. body: The result returned from procEntryExit1. Call this pair a fragment to be translated to assembly language. 
+    2. body: The result returned from procEntryExit1 (defined in detail below). Call this pair a fragment to be translated to assembly language. 
 *)
 (* A string literal in the Tiger (or C) language is the constant address of a segment of memory initialized to the proper characters. *)
 (* For each string literal "lit", the Translate module makes a new label "lab", and returns the tree "Tree.name (lab)". It also puts the  assembly-language fragment "Frame.STRING (lab, lit)"" onto a global list of such fragments to be handed to the code emitter. *)
-(* All this would be handled in putting it all together phase (chapter 12) *)
+(* All this would be handled in putting it all together phase (chapter 12 i.e. in main.sml) *)
 datatype frag = PROC of {body: Tree.stm, frame: frame}
               | STRING of T.label * string
 
@@ -65,8 +132,6 @@ val s11 = T.newtemp()
 
 val fp = s0 
 
-val calldefs = [ra, t0, t1, t2, t3, t4, t5, t6, t7, t8, t9]
-
 val specialregs = [(zero, "zero"), (sp, "sp"), (ra, "ra")]
 
 val argRegs = [(a0, "a0"), (a1, "a1"), (a2, "a2"), (a3, "a3"), (a4, "a4"), (a5, "a5"), (a6, "a6"), (a7, "a7")]
@@ -75,7 +140,7 @@ val savedRegs = [(s0, "s0"), (s1, "s1"), (s2, "s2"), (s3, "s3"), (s4, "s4"), (s5
 
 val temporaries = [(t0, "t0"), (t1, "t1"), (t2, "t2"), (t3, "t3"), (t4, "t4"), (t5, "t5"), (t6, "t6"), (t7, "t7")] 
 
-(* Thinking to support only traditional a0 - a7 arguments (8) *)
+(* Supporting only traditional a0 - a7 arguments, i.e. maximum of 8 arguments. *)
 exception ArgExceed of string
 
 val wordSize = 4
@@ -99,17 +164,10 @@ in
   foldl addToTable T.Table.empty toAdd
 end
 
-(* This was useful before register allocation, now it is absolete *)
-fun getTempString t = 
-  case T.Table.look(tempMap, t) of
-      SOME (r) => r
-    | NONE => T.makestring t
-
 (* Helper Functions *)
-
 fun incrementNumLocals ({numLocals, ...} : frame) = numLocals := !numLocals + 1
 fun getOffset ({numLocals, ...} : frame) = !numLocals * (~wordSize) 
-fun getFOffset (frame' : frame) = ~(getOffset (frame')) + (List.length argRegs) * (wordSize)
+fun getFOffset (frame' : frame) = ~(getOffset (frame')) + 8
 fun name ({name, ...} : frame) = name
 fun formals ({formals, ...} : frame) = formals
 
@@ -128,7 +186,7 @@ fun exp frameAccess frameAddress =
 fun newFrame {name : T.label, formals : bool list} : frame = 
 let
   fun allocFormals(offset, [], allocList) = allocList
-    | allocFormals(offset, curFormal :: l, allocList) = 
+    | allocFormals(offset, curFormal::l, allocList) = 
       (
       case curFormal of
           true => allocFormals(offset + wordSize, l, allocList @ [InFrame offset])
@@ -145,6 +203,7 @@ in
     raise ArgExceed ("No. of arguments exceeded!")
 end
 
+(* allocating a variable for our frame *)
 fun allocLocal frame' escape = (
   case escape of
       true => (incrementNumLocals frame'; InFrame(getOffset frame'))
@@ -203,25 +262,74 @@ end
 fun procEntryExit2(frame, body) = 
         body @
         [Assem.OPER {assem = "",
-                 src = getFirstL (specialregs @ savedRegs),
-                 dst = [], jump = SOME[]}
+                  src = getFirstL (specialregs @ savedRegs),
+                  dst = [], jump = SOME[]}
         ]
 
 fun procEntryExit3(frame' : frame, body) =
   {prolog = Symbol.name (name frame') ^ ":\n" ^ 
-   (* fp -> 0(sp) *)
-   "sw fp 0(sp)\n" ^  
-   (* sp -> fp *)
-   "move fp sp\n" ^ 
-   (* sp = sp -  (allocating space in stack) *)
-   "addiu sp sp -" ^ Int.toString (getFOffset (frame')) ^ "\n",
-   body = body,
+    (* fp -> 0(sp) *)
+    "sw fp 0(sp)\n" ^  
+    (* sp -> fp *)
+    "move fp sp\n" ^ 
+    (* sp = sp -  (allocating space in stack) *)
+    "addiu sp sp -" ^ Int.toString (getFOffset (frame')) ^ "\n",
+    body = body,
             (* fp -> sp *)
-   epilog = "move sp fp\n" ^ 
-   (* lw Rdest, address			Load Word
+    epilog = "move sp fp\n" ^ 
+    (* lw Rdest, address			Load Word
 Load the 32-bit quantity (word) at address into register Rdest. *)
-   "lw fp 0(sp)\n" ^ 
-   (* jr Rsource				Jump Register
+    "lw fp 0(sp)\n" ^ 
+    (* jr Rsource				Jump Register
 Unconditionally jump to the instruction whose address is in register Rsource.*)
-   "jr ra\n"}
+    "jr ra\n"}
 end
+\end{minted}
+
+\subsubsection{translate.sml}
+
+This file is used by \texttt{semant.sml} to generate IR tree code. 
+
+Its not reasonable to translate expression of our AST to an expression of IR as this is true only for certain kinds of expressions, the ones that  compute a value. Expressions that return no value (such as some procedure calls, or while expressions in the Tiger language) are more naturally represented by \texttt{Tree.stm}. And expressions with Boolean values, such as $a > b$, might best be represented as a conditional jump - a combination of \texttt{Tree.stm} and a pair of destinations represented by \texttt{Temp.labels}. Therefore, we will make a datatype exp in the Translate module to model these three kinds of expressions:
+
+\begin{minted}{sml}
+datatype exp =  Ex of Tr.exp
+							| Nx of Tr.stm
+              | Cx of Temp.label * Temp.label -> Tr.stm
+\end{minted}
+
+\begin{itemize}
+
+\item \textbf{Ex} stands for an "expression," represented as a \texttt{Tree.exp}.
+\item \textbf{Nx} stands for "no result," represented as a Tree statement.
+\item \textbf{Cx} stands for "conditional," represented as a function from label-pair to  statement. If you pass it a true-destination and a false-destination, it will make a statement that evaluates some conditionals and then jumps to one of the  destinations (the statement will never "fall through"). For example, the Tiger expression 
+  \begin{minted}{sml}
+  a > b | c < d
+  \end{minted} 
+  might translate to the  conditional:
+  \begin{minted}{sml}
+  Cx(fn (t,f) => SEQ(CJUMP(GT, a, b, t, z),
+  SEQ(LABEL z, CJUMP (LT, c, d, t, f))))
+  \end{minted}
+  for some new label \texttt{z}.
+\end{itemize}
+
+Sometimes we will have an expression of one kind and we will need to convert it to an equivalent expression of another kind. For example, the Tiger statement
+\begin{minted}{sml}
+flag := (a>b | c<d)
+\end{minted}
+. This is achieved by \texttt{unEx}. Similarly we have \texttt{unNx} and \texttt{unCx}.
+
+Similarly each function call defines a level which is encapsulated as 
+\begin{minted}{sml}
+datatype level =  Top
+                | Lev of {parent: level, frame: F.frame} * unit ref
+\end{minted} 
+
+\texttt{unit ref} is used to easily check for equality.
+
+All of the functions of \texttt{translate.sml} are straight forward so please see and understand them.
+
+\section{semant.sml}
+
+After we receive our AST, we run semant's function \texttt{transProg} on it which will do type checking of our AST and simultaneously convert it into our IR. Both this and \texttt{translate.sml} are big so I have not put their code here, however please see linked code which is properly documented and thus is easy to understand.

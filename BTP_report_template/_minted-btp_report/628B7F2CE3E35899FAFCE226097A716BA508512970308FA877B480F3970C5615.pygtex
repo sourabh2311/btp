@@ -1,0 +1,4 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+  \PYG{n}{Cx}\PYG{p}{(}\PYG{k+kr}{fn} \PYG{p}{(}\PYG{n}{t}\PYG{p}{,}\PYG{n}{f}\PYG{p}{)} \PYG{p}{=\PYGZgt{}} \PYG{n}{SEQ}\PYG{p}{(}\PYG{n}{CJUMP}\PYG{p}{(}\PYG{n}{GT}\PYG{p}{,} \PYG{n}{a}\PYG{p}{,} \PYG{n}{b}\PYG{p}{,} \PYG{n}{t}\PYG{p}{,} \PYG{n}{z}\PYG{p}{),}
+  \PYG{n}{SEQ}\PYG{p}{(}\PYG{n}{LABEL} \PYG{n}{z}\PYG{p}{,} \PYG{n}{CJUMP} \PYG{p}{(}\PYG{n}{LT}\PYG{p}{,} \PYG{n}{c}\PYG{p}{,} \PYG{n}{d}\PYG{p}{,} \PYG{n}{t}\PYG{p}{,} \PYG{n}{f}\PYG{p}{))))}
+\end{Verbatim}

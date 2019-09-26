@@ -1,0 +1,5 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+  riscv64\PYGZhy{}unknown\PYGZhy{}elf\PYGZhy{}as \PYGZhy{}o filename.o filename.s
+  riscv64\PYGZhy{}unknown\PYGZhy{}elf\PYGZhy{}ld \PYGZhy{}o filename filename.o
+  spike pk filename
+\end{Verbatim}

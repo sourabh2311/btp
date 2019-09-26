@@ -1,0 +1,18 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c}{\PYGZsh{} str1 \PYGZlt{} str2 ?}
+\PYG{n+nl}{stringLess:}
+    \PYG{n+nl}{stringLessLoop:}
+        \PYG{n+nf}{lb} \PYG{n+no}{a2} \PYG{p}{(}\PYG{n+no}{a0}\PYG{p}{)}
+        \PYG{n+nf}{lb} \PYG{n+no}{a3} \PYG{p}{(}\PYG{n+no}{a1}\PYG{p}{)}
+        \PYG{n+nf}{blt} \PYG{n+no}{a2}\PYG{p}{,} \PYG{n+no}{a3}  \PYG{n+no}{stringLessA}
+        \PYG{n+nf}{bgt} \PYG{n+no}{a2}\PYG{p}{,} \PYG{n+no}{a3}  \PYG{n+no}{stringLessB}
+        \PYG{c}{\PYGZsh{} If we have reached this point that means both are equal and if one of them is zero that means other is aswell 0, so in case strings are equal, I must return 0.}
+        \PYG{n+nf}{beqz} \PYG{n+no}{a2}\PYG{p}{,} \PYG{n+no}{stringLessB}
+        \PYG{n+nf}{addi} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{a0}\PYG{p}{,} \PYG{l+m+mi}{1}
+        \PYG{n+nf}{addi} \PYG{n+no}{a1}\PYG{p}{,} \PYG{n+no}{a1}\PYG{p}{,} \PYG{l+m+mi}{1}
+        \PYG{n+nf}{j} \PYG{n+no}{stringLessLoop}
+    \PYG{n+nl}{stringLessA:}
+        \PYG{n+nf}{li} \PYG{n+no}{a0}\PYG{p}{,} \PYG{l+m+mi}{1}
+        \PYG{n+nf}{jr} \PYG{n+no}{ra}
+    \PYG{n+nl}{stringLessB:} \PYG{n+nf}{li} \PYG{n+no}{a0}\PYG{p}{,} \PYG{l+m+mi}{0} \PYG{n+no}{jr} \PYG{n+no}{ra}
+\end{Verbatim}

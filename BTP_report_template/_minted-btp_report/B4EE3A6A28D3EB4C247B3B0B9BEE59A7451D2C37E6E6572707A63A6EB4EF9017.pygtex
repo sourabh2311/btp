@@ -1,0 +1,15 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n+na}{.data} \PYG{c}{\PYGZsh{} Tell the assembler we are defining data not code}
+
+\PYG{n+nl}{msg:} \PYG{c}{\PYGZsh{} Label this position in memory so it can be referred to in our code}
+  \PYG{n+na}{.string} \PYG{l+s}{\PYGZdq{}hello world\PYGZdq{}} \PYG{c}{\PYGZsh{} Copy the string \PYGZdq{}hello world\PYGZdq{} into memory}
+
+\PYG{n+na}{.text} \PYG{c}{\PYGZsh{} Tell the assembler that we are writing code (text) now}
+
+\PYG{n+nl}{start:}
+  \PYG{n+nf}{li} \PYG{n+no}{a7}\PYG{p}{,} \PYG{l+m+mi}{4} \PYG{c}{\PYGZsh{} li means to Load Immediate and we want to load the value 4 into register a7}
+  \PYG{n+nf}{la} \PYG{n+no}{a0}\PYG{p}{,} \PYG{n+no}{msg}  \PYG{c}{\PYGZsh{} la is similar to li, but works for loading addresses}
+  \PYG{n+nf}{ecall}
+  \PYG{n+nf}{li} \PYG{n+no}{a7}\PYG{p}{,} \PYG{l+m+mi}{10}  \PYG{c}{\PYGZsh{} Exit call}
+  \PYG{n+nf}{ecall}
+\end{Verbatim}

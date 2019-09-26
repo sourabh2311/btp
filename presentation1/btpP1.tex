@@ -1,0 +1,215 @@
+\documentclass{beamer}
+
+\usepackage{xcolor}  
+\usepackage{environ}
+\usepackage{minted}
+\usepackage{tikzsymbols}
+
+% map defaulf block to oldblock
+\let\oldblock\block
+\let\endoldblock\endblock
+
+% change block by adding smallskip
+\renewenvironment{block}[1]
+    {\begin{oldblock}{#1}
+        \smallskip
+    }
+    { 
+    \end{oldblock}
+    }
+
+\usetheme{metropolis}
+
+\newcommand{\iph}[2]{
+    \includegraphics[width=#1\textwidth,height=#1\textheight,keepaspectratio]{#2}
+}
+\newcommand{\ph}[1]{
+    \includegraphics[width=0.5\textwidth,height=0.5\textheight,keepaspectratio]{#1}
+}
+
+\title{Tiger to RISC V Compiler}
+
+\author{Sourabh Aggarwal\\ Mentor: Dr. Piyush P. Kurur}
+
+\institute[IIT Palakkad] % (optional, but mostly needed)
+{
+  Department of Computer Science And Engineering\\
+  IIT Palakkad
+}
+
+\date{September 2019}
+
+\subject{BTP Interim Presentation}
+
+\setminted{breaklines=true, tabsize=2, breaksymbolleft=, fontsize=\footnotesize}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Tiger}
+  \begin{minted}{sml}
+function try (c : int) = 
+( 
+  if c = N
+  then printboard ()
+  else 
+    for r := 0 to N - 1 do 
+      if row[r] = 0 & diag1[r + c] = 0 & diag2[r + 7 - c] = 0 then 
+      (
+        row[r] := 1; diag1[r + c] := 1; diag2[r + 7 - c] := 1;
+        col[c] := r;
+        try(c + 1);
+        row[r] := 0; diag1[r + c] := 0; diag2[r + 7 - c] := 0
+      )
+  )
+  \end{minted}
+ % \iph{1.1}{../Task1/myPR.png}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{RISC V}
+  \begin{minted}{asm}
+# str1 < str2 ?
+stringLess:
+    stringLessLoop:
+        lb a2 (a0)
+        lb a3 (a1)
+        blt a2, a3  stringLessA
+        bgt a2, a3  stringLessB
+        # If we have reached this point that means both are equal and if one of them is zero that means other is aswell 0, so in case strings are equal, I must return 0.
+        beqz a2, stringLessB
+        addi a0, a0, 1
+        addi a1, a1, 1
+        j stringLessLoop
+    stringLessA:
+        li a0, 1
+        jr ra
+    stringLessB: li a0, 0 jr ra 
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Extending Upon Previous Compiler}
+  \begin{itemize}
+    \item Wrote compiler to compile Tiger to MIPS last semester (didn't expect to get it working). 
+    \pause
+    \item BUT evidently there were issues.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Issues / Challenges}
+  \begin{itemize}
+  \item The number of arguments that can be given to a function is exactly the number of available argument registers. This is to be fixed to support any number of function arguments.
+  \pause
+  \item Register allocation currently works only on saved registers and temporaries, this can be augmented to use free argument registers as well. (Subjective move)
+  \pause
+  \item Basic blocks have to optimized with optimizations like constant propagation, constant folding, etc.
+  \pause
+  \item String comparison has to be made as simple as "str1 $>$ str2", etc.,  instead of calling the string comparison functions to determine it.
+  \pause
+  \item To implement Garbage collection.
+  \end{itemize}
+\end{frame}
+\begin{frame}
+  \frametitle{Issues / Challenges}
+  \begin{itemize}
+  \item To implement ability to include pre-written code (header) files.
+  \pause
+  \item To implement additional arithmetic operations like left/right shift.
+  \pause
+  \item Register allocation algorithm has to be implemented with better heuristics.
+  \pause
+  \item Error messages has to improved in semantic phase. 
+  \pause
+  \item Add support for compile time (initial) arguments.
+  \pause
+  \item And much more is possible, as like in a commercial product.
+  \end{itemize}
+\end{frame}
+\begin{frame}
+  \frametitle{Goal for this Semester}
+  This semester, I am mainly focusing on:-
+  \begin{itemize}
+    \pause
+    \item Understanding RISC V.
+    \pause 
+    \item Recollecting all that was done last semester (3 month gap \Xey). % Reason of using tikzsymbols
+    \pause
+    \item Refactoring and translating everything to RISC V.
+    \pause
+    \item Writing good documentation of the code for easy recollection.
+    \pause 
+    \item And of course, if there is time, I'll work on the previous mentioned issues else they are to be focused on next semester.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Compiler Course: Phase I - Building AST}
+  Example:-
+  \begin{minted}{sml}
+| LET decs IN exps END              (
+  A.LetExp({decs = decs, body = A.SeqExp(exps), pos = LETleft})
+  )
+  \end{minted}
+  Included many files, viz. 
+  \begin{itemize}
+    \item parse.sml 
+    \item errormsg.sml 
+    \item tiger.lex 
+    \item table.sml, table.sig 
+    \item symbol.sml 
+    \item tiger.grm, absyn.sml 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Compiler Course: Phase II - Building Intermeditate Representation Tree}
+  \begin{minted}{sml}
+datatype stm = SEQ of stm * stm 
+            | LABEL of label 
+            | JUMP of exp * label list 
+            | CJUMP of relop * exp * exp * label * label 
+            | MOVE of exp * exp 
+            | EXP of exp 
+and exp = BINOP of binop * exp * exp 
+            | MEM of exp 
+            | TEMP of Temp.temp 
+            | ESEQ of stm * exp 
+            | NAME of label 
+            | CONST of int 
+            | CALL of exp * exp list 
+  \end{minted}
+  
+\end{frame}
+\begin{frame}[fragile]
+  \frametitle{Compiler Course: Phase II - Building Intermeditate Representation Tree}
+  Included many files, viz. 
+  \begin{itemize}
+    \item types.sml 
+    \item env.sml, env.sig 
+    \item temp.sml, temp.sig 
+    \item findescape.sml 
+    \item tree.sml 
+    \item risc.sml 
+    \item translate.sml 
+    \item semant.sml 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Till Now}
+  \begin{itemize}
+    \item Understood RISC V and rewrote "runtime" in RISC V. 
+    \pause
+    \item Worked out till Phase II of Compiler.
+  \end{itemize}
+\end{frame}
+\begin{frame}[standout]
+Thanks!
+\end{frame}   
+\end{document}

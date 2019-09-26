@@ -8,8 +8,8 @@ __newLine: .string "\n"
 # Many of the below written functions assume that the given input is correct. May augment with more information later.  
 # Will need to modify env.sml (Take care)
 
+# Given the exit code (in a0 ofc), terminate with that exit code.
 exit:
-    # Given the exit code (in a0 ofc), terminate with that exit code.
     mv t0, a0
     # Print exit message
     la a0, __exitMessage
@@ -27,8 +27,8 @@ exit:
     li a7, 10
     ecall
 
+# Not of non zero integer is 0 whereas not of 0 is 1.
 not:
-    # Not of non zero integer is 0 whereas not of 0 is 1.
     beqz a0, retOne
     li a0, 0
     jr ra 
@@ -36,9 +36,9 @@ not:
         li a0, 1
         jr ra 
 
+# Given the string s in a0, return the number of characters in it.
+# This is aswell needed for string concatenation.
 size:
-    # Given the string s in a0, return the number of characters in it.
-    # This is aswell needed for string concatenation.
     mv t0, a0
     mv a0, zero
     sizeLoop:
@@ -50,8 +50,8 @@ size:
     sizeExit:
         jr ra
 
+# Copy the string completely (i.e. including zero / null character) whose address is at a1, to the address starting at a0, returning the address of the last character of copied string.
 stringCopy:
-    # Copy the string completely (i.e. including zero / null character) whose address is at a1, to the address starting at a0, returning the address of the last character of copied string.
     stringCopyLoop:
         lb t0, (a1)
         sb t0, (a0)
@@ -62,8 +62,8 @@ stringCopy:
     stringCopyExit:
         jr ra
 
+# Concatenate str1 present in a0 with str2 present in a1.
 concat:
-    # Contain str1 present in a0 with str2 present in a1.
     addi sp, sp, -12
     sw a0, (sp)
     sw a1, 4(sp)
@@ -92,9 +92,9 @@ concat:
     addi sp, sp, 16
     jr ra
 
+# "function substring (s: string, first : int, n : int) : string" Substring of string s, starting with character first, n characters long.
+# Hoping that given input is valid.
 substring:
-    # "function substring (s: string, first : int, n : int) : string" Substring of string s, starting with character first, n characters long.
-    # Hoping that given input is valid.
     # Allocate space
     mv a3, a0  # saving a0
     mv a0, a2
@@ -116,8 +116,69 @@ substring:
         mv a0, t0
         jr ra
 
+# str1 > str2 ?
+stringGreat:
+    stringGreatLoop:
+        lb a2 (a0)
+        lb a3 (a1)
+        bgt a2, a3  stringGreatA
+        blt a2, a3  stringGreatB
+        # If we have reached this point that means both are equal and if one of them is zero that means other is aswell 0, so in case strings are equal, I must return 0.
+        beqz a2, stringGreatB
+        addi a0, a0, 1
+        addi a1, a1, 1
+        j stringGreatLoop
+    stringGreatA:
+        li a0, 1
+        jr ra
+    stringGreatB:
+        li a0, 0 
+        jr ra 
+    
+# str1 < str2 ?
+stringLess:
+    stringLessLoop:
+        lb a2 (a0)
+        lb a3 (a1)
+        blt a2, a3  stringLessA
+        bgt a2, a3  stringLessB
+        # If we have reached this point that means both are equal and if one of them is zero that means other is aswell 0, so in case strings are equal, I must return 0.
+        beqz a2, stringLessB
+        addi a0, a0, 1
+        addi a1, a1, 1
+        j stringLessLoop
+    stringLessA:
+        li a0, 1
+        jr ra
+    stringLessB:
+        li a0, 0 
+        jr ra 
+
+# str1 == str2 ?
+stringEqual:
+    addi sp, sp, -12
+    sw a0, (sp)
+    sw a1, 4(sp)
+    sw ra, 8(sp)
+    jal stringGreat
+    bnez a0, stringEqualExit
+    lw a0, (sp)
+    lw a1, 4(sp)
+    jal stringLess
+    bnez a0, stringEqualExit 
+    li a0, 1 
+    lw ra, 8(sp)
+    addi sp, sp, 12 
+    jr ra 
+    stringEqualExit:
+        li a0, 0    
+        lw ra, 8(sp)
+        addi sp, sp, 12 
+        jr ra 
+
+
+# Single-character string from ASCII value given in a0; halt program if a0 out of range.
 chr:
-    # Single-character string from ASCII value given in a0; halt program if a0 out of range.
     # Handling the error part 
     addi t0, zero, 127  
     bgt a0, t0, chrError
@@ -135,8 +196,8 @@ chr:
         addi a0, zero, -1
         j exit
 
+# Given a string in a0, return ASCII value of the first character of it, return -1 if the string is empty.
 ord:
-    # Given a string in a0, return ASCII value of the first character of it, return -1 if the string is empty.
     lb t0, (a0)
     beqz t0, ordEmpty
     mv a0, t0 
@@ -145,8 +206,8 @@ ord:
         li a0, -1 
         jr ra 
 
+# Read a character from standard input and return it as a string; return empty string on end of file.
 getchar:
-    # Read a character from standard input and return it as a string; return empty string on end of file.
     # Allocate space
     li a0, 2
     li a7, 9
@@ -160,12 +221,12 @@ getchar:
     mv a0, t0 
     jr ra
 
+# Absolete as of now
 flush:
-    # Absolete as of now
     jr ra
 
+# Print the string whose address is in a0
 print:
-    # Print the string whose address is in a0
     li a7, 4
     ecall
     jr ra
@@ -177,8 +238,8 @@ print:
 #     ecall
 #     jr ra
 
+# a0 contains the number of bytes we need to allocate. So, multiply it by 4 and allocate that much space from heap (system call 9). Return value is in a0 which tells the address to the allocated block (lower address value) and remember that in going downwards address decreases. Rest of the code is easy to follow.
 initArray:
-    # a0 contains the number of bytes we need to allocate. So, multiply it by 4 and allocate that much space from heap (system call 9). Return value is in a0 which tells the address to the allocated block (lower address value) and remember that in going downwards address decreases. Rest of the code is easy to follow.
 	li t0, 4
 	mul a0, a0, t0
     mv t1, a0
@@ -189,48 +250,17 @@ initArray:
 	initArrayLoop:
         sw a1, (t0)
         addi t0, t0, 4
-        bne t0, t1, initArrayLoop
+        beq t0, t1, initArrayExit
+        j initArrayLoop
+    initArrayExit:
         jr ra
 
+# Very similar to initArray
+# We just need to allocate memory, no need to initialize it with 0.
 allocRecord:
-    # Very similar to initArray
-    # We just need to allocate memory, no need to initialize it with 0.
     li t0, 4
     mul a0, a0, t0
     li a7, 9
     ecall
     jr ra
-
-strcmp:
-    # Authors runtime.s contains stringEqual function, which I am replacing with a more powerful strcmp function.
-    # To compare two strings s1, s2 whose address is in a0, a1. Return 1 if s1 > s2, 0 if s1 = s2 and -1 o/w.
-    strcmpTest:
-        lb a2 (a0)
-        lb a3 (a1)
-        beqz a2, strcmpEnd
-        beqz a3, strcmpEnd
-        bgt a2, a3  strcmpGreat
-        blt a2, a3  strcmpLess
-        addi a0, a0, 1
-        addi a1, a1, 1
-        j strcmpTest
-    strcmpGreat:
-        li a0, 1
-        jr ra
-    strcmpLess:
-        li a0, -1
-        jr ra
-    strcmpEnd:
-        bne a2 zero strcmpGreat
-        bne a3 zero strcmpLess
-        li a0, 0
-        jr ra
-
-
-
-
-
-
-
-
 

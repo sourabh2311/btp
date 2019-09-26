@@ -1,0 +1,6 @@
+\frametitle{Till Now}
+  \begin{itemize}
+    \item Understood RISC V and rewrote "runtime" in RISC V.
+    \pause
+    \item Worked out till Phase II of Compiler.
+  \end{itemize}

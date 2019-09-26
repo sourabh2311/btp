@@ -1,0 +1,15 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kr}{datatype} \PYG{k+kt}{stm} \PYG{p}{=} \PYG{n+nc}{SEQ} \PYG{k+kr}{of} \PYG{n}{stm} \PYG{n}{*} \PYG{n}{stm}
+            \PYG{p}{|} \PYG{n+nc}{LABEL} \PYG{k+kr}{of} \PYG{n}{label}
+            \PYG{p}{|} \PYG{n+nc}{JUMP} \PYG{k+kr}{of} \PYG{n}{exp} \PYG{n}{*} \PYG{n}{label} \PYG{n}{list}
+            \PYG{p}{|} \PYG{n+nc}{CJUMP} \PYG{k+kr}{of} \PYG{n}{relop} \PYG{n}{*} \PYG{n}{exp} \PYG{n}{*} \PYG{n}{exp} \PYG{n}{*} \PYG{n}{label} \PYG{n}{*} \PYG{n}{label}
+            \PYG{p}{|} \PYG{n+nc}{MOVE} \PYG{k+kr}{of} \PYG{n}{exp} \PYG{n}{*} \PYG{n}{exp}
+            \PYG{p}{|} \PYG{n+nc}{EXP} \PYG{k+kr}{of} \PYG{n}{exp}
+\PYG{k+kr}{and} \PYG{k+kt}{exp} \PYG{p}{=} \PYG{n+nc}{BINOP} \PYG{k+kr}{of} \PYG{n}{binop} \PYG{n}{*} \PYG{n}{exp} \PYG{n}{*} \PYG{n}{exp}
+            \PYG{p}{|} \PYG{n+nc}{MEM} \PYG{k+kr}{of} \PYG{n}{exp}
+            \PYG{p}{|} \PYG{n+nc}{TEMP} \PYG{k+kr}{of} \PYG{n+nn}{Temp}\PYG{p}{.}\PYG{n}{temp}
+            \PYG{p}{|} \PYG{n+nc}{ESEQ} \PYG{k+kr}{of} \PYG{n}{stm} \PYG{n}{*} \PYG{n}{exp}
+            \PYG{p}{|} \PYG{n+nc}{NAME} \PYG{k+kr}{of} \PYG{n}{label}
+            \PYG{p}{|} \PYG{n+nc}{CONST} \PYG{k+kr}{of} \PYG{n}{int}
+            \PYG{p}{|} \PYG{n+nc}{CALL} \PYG{k+kr}{of} \PYG{n}{exp} \PYG{n}{*} \PYG{n}{exp} \PYG{n}{list}
+\end{Verbatim}
