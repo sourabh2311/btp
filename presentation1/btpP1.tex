@@ -18,7 +18,13 @@
     \end{oldblock}
     }
 
-\usetheme{metropolis}
+\usetheme[progressbar=frametitle]{metropolis}
+
+\makeatletter
+\setlength{\metropolis@titleseparator@linewidth}{2pt}
+\setlength{\metropolis@progressonsectionpage@linewidth}{2pt}
+\setlength{\metropolis@progressinheadfoot@linewidth}{2pt}
+\makeatother
 
 \newcommand{\iph}[2]{
     \includegraphics[width=#1\textwidth,height=#1\textheight,keepaspectratio]{#2}
