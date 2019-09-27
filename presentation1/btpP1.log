@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2019/dev/Debian) (preloaded format=pdflatex 2019.7.26)  26 SEP 2019 09:27
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2019/dev/Debian) (preloaded format=pdflatex 2019.7.26)  27 SEP 2019 09:24
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -1139,13 +1139,7 @@ File: ot1mathkerncmss.fd 2013/03/27 Fontinst v1.933 font definitions for OT1/mat
 
 ] [22
 
-]
-\openout4 = `btpP1.vrb'.
-
- (./btpP1.vrb
-\openout5 = `btpP1.pyg'.
-
- (./_minted-btpP1/67444D556E5858318C4068E462CB4A1F79353CEC169AFE69A7BDEE80CDF41D98.pygtex)) [23
+] [23
 
 ]
 \openout4 = `btpP1.vrb'.
@@ -1153,21 +1147,29 @@ File: ot1mathkerncmss.fd 2013/03/27 Fontinst v1.933 font definitions for OT1/mat
  (./btpP1.vrb
 \openout5 = `btpP1.pyg'.
 
- (./_minted-btpP1/DD348680355A87208577A56EB8FDA57979353CEC169AFE69A7BDEE80CDF41D98.pygtex)) [24
+ (./_minted-btpP1/67444D556E5858318C4068E462CB4A1F79353CEC169AFE69A7BDEE80CDF41D98.pygtex)) [24
 
 ]
 \openout4 = `btpP1.vrb'.
 
- (./btpP1.vrb) [25
+ (./btpP1.vrb
+\openout5 = `btpP1.pyg'.
+
+ (./_minted-btpP1/DD348680355A87208577A56EB8FDA57979353CEC169AFE69A7BDEE80CDF41D98.pygtex)) [25
 
 ]
 \openout4 = `btpP1.vrb'.
 
  (./btpP1.vrb) [26
 
-] (./btpP1.vrb) [27
+]
+\openout4 = `btpP1.vrb'.
 
-] [28
+ (./btpP1.vrb) [27
+
+] (./btpP1.vrb) [28
+
+] [29
 
 ]
 \tf@nav=\write8
@@ -1179,11 +1181,11 @@ File: ot1mathkerncmss.fd 2013/03/27 Fontinst v1.933 font definitions for OT1/mat
 \tf@snm=\write10
 \openout10 = `btpP1.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 221.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 221.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 223.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 223.
  (./btpP1.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 221.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 221.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 223.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 223.
 Package rerunfilecheck Info: File `btpP1.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
 
@@ -1194,18 +1196,18 @@ runsystem(rm btpP1.pyg)...executed.
 
  ) 
 Here is how much of TeX's memory you used:
- 34286 strings out of 492615
- 698773 string characters out of 6131390
+ 34288 strings out of 492615
+ 698792 string characters out of 6131390
  823545 words of memory out of 5000000
  37525 multiletter control sequences out of 15000+600000
  540929 words of font info for 55 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  58i,13n,95p,1870b,716s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmitt10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
-Output written on btpP1.pdf (28 pages, 107199 bytes).
+Output written on btpP1.pdf (29 pages, 109429 bytes).
 PDF statistics:
- 204 PDF objects out of 1000 (max. 8388607)
- 159 compressed objects within 2 object streams
- 57 named destinations out of 1000 (max. 500000)
+ 209 PDF objects out of 1000 (max. 8388607)
+ 163 compressed objects within 2 object streams
+ 59 named destinations out of 1000 (max. 500000)
  43 words of extra memory for PDF output out of 10000 (max. 10000000)
 

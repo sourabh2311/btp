@@ -17,7 +17,7 @@ type register = string  (* so type of our register list will be "string list", r
     2. body: The result returned from procEntryExit1. Call this pair a fragment to be translated to assembly language. 
 *)
 (* A string literal in the Tiger (or C) language is the constant address of a segment of memory initialized to the proper characters. *)
-(* For each string literal "lit", the Translate module makes a new label "lab", and returns the tree "Tree.name (lab)". It also puts the  assembly-language fragment "Frame.STRING (lab, lit)"" onto a global list of such fragments to be handed to the code emitter. *)
+(* For each string literal "lit", the Translate module makes a new label "lab", and returns the tree "Tree.name (lab)". It also puts the  assembly-language fragment "Frame.STRING (lab, lit) onto a global list of such fragments to be handed to the code emitter. *)
 (* All this would be handled in putting it all together phase (chapter 12) *)
 datatype frag = PROC of {body: Tree.stm, frame: frame}
               | STRING of T.label * string
@@ -166,14 +166,11 @@ fun seq nil = Tr.EXP (Tr.CONST 0)
   The body of a Tiger function is an expression, and the body of the translation is simply the translation of that expression.
 
   The prologue, which precedes the body in the assembly-language version of the function, contains:
-    1. Pseudo-instructions, as needed in the particular assembly language, to 
-    announce the beginning of a function. (Not relevant in our context)
+    1. Pseudo-instructions, as needed in the particular assembly language, to announce the beginning of a function. (Not relevant in our context)
     2. A label definition for the function name. (Done in procEntryExit3)
     3. An instruction to adjust the stack pointer (to allocate a new frame). (Done in procEntryExit3)
-    4. Instructions to save "escaping" arguments - including the static link - into the
-    frame, and to move nonescaping arguments into fresh temporary registers. (Done in procEntryExit1)
-    5. Store instructions to save any callee-save registers - including the return 
-    address register - used within the function. (Done in procEntryExit1)
+    4. Instructions to save "escaping" arguments - including the static link - into the frame, and to move nonescaping arguments into fresh temporary registers. (Done in procEntryExit1)
+    5. Store instructions to save any callee-save registers - including the return address register - used within the function. (Done in procEntryExit1)
 
   (6) The function body.
 

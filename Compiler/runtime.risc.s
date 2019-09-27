@@ -231,12 +231,12 @@ print:
     ecall
     jr ra
 
-# printInt:
-#     # Examples in book do complex computation to print an integer, here I am putting an inbuilt function
-#     # Print the integer in a0
-#     li a7, 1
-#     ecall
-#     jr ra
+printInt:
+    # Examples in book do complex computation to print an integer, here I am putting an inbuilt function
+    # Print the integer in a0
+    li a7, 1
+    ecall
+    jr ra
 
 # a0 contains the number of bytes we need to allocate. So, multiply it by 4 and allocate that much space from heap (system call 9). Return value is in a0 which tells the address to the allocated block (lower address value) and remember that in going downwards address decreases. Rest of the code is easy to follow.
 initArray:
