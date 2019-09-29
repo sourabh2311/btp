@@ -35,9 +35,9 @@ const siteConfig = {
   users,
 
   /* path to images for header/footer */
-  headerIcon: "img/tiger.jpg",
-  footerIcon: "img/tiger.jpg",
-  favicon: "img/tiger.jpg",
+  headerIcon: "img/tiger.png",
+  footerIcon: "img/tiger.png",
+  favicon: "img/tiger.png",
 
   /* Colors for website */
   colors: {
