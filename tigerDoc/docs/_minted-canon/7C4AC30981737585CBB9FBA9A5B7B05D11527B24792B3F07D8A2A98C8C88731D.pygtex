@@ -1,0 +1,29 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kr}{signature} \PYG{n+nn}{CANON} \PYG{p}{=}
+\PYG{k+kr}{sig}
+  \PYG{k+kr}{val} \PYG{n+nv}{linearize} \PYG{p}{:} \PYG{n+nn}{Tree}\PYG{p}{.}\PYG{n}{stm} \PYG{p}{\PYGZhy{}\PYGZgt{}} \PYG{n+nn}{Tree}\PYG{p}{.}\PYG{n}{stm} \PYG{n}{list}
+    \PYG{c+cm}{(*}
+\PYG{c+cm}{      From an arbitrary Tree statement, produce a list of cleaned trees satisfying the following properties:}
+\PYG{c+cm}{      1.  No SEQ\PYGZsq{}s or ESEQ\PYGZsq{}s}
+\PYG{c+cm}{      2.  The parent of every CALL is an EXP(..) or a MOVE(TEMP t,..)}
+\PYG{c+cm}{    *)}
+
+  \PYG{k+kr}{val} \PYG{n+nv}{basicBlocks} \PYG{p}{:} \PYG{n+nn}{Tree}\PYG{p}{.}\PYG{n}{stm} \PYG{n}{list} \PYG{p}{\PYGZhy{}\PYGZgt{}} \PYG{p}{(}\PYG{n+nn}{Tree}\PYG{p}{.}\PYG{n}{stm} \PYG{n}{list} \PYG{n}{list} \PYG{n}{*} \PYG{n+nn}{Tree}\PYG{p}{.}\PYG{n}{label}\PYG{p}{)}
+    \PYG{c+cm}{(*}
+\PYG{c+cm}{      From a list of cleaned trees, produce a list of basic blocks satisfying the following properties:}
+\PYG{c+cm}{      1. and 2. as above;}
+\PYG{c+cm}{      3.  Every block begins with a LABEL;}
+\PYG{c+cm}{      4.  A LABEL appears only at the beginning of a block;}
+\PYG{c+cm}{      5.  Any JUMP or CJUMP is the last stm in a block;}
+\PYG{c+cm}{      6.  Every block ends with a JUMP or CJUMP;}
+\PYG{c+cm}{      Also produce the \PYGZdq{}label\PYGZdq{} to which control will be passed upon exit.}
+\PYG{c+cm}{    *)}
+
+  \PYG{k+kr}{val} \PYG{n+nv}{traceSchedule} \PYG{p}{:} \PYG{n+nn}{Tree}\PYG{p}{.}\PYG{n}{stm} \PYG{n}{list} \PYG{n}{list} \PYG{n}{*} \PYG{n+nn}{Tree}\PYG{p}{.}\PYG{n}{label} \PYG{p}{\PYGZhy{}\PYGZgt{}} \PYG{n+nn}{Tree}\PYG{p}{.}\PYG{n}{stm} \PYG{n}{list}
+    \PYG{c+cm}{(*}
+\PYG{c+cm}{      From a list of basic blocks satisfying properties 1\PYGZhy{}6, along with an \PYGZdq{}exit\PYGZdq{} label, produce a list of stms such that:}
+\PYG{c+cm}{      1. and 2. as above;}
+\PYG{c+cm}{      7. Every CJUMP(\PYGZus{},t,f) is immediately followed by LABEL f. The blocks are reordered to satisfy property 7; also in this reordering as many JUMP(T.NAME(lab)) statements as possible are eliminated by falling through into T.LABEL(lab).}
+\PYG{c+cm}{    *)}
+\PYG{k+kr}{end}
+\end{Verbatim}
