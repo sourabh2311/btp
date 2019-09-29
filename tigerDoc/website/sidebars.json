@@ -1,11 +1,10 @@
 {
-  "srigita": {
-    "Shrimad Bhagvad Gita": [
-      "intro",
-      "chapter2",
-      "chapter5",
-      "hindiWords",
-      "englishWords"
+  "Tiger Compiler": {
+    "Phase I": [
+      "intro"
+    ],
+    "Phase III": [
+      "canon"
     ]
   }
 }
