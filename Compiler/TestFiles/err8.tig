@@ -1,0 +1,9 @@
+/* error: mutually recursive types thet do not pass through record or array */
+let 
+
+type a = array of int 
+type a = array of string 
+
+in
+ ""
+end

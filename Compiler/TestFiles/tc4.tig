@@ -1,0 +1,31 @@
+/* checking boolean logic and more string functions */
+let 
+
+    var s1 := "dddd"
+    var s2 := "d"
+    var i := 4
+    function printInt (i : int) =
+  	let 
+	  	function f (i : int) = 
+			if i > 0 then 
+				(f (i / 10); print (chr (i - i / 10 * 10 + ord ("0"))))
+   	in 
+	   	if i < 0 then 
+		  	(print ("-"); f (-i))
+      	else if i > 0 then f (i)
+      	else print ("0")
+  	end
+
+    function goWhile () =
+  	let 
+        var j := 0
+   	in 
+        /* try converting | to & */
+        while (i < 3) | (j < 4) do 
+            (printInt(stringEqual(s2, s1)); print(s2); print("\n"); s2 := concat(s2, "d"); j := j + 1)
+  	end
+
+in 
+    (goWhile (); exit(0))
+end
+

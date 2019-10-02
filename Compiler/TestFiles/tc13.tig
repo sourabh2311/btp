@@ -1,0 +1,8 @@
+let 
+  type int2 = int 
+  type string2 = string 
+  var string : string2 := "sourabh"
+  var int : int2 := 32
+in 
+  (printI(int); print(" "); print(string); print("\n"); exit(0))
+end

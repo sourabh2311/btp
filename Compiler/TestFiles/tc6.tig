@@ -1,0 +1,40 @@
+/* compute factorial of the given number */
+let 
+
+    var buffer := getchar()
+
+    function printInt (i : int) =
+  	let 
+	  	function f (i : int) = 
+			if i > 0 then 
+				(f (i / 10); print (chr (i - i / 10 * 10 + ord ("0"))))
+   	in 
+	   	if i < 0 then 
+		  	(print ("-"); f (-i))
+      	else if i > 0 then f (i)
+      	else print ("0")
+  	end
+
+    function readInt() : int =
+    let 
+        var i := 0
+        function isdigit(s : string) : int = 
+            ord(buffer)>=ord("0") & ord(buffer)<=ord("9")
+        function skipto() =
+            while (stringEqual (buffer, " ")) | (stringEqual (buffer, "\n") ) do 
+                buffer := getchar()
+    in 
+        skipto();
+        while isdigit(buffer) do 
+            (i := i*10+ord(buffer)-ord("0"); buffer := getchar());
+        i
+    end
+
+    function fact (num : int) : int = 
+        if num = 0 then 1 else (num * fact (num - 1))
+in 
+    printInt(fact (readInt ()));
+    print("\n");
+    exit(0)
+end
+

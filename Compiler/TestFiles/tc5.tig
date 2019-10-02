@@ -1,0 +1,22 @@
+/* checking more string functions */
+let 
+	function readString() : string = 
+	let
+		var s := ""
+		var buffer := getchar()
+		function skipto () =
+			while (stringEqual (buffer, " ")) | (stringEqual (buffer, "\n")) do 
+					buffer := getchar()
+		function notWS () : int = 
+			(stringEqual(buffer, " ") <> 1) & (stringEqual(buffer, "\n") <> 1)
+	in
+		skipto();
+		while (notWS ()) do 
+			(s := concat(s, buffer); buffer := getchar());
+		s
+	end
+
+in 
+	print(concat(readString(), "\n")); exit(0)
+end
+

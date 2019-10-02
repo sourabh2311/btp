@@ -1,0 +1,7 @@
+/* Hello World! */
+let 
+*/
+    var N := "\tHello\n\t\tWorld!\n"
+in
+    print (N)
+end
