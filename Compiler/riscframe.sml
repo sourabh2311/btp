@@ -95,8 +95,6 @@ val temporaries = [(t0, "t0"), (t1, "t1"), (t2, "t2"), (t3, "t3"), (t4, "t4"), (
 val calleesaves = savedregs
 val callersaves = temporaries
 
-(* Thinking to support only traditional a0 - a7 arguments (8) *)
-exception ArgExceed of string
 
 val wordSize = 4
 
@@ -166,7 +164,7 @@ let
       case form of 
         InReg _ => (print("InReg\n"); formPrint(forms))
       | _ => (print("InFrame\n"); formPrint(forms))
-  (* val _ = formPrint(aformals) *)
+  (* val _ = (print("\n--------------\n"); formPrint(aformals)) *)
   fun handleShift([], x) = [] 
     | handleShift (acc :: accRem, []) = []
     | handleShift(acc :: accRem, arg :: args) = 
@@ -178,10 +176,7 @@ let
   (* getting the value in argregs to their correct positions *)
   val shiftInstr = ListPair.map viewShift (aformals, getFirstL (argregs)) *)
 in
-  if (List.length formals <= List.length argregs) then 
-    {name = name, formals = aformals, numLocals = ref 0, shiftInstr = shiftInstr, escapeCount = escapeCount}
-  else 
-    raise ArgExceed ("No. of arguments exceeded!")
+  {name = name, formals = aformals, numLocals = ref 0, shiftInstr = shiftInstr, escapeCount = escapeCount}
 end
 
 fun allocLocal frame' escape = (

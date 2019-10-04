@@ -1,0 +1,9 @@
+/* lets check static linking */
+
+let 
+
+  var th := 3 
+  function get() = printI(th)
+in 
+  get(); exit(0)
+end
