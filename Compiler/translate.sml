@@ -2,7 +2,7 @@ structure Translate : TRANSLATE =
 struct
 
 structure Tr = Tree
-structure F = MipsFrame
+structure F = RiscFrame
 structure A = Absyn
 
 (* Basic Definitions *)
@@ -230,12 +230,12 @@ fun break (label) = Nx(Tr.JUMP(Tr.NAME label, [label]))
 
 (* first argument is our level and second one is function level *)
 fun call (_, Lev({parent = Top, ...}, _), label, exps) = Ex(F.externalCall(Symbol.name label, map unEx exps))
-  | call (callLevel, funLevel, label, exps) =
+  | call (callLevel, funLevel as Lev({parent, frame = frame'}, _), label, exps) =
     let
 			val Lev({parent, frame}, _) = funLevel
 			val traceLevel = getLevelUsingStaticLink (parent, callLevel, Tr.TEMP (F.fp))
 		in 
-			Ex (Tr.CALL (Tr.NAME label, traceLevel :: (map unEx exps)))
+			Ex (Tr.CALL (Tr.NAME label, traceLevel :: (map unEx exps), AccessConv.frameToTree(F.formals frame')))
     end
 
 fun sequence (exps: exp list) =
