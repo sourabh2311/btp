@@ -68,7 +68,12 @@ const siteConfig = {
   },
 
   // Add custom scripts here that would be placed in <script> tags.
-  scripts: ["https://buttons.github.io/buttons.js"],
+  scripts: [
+    "https://buttons.github.io/buttons.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML",
+    "/js/mathjax-config.js",
+    "https://buttons.github.io/buttons.js"
+  ],
 
   // On page navigation for the current documentation page.
   onPageNav: "separate",
@@ -78,7 +83,11 @@ const siteConfig = {
   // Open Graph and Twitter card images.
   ogImage: "img/undraw_online.svg",
   twitterImage: "img/undraw_tweetstorm.svg",
-  repoUrl: "https://github.com/sourabh2311/btp"
+  repoUrl: "https://github.com/sourabh2311/btp",
+  markdownPlugins: [
+    // Highlight admonitions.
+    require("remarkable-admonitions")({ icon: "svg-inline" })
+  ]
   // Show documentation's last contributor's name.
   // enableUpdateBy: true,
 

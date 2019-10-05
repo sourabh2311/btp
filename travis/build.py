@@ -31,6 +31,8 @@ for correctTestCase in correctTestCases:
             sys.stdout.write(line)
   
   os.remove(fileName + ".s")
+  os.remove(correctTestCase + ".c.out")
   assert ok == True
 
 os.chdir(oldDir)
+print("\n\n============All Passed============\n\n")

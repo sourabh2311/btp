@@ -34,22 +34,26 @@ fun memPlus (e1, e2) = Tr.MEM(Tr.BINOP(Tr.PLUS, e1, e2))
 (* Remember that we should pass the static link for which we have added its escape *)
 fun newLevel {parent, name, formals} = Lev({parent = parent, frame = F.newFrame {name = name, formals = true :: formals}}, ref ())
 
-(* Return formals associated with the frame in this level, excluding the static link (first element of the list) *)
-fun formals lev =
-    case lev of
-      Top => nil
-    | Lev({parent = parent, frame = frame}, _) =>
-      let 
-				val formals = tl (F.formals frame) 
-			in
-        (map (fn (x) => (lev, x)) formals) 
-			end
+fun allocLocal (lev as Lev({parent, frame}, _)) escape = (lev, F.allocLocal frame escape)
 
-(* Allocate a new local variable either on frame or in register (depending on whether it escapes) *)
-fun allocLocal lev escape =
-	case lev of
-		Lev({parent = _, frame = frame}, _) => (lev, F.allocLocal frame escape)
-
+fun getBinOper(oper) = 
+case oper of 
+		A.PlusOp => Tr.PLUS
+	| A.MinusOp => Tr.MINUS
+	| A.TimesOp => Tr.MUL
+	| A.DivideOp => Tr.DIV
+	
+fun getRelOper(oper) = 
+case oper of 
+	  A.EqOp => Tr.EQ
+	| A.NeqOp => Tr.NE
+	| A.LtOp => Tr.LT
+	| A.LeOp => Tr.LE
+	| A.GtOp => Tr.GT
+	| A.GeOp => Tr.GE
+	
+fun formals Top = nil 
+	| formals (lev as Lev({parent, frame}, _)) = map (fn formal => (lev, formal)) (List.tl (F.formals frame))
 
 fun seq stmlist =
 	case stmlist of
@@ -77,7 +81,7 @@ fun unCx (Cx c) = c
 	| unCx (Ex (Tr.CONST 0)) = (fn(tlabel, flabel) => Tr.JUMP(Tr.NAME(flabel), [flabel]))
 	| unCx (Ex (Tr.CONST 1)) = (fn(tlabel, flabel) => Tr.JUMP(Tr.NAME(tlabel), [tlabel]))
 	| unCx (Ex e) = (fn(tlabel, flabel) => Tr.CJUMP(Tr.EQ, Tr.CONST 0, e, flabel, tlabel))
-	| unCx (Nx _) = (ErrorMsg.error 0 "Compiler error: unCx an Nx"; fn (a, b) => Tr.LABEL(Temp.newlabel()))
+	| unCx (Nx _) = (ErrorMsg.impossible "Compiler bug! unCx a Nx"; fn (a, b) => Tr.LABEL(Temp.newlabel()))
 
 fun unNx (Ex e) = Tr.EXP(e)
 	| unNx (Nx n) = n
@@ -132,16 +136,13 @@ in
 	Ex(memPlus(unEx(base), Tr.BINOP(Tr.MUL, Tr.CONST(findindex(0, id, SL)), Tr.CONST(F.wordSize))))
 end
 
+
+
 fun binop (oper, e1, e2) =
 let
 	val left = unEx(e1)
 	val right = unEx(e2)
-	val treeop =
-		case oper of
-			A.PlusOp => Tr.PLUS
-		| A.MinusOp => Tr.MINUS
-		| A.TimesOp => Tr.MUL
-		| A.DivideOp => Tr.DIV
+	val treeop = getBinOper(oper)
 in 
 	Ex(Tr.BINOP(treeop, left, right))
 end
@@ -150,41 +151,31 @@ fun relop (oper, e1, e2) =
 let
 	val left = unEx(e1)
 	val right = unEx(e2)
-	val treeop =
-			case oper of
-				A.EqOp => Tr.EQ
-			| A.NeqOp => Tr.NE
-			| A.LtOp => Tr.LT
-			| A.LeOp => Tr.LE
-			| A.GtOp => Tr.GT
-			| A.GeOp => Tr.GE
+	val treeop = getRelOper(oper)
 in 
 	Cx((fn (t, f) => Tr.CJUMP(treeop, left, right, t, f))) 
 end
 
 
-(* The elseexp could be NONE, in which case the
- * result must be unit, and thus we return CONST(0) *)
 fun ifelse (testexp, thenexp, elseexp) =
 let
-	val r = Temp.newtemp() (* hold result *)
-	val t = Temp.newlabel()
-	val f = Temp.newlabel()
-	val finish = Temp.newlabel()
 	val neotest  = unCx(testexp) 
 	val neothen = unEx (thenexp)
 	val neoelseexp = unEx (elseexp)
+	val result = Temp.newtemp() 
+	val tlabel = Temp.newlabel()
+	val flabel = Temp.newlabel()
+	val finish = Temp.newlabel()
 in
-	Ex(Tr.ESEQ(seq[neotest(t, f),
-	Tr.LABEL t, Tr.MOVE(Tr.TEMP r, neothen),
+	Ex(Tr.ESEQ(seq[neotest(tlabel, flabel),
+	Tr.LABEL tlabel, Tr.MOVE(Tr.TEMP result, neothen),
 	Tr.JUMP (Tr.NAME finish, [finish]),
-	Tr.LABEL f, Tr.MOVE(Tr.TEMP r, neoelseexp),
+	Tr.LABEL flabel, Tr.MOVE(Tr.TEMP result, neoelseexp),
 	Tr.JUMP (Tr.NAME finish, [finish]),
 	Tr.LABEL finish],
-	Tr.TEMP r))
+	Tr.TEMP result))
 end
 
-(* creation of an array and record (see page 164 for more info) *)
 fun record (fields) =
 let
 	val r = Temp.newtemp()
@@ -194,22 +185,30 @@ let
 			F.externalCall(
 			"allocRecord", [Tr.CONST(length(fields) * F.wordSize)]))
 
-	fun loop (fields, index) =
-			case fields of
-				nil => nil
-			| e :: rest =>
-				Tr.MOVE(
-				memPlus(Tr.TEMP r, Tr.CONST(index * F.wordSize)),
-				unEx(e)) :: loop(rest, index + 1)
+	fun loop ([], index) = nil 
+		|	loop (field :: fields, index) = Tr.MOVE(memPlus(Tr.TEMP r, Tr.CONST(index * F.wordSize)), unEx(field)) :: loop(fields, index + 1)
 in 
 	Ex(Tr.ESEQ(seq(init :: loop(fields, 0)), Tr.TEMP r))
 end
 
-
-(* Believe in text *)
 fun array (size, init) = Ex(F.externalCall("initArray", [unEx(size), unEx(init)]))
 
 fun assign (left, right) = Nx(Tr.MOVE(unEx(left), unEx(right)))
+
+fun letexp (decs, body) =
+let 
+	val len = List.length decs 
+in
+	if len = 0 then body
+	else if len = 1 then Ex(Tr.ESEQ(unNx(hd(decs)), unEx(body)))
+	else 
+	let 
+		val seqDecs = map unNx decs 
+	in 
+		Ex(Tr.ESEQ(seq seqDecs, unEx(body))) 
+	end
+end
+
 
 (* Just the book instructions *)
 fun loop (test, body, doneLabel) =
@@ -245,27 +244,7 @@ in
 	if len = 0 then (Ex(Tr.CONST 0)) (* for "()" *)
 	else if len = 1 then Ex(unEx (hd(exps)))
 	else
-	let 
-		(* take (l, i) returns the first i elements of the list l. Note: take (l, length l) = l *)
-		val first = seq(map unNx (List.take(exps, length(exps) - 1)))
-		val last = List.last(exps) 
-	in
-		Ex(Tr.ESEQ (first, unEx (last)))
-	end
-end
-
-fun letexp (decs, body) =
-let 
-	val len = List.length decs 
-in
-	if len = 0 then body
-	else if len = 1 then Ex(Tr.ESEQ(unNx(hd(decs)), unEx(body)))
-	else 
-	let 
-		val seqDecs = map unNx decs 
-	in 
-		Ex(Tr.ESEQ(seq seqDecs, unEx(body))) 
-	end
+		Ex(Tr.ESEQ (seq(map unNx (List.take(exps, length(exps) - 1))), unEx (List.last(exps))))
 end
 
 

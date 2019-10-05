@@ -1,11 +1,15 @@
 {
   "Tiger Compiler": {
     "Introduction": [
-      "intro"
+      "intro",
+      "function"
     ],
     "Phase I": [],
     "Phase III": [
-      "canon"
+      "canon",
+      "is",
+      "graph",
+      "reg"
     ]
   }
 }

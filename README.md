@@ -1,1 +1,3 @@
-* Contains files relevant for my B. Tech Project.
+# Tiger Compiler written in SML
+
+* Documentation can be found @ tigercompiler.ml
