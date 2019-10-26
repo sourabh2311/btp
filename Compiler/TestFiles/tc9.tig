@@ -1,0 +1,8 @@
+let
+    var N := 8
+    var S := N << 2
+    var D := S >> 2
+in 
+    (printI(S); print(" and "); printI(D); print("\n"); exit(0))
+end
+	

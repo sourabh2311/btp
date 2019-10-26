@@ -1,0 +1,8 @@
+let
+    var N := 8
+    var M := 4 * N
+    var O := N * 4
+in 
+    (printI(M); print("\n"); printI(O); print("\n"); exit(0))
+end
+	

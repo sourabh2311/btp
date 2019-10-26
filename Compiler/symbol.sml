@@ -63,4 +63,5 @@ struct
   val empty = Table.empty
   val enter = Table.enter
   val look = Table.look
+  val listItemsi = Table.listItemsi
 end

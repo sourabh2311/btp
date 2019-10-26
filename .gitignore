@@ -1,1 +1,5 @@
+Compiler/tiger.grm.desc
+Compiler/tiger.grm.sig
+Compiler/tiger.grm.sml
+Compiler/tiger.lex.sml
 Compiler/.cm

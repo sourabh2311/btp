@@ -27,7 +27,7 @@ structure Main = struct
         (* val _ = Printtree.printtree(out,body); *)
         val stms = Canon.linearize body
         (* val _ = app (fn s => Printtree.printtree(out,s)) stms; *)
-        val stms' = Canon.traceSchedule(Canon.basicBlocks stms)
+        val stms' = Canon.traceSchedule(Canon.optimizeBasicBlocks(Canon.basicBlocks stms))
         val instrs = List.concat(map (Risc.codegen frame) stms') 
         val instrs2 = F.procEntryExit2 (frame, instrs)
         (* val format1 = Assem.format(F.getTempString) *)

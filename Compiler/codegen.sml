@@ -1,16 +1,16 @@
 signature CODEGEN = 
 sig
-	structure F : FRAME
-	val codegen : F.frame -> Tree.stm -> Assem.instr list
+  structure F : FRAME
+  val codegen : F.frame -> Tree.stm -> Assem.instr list
 end
 
 
 structure Risc : CODEGEN = 
 struct
-	structure F = RiscFrame
-	structure T = Tree
-	structure A = Assem
-	structure S = Symbol
+  structure F = RiscFrame
+  structure T = Tree
+  structure A = Assem
+  structure S = Symbol
   exception ArgExceed of string
   fun codegen (frame) (stm: Tree.stm) : A.instr list = 
   let 
@@ -309,15 +309,6 @@ struct
               munchArgs(i, l, frameFormals, escapes)
             end
           )
-        (* let
-            val argDst = if i < List.length F.argregs 
-                         then T.TEMP (List.nth((F.getFirstL F.argregs), i)) 
-                         else raise ArgExceed ("No. of arguments exceeded!") 
-        in
-            (munchStm(T.MOVE(argDst, a));
-            case argDst of
-            T.TEMP t => t :: munchArgs(i + 1, l))
-        end *)
 	in 
 		munchStm stm; rev(!ilist)
 	end

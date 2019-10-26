@@ -42,6 +42,8 @@ case oper of
 	| A.MinusOp => Tr.MINUS
 	| A.TimesOp => Tr.MUL
 	| A.DivideOp => Tr.DIV
+	| A.LShift => Tr.LSHIFT
+	| A.RShift => Tr.RSHIFT
 	
 fun getRelOper(oper) = 
 case oper of 

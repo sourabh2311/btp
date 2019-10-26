@@ -6,7 +6,9 @@ sidebar_label: Register Allocation
 
 Now that we have made our interference graph, where each edge denotes that its endpoints must go in different registers, thus, our problem reduced into coloring our graph with K (# no. of available registers) colors such that no two end points have same colour. 
 
-As of now this is implemented by below mentioned algorithm **but** later as our number of registers is fixed, I would like to implement parameterized algorithm if there exists one.
+As of now this is implemented by below mentioned algorithm **but** later I would implement the exact algorithm which is given in book.
+
+Note that graph coloring problem is not fixed parameter tractable with respect to number of colors.
 
 ## Algorithm 
 

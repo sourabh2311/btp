@@ -12,7 +12,7 @@ fun forSyntaxHighlighting () = ()
   | INT of int | STRING of string 
   | COMMA | COLON | SEMICOLON | LPAREN | RPAREN | LBRACK | RBRACK 
   | LBRACE | RBRACE | DOT 
-  | PLUS | MINUS | TIMES | DIVIDE | EQ | NEQ | LT | LE | GT | GE | UMINUS
+  | PLUS | MINUS | TIMES | DIVIDE | EQ | NEQ | LT | LE | GT | GE | UMINUS | LSHIFT | RSHIFT
   | AND | OR | ASSIGN
   | ARRAY | IF | THEN | ELSE | WHILE | FOR | TO | DO | LET | IN | END | OF 
   | BREAK | NIL
@@ -48,6 +48,7 @@ fun forSyntaxHighlighting () = ()
 %nonassoc EQ NEQ LT LE GT GE
 %left PLUS MINUS
 %left TIMES DIVIDE
+%left LSHIFT RSHIFT
 %left UMINUS
 
 (* Note: when an LR parser encounters an error action it stops parsing and reports failure. This behavior would be unkind to the programmer, who would like to have all the errors in her program reported, not just the first error *)
@@ -144,6 +145,12 @@ exp:                    NIL                                 (
                                                             )
                         | exp DIVIDE exp                    (
                                                             A.OpExp({left = exp1, oper = A.DivideOp, right = exp2, pos = exp1left})
+                                                            )
+                        | exp LSHIFT exp                    (
+                                                            A.OpExp({left = exp1, oper = A.LShift, right = exp2, pos = exp1left})
+                                                            )
+                        | exp RSHIFT exp                    (
+                                                            A.OpExp({left = exp1, oper = A.RShift, right = exp2, pos = exp1left})
                                                             )
                         (* Comparision produces the integer 1 for true and integer 0 for false. All these operators can be applied to integer operands. The equals and not equals operators can also be applied to two record or array operands of the same type, and compare for reference or pointer equality (they test whether two records are the same instance, not whether they have the same contents). *)
                         (* The comparison operator may also be applied to strings. Two strings are equal if their contents are equal. Ineq is acc. to lex. ordering. *)
@@ -363,6 +370,15 @@ vardec:                 VAR ID ASSIGN exp                   (
                                                             A.VarDec({name = Symbol.symbol ID1, escape = (ref true), typ = SOME (Symbol.symbol ID2, ID2left), init = exp, pos = VARleft})
                                                             )
                         (* The first of these is a procedure declaration; the second is a function declaration. Procedures do not return result values; functions do, and the type is specified after the colon. The exp is the body of the procedure or function, and the tyfields specify the names and type of the parameters. All parameters are passed by values Functions may be recursive. Mutually recursive functions and procedures are declared by a sequence of consecutive function declarations (with no intervening type or variable declarations) *)
+                        (* 
+                          Mutually recursive functions example: 
+                          function treeLeaves(t : tree) : int =
+                            if t = nil then 1
+                            else treelistLeaves(t.children)
+                          function treelistLeaves(L : treelist) : int =
+                            if L = nil then 0
+                            else treeLeaves(L.hd) + treelistLeaves(L.tl)
+                        *)
 fundecs:                fundec                              (
                                                             fundec 
                                                             )

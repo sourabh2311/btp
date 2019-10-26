@@ -2,6 +2,12 @@ signature TREE =
 sig 
   type label = Temp.label
   type size
+  datatype access = InFrame of int | InReg of Temp.temp
+  val inReg : access -> bool
+  val getAccessTemp : access -> Temp.temp 
+  val getAccessOffset : access -> int 
+  val genAccessT : Temp.temp -> access
+  val genAccessO : int -> access
 
 datatype stm = SEQ of stm * stm
               (* Define the constant value of name n to be the current machine code address. This is like a label definition in assembly language. The value NAME(rc) may be the target of jumps, calls, etc. *)
@@ -18,13 +24,12 @@ datatype stm = SEQ of stm * stm
              | NAME of label
              | CONST of int
              (* exp = f, exp list = args. *)
-	           | CALL of exp * exp list
+	           | CALL of exp * exp list * access list 
 
      and binop = PLUS | MINUS | MUL | DIV | AND | OR | LSHIFT | RSHIFT | ARSHIFT | XOR
-
+    (* Arithmetic shift preserve sign bit, whereas Logical shift can not preserve sign bit. *)
+    (* ARSHIFT -> Arithmetic Right Shift *)
      and relop = EQ | NE | LT | GT | LE | GE | ULT | ULE | UGT | UGE
-     val notRel : relop -> relop
-     val commute: relop -> relop
 
 end
 
@@ -33,6 +38,17 @@ struct
   type label = Temp.label
   (* wordsize. *)
   type size = int
+  datatype access = InFrame of int | InReg of Temp.temp
+  fun inReg (acc) = 
+  case acc of 
+      InReg _ => true 
+    | _ => false
+
+  fun genAccessT (temp : Temp.temp) = InReg temp
+  fun genAccessO (offset : int) = InFrame offset
+
+  fun getAccessTemp (InReg t) = t 
+  fun getAccessOffset (InFrame x) = x
 
 datatype stm = SEQ of stm * stm (* The statement s2 followed by s2. *)
              | LABEL of label (* Define the constant value of name n to be the current machine code address. This is like a label definition in assembly language. *)
@@ -51,13 +67,11 @@ datatype stm = SEQ of stm * stm (* The statement s2 followed by s2. *)
              | ESEQ of stm * exp (* The statement s is evaluated for side effects, then e is evaluated for result *)
              | NAME of label (* The value NAME(n) may be the target of jumps, calls, etc. *)
              | CONST of int (* The integer constant int. *)
-	           | CALL of exp * exp list (* A procedure call: the application of function exp1 to argument list exp2 list. The subexpression exp1 is evaluated before the arguments which are evaluated left to right. *)
+	           | CALL of exp * exp list * access list (* A procedure call: the application of function exp1 to argument list exp2 list. The subexpression exp1 is evaluated before the arguments which are evaluated left to right. *)
 
      and binop = PLUS | MINUS | MUL | DIV | AND | OR | LSHIFT | RSHIFT | ARSHIFT | XOR
 
      and relop = EQ | NE | LT | GT | LE | GE | ULT | ULE | UGT | UGE
 
-     fun notRel (a : relop) = a
-     fun commute (b : relop) = b
 end
 

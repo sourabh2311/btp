@@ -3,8 +3,6 @@ Group is
 regalloc.sig
 regalloc.sml
 accessConv.sml
-color.sig
-color.sml
 codegen.sml
 liveness.sml
 assem.sml
@@ -16,9 +14,9 @@ main.sml
 canon.sml
 absyn.sml
 symbol.sml 
-prabsyn.sml 
 table.sig 
 table.sml 
+printtree.sml
 env.sig
 env.sml 
 types.sml 

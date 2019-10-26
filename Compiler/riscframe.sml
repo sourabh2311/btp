@@ -159,12 +159,6 @@ let
       )
   val (aformals, falseCount) = allocFormals (wordSize, formals, [], 0) (* first word is reserved for fp *)
   val escapeCount = (length formals) - falseCount
-  fun formPrint([]) = ()
-    | formPrint(form :: forms) = 
-      case form of 
-        InReg _ => (print("InReg\n"); formPrint(forms))
-      | _ => (print("InFrame\n"); formPrint(forms))
-  (* val _ = (print("\n--------------\n"); formPrint(aformals)) *)
   fun handleShift([], x) = [] 
     | handleShift (acc :: accRem, []) = []
     | handleShift(acc :: accRem, arg :: args) = 
@@ -172,9 +166,6 @@ let
         InReg _ => [Tr.MOVE (exp acc (Tr.TEMP fp), Tr.TEMP arg)] @ handleShift(accRem, args)
       | _ => handleShift(accRem, arg :: args)
   val shiftInstr = handleShift(aformals, getFirstL (argregs))
-  (* fun viewShift (acc, reg) = Tr.MOVE(exp acc (Tr.TEMP fp), Tr.TEMP reg)
-  (* getting the value in argregs to their correct positions *)
-  val shiftInstr = ListPair.map viewShift (aformals, getFirstL (argregs)) *)
 in
   {name = name, formals = aformals, numLocals = ref 0, shiftInstr = shiftInstr, escapeCount = escapeCount}
 end
@@ -242,12 +233,10 @@ fun procEntryExit2(frame, body) =
 fun procEntryExit3(frame' : frame, body) =
   {prolog = Symbol.name (name frame') ^ ":\n" ^ 
     "addi sp, sp, -" ^ Int.toString((getEscapeCount(frame') + 1) * wordSize)^ "\n" ^ 
-    "sw s0 0(sp)\n" ^ 
-    "mv s0 sp\n" ^ 
    (* fp -> 0(sp) *)
-   (* "sw s0 0(sp)\n" ^   *)
+    "sw s0 0(sp)\n" ^ 
    (* sp -> fp *)
-   (* "mv s0 sp\n" ^  *)
+    "mv s0 sp\n" ^ 
    (* sp = sp -  (allocating space in stack) *)
    "addi sp sp -" ^ Int.toString (getFOffset (frame')) ^ "\n",
    body = body,
@@ -256,7 +245,7 @@ fun procEntryExit3(frame' : frame, body) =
    (* lw Rdest, address			Load Word
 Load the 32-bit quantity (word) at address into register Rdest. *)
    "lw s0 0(sp)\n" ^ 
-   "addi sp, sp, 4\n" ^ 
+   "addi sp, sp, " ^ Int.toString((getEscapeCount(frame') + 1) * wordSize) ^ "\n" ^ 
    (* jr Rsource				Jump Register
 Unconditionally jump to the instruction whose address is in register Rsource.*)
    "jr ra\n"}

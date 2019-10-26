@@ -95,8 +95,6 @@ fun interferenceGraph flowgraph =
 let
   (* will map temporary to its corresponding node *)
   val tempMap = ref TT.empty 
-  (* interference graph nodes *)
-  val nodes = ref []
 
   (* this dummy-temporary will be need in case an instruction is not a move and we need to compare whether liveout temporary is not equal to this *)
   val dummyTemp = Temp.newtemp()
@@ -112,7 +110,6 @@ let
           val n = NODE{temp = temp, adj = ref nil}
         in 
           tempMap := TT.enter(!tempMap, temp, n);
-          nodes := n :: !nodes;
           n 
         end
       ) 
@@ -142,6 +139,6 @@ let
 in
   liveness flowgraph; 
   createEdges flowgraph;
-  !nodes
+  TT.listItems(!tempMap)
 end
 end

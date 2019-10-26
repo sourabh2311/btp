@@ -81,6 +81,8 @@ end
 <INITIAL>"*" =>                              (colNo := !colNo + size yytext; Tokens.TIMES(yypos, yypos + size yytext));
 <INITIAL>"-" =>                              (colNo := !colNo + size yytext; Tokens.MINUS(yypos, yypos + size yytext));
 <INITIAL>"+" =>                              (colNo := !colNo + size yytext; Tokens.PLUS(yypos, yypos + size yytext));
+<INITIAL>">>" =>                              (colNo := !colNo + size yytext; Tokens.RSHIFT(yypos, yypos + size yytext));
+<INITIAL>"<<" =>                              (colNo := !colNo + size yytext; Tokens.LSHIFT(yypos, yypos + size yytext));
 <INITIAL>"." =>                              (colNo := !colNo + size yytext; Tokens.DOT(yypos, yypos + size yytext));
 <INITIAL>"}" =>                              (colNo := !colNo + size yytext; Tokens.RBRACE(yypos, yypos + size yytext));
 <INITIAL>"{" =>                              (colNo := !colNo + size yytext; Tokens.LBRACE(yypos, yypos + size yytext));

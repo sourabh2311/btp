@@ -113,13 +113,15 @@ struct
             | A.MinusOp => (checkArith ())
             | A.TimesOp => (checkArith ())
             | A.DivideOp => (checkArith ())
+            | A.LShift => (checkArith ())
+            | A.RShift => (checkArith ())
             | A.EqOp => (checkEq ())
             | A.NeqOp => (checkEq ())
             | A.LtOp => (checkComp ())
             | A.LeOp => (checkComp ())
             | A.GtOp => (checkComp ())
             | A.GeOp => (checkComp ())
-        ) 
+          ) 
         end
         
       | trexp (A.RecordExp({fields, typ, pos})) = 

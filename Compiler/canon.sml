@@ -18,6 +18,9 @@ sig
       Also produce the "label" to which control will be passed upon exit.
     *)
 
+  val optimizeBasicBlocks : (Tree.stm list list * Tree.label) -> (Tree.stm list list * Tree.label)
+    (* Optimize the obtained basic blocks *)
+
   val traceSchedule : Tree.stm list list * Tree.label -> Tree.stm list
     (* 
       From a list of basic blocks satisfying properties 1-6, along with an "exit" label, produce a list of stms such that:
@@ -96,11 +99,11 @@ struct
       | do_stm(T.JUMP(e, labs)) = reorder_stm([e], fn [e] => T.JUMP(e, labs))
       | do_stm(T.CJUMP(p, a, b, t, f)) = reorder_stm([a, b], fn [a, b] => T.CJUMP(p, a, b, t, f))
       (* Here do_stm has recognised the pattern which is the desired one, hence, there is no need to call reorder on this CALL node. *)
-      | do_stm(T.MOVE(T.TEMP t, T.CALL(e, el))) = reorder_stm(e :: el, fn e :: el => T.MOVE(T.TEMP t, T.CALL(e, el)))
+      | do_stm(T.MOVE(T.TEMP t, T.CALL(e, el, fl))) = reorder_stm(e :: el, fn e :: el => T.MOVE(T.TEMP t, T.CALL(e, el, fl)))
       | do_stm(T.MOVE(T.TEMP t, b)) = reorder_stm([b], fn [b] => T.MOVE(T.TEMP t, b))
       | do_stm(T.MOVE(T.MEM e, b)) = reorder_stm([e, b], fn [e, b] => T.MOVE (T.MEM e, b))
       | do_stm(T.MOVE(T.ESEQ(s, e), b)) = do_stm(T.SEQ(s, T.MOVE(e, b)))
-      | do_stm(T.EXP(T.CALL(e, el))) = reorder_stm(e :: el, fn e :: el => T.EXP(T.CALL(e, el)))
+      | do_stm(T.EXP(T.CALL(e, el, fl))) = reorder_stm(e :: el, fn e :: el => T.EXP(T.CALL(e, el, fl)))
       | do_stm(T.EXP e) = reorder_stm([e], fn [e] => T.EXP e)
       | do_stm s = reorder_stm([], fn[] => s)
 
@@ -112,7 +115,7 @@ struct
           val (stms', e) = do_exp e
         in (stms % stms', e)
         end
-      | do_exp(T.CALL(e, el)) = reorder_exp(e :: el, fn e :: el => T.CALL(e, el))
+      | do_exp(T.CALL(e, el, fl)) = reorder_exp(e :: el, fn e :: el => T.CALL(e, el, fl))
       | do_exp e = reorder_exp([], fn [] => e)
 
     (* linear gets rid of the top-level SEQ's, producing a list *)
@@ -150,6 +153,42 @@ struct
     (blocks(stms, nil), done)
   end
 
+  fun powerOfTwo(x) = 
+  let 
+    val pw = ref 0
+    val ob = ref 1 
+  in 
+    while ((!ob) < x) do 
+      (pw := (!pw) + 1; ob := (!ob) * 2);
+    if ((!ob) = x) then (!pw) else ~1
+  end
+  fun optimizeBasicBlock([]) = []
+    | optimizeBasicBlock(x :: xs) = 
+      case x of 
+          T.MOVE(tm, T.BINOP(T.MUL, T.CONST a, b)) => (
+            let 
+              val pw = powerOfTwo(a)
+            in 
+              if (pw <> ~1) then T.MOVE(tm, T.BINOP(T.LSHIFT, b, T.CONST pw)) :: optimizeBasicBlock(xs) else x :: optimizeBasicBlock(xs)
+            end
+          )
+        | T.MOVE(tm, T.BINOP(T.MUL, b, T.CONST a)) => (
+            let 
+              val pw = powerOfTwo(a)
+            in 
+              if (pw <> ~1) then T.MOVE(tm, T.BINOP(T.LSHIFT, b, T.CONST pw)) :: optimizeBasicBlock(xs) else x :: optimizeBasicBlock(xs)
+            end
+          )
+        | T.EXP(T.BINOP(T.MUL, T.CONST a, b)) => (
+            let 
+              val pw = powerOfTwo(a)
+            in 
+              if (pw <> ~1) then T.EXP(T.BINOP(T.LSHIFT, b, T.CONST pw)) :: optimizeBasicBlock(xs) else x :: optimizeBasicBlock(xs)
+            end
+          )
+        | _ => x :: optimizeBasicBlock(xs)
+
+  fun optimizeBasicBlocks(blocks, done) = (map optimizeBasicBlock blocks, done)
   (* Used by traceSchedule to map all basic block's definition to that block *)
   fun enterblock(b as (T.LABEL s :: _), table) = Symbol.enter(table, s, b)
     | enterblock(_, table) = table
