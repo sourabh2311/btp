@@ -12,7 +12,8 @@ before_install:
 - echo $SMLROOT
 - sudo wget http://smlnj.org/dist/working/110.78/config.tgz
 - sudo tar -C /sml -xzvf config.tgz
-- sudo /sml/config/install.sh
+- cd /sml
+- sudo config/install.sh
 - sudo apt-get install gcc-multilib ia32-libs
 # - sudo apt-get install smlnj
 # - sudo apt-get install ml-yacc
