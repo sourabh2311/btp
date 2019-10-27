@@ -5,7 +5,7 @@ import difflib
 
 inputAskingTestCases = set(["tc3.tig", "tc5.tig", "tc6.tig", "tc8.tig"])
 
-rarsDir = "rars1_3_1.jar"  # My System: /opt/RARS/rars1_3_1.jar
+rarsDir = "../rars1_3_1.jar"  # My System: /opt/RARS/rars1_3_1.jar
 changeDir = "./Compiler"
 oldDir = os.getcwd()
 os.chdir(changeDir)
