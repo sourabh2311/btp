@@ -16,6 +16,7 @@ before_install:
 - export cwd=$(pwd)
 - cd /sml
 - sudo config/install.sh
+- export PATH=$PATH:/sml/bin
 - cd $cwd
 # - sudo apt-get install smlnj
 # - sudo apt-get install ml-yacc
