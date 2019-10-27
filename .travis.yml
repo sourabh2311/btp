@@ -7,7 +7,7 @@ before_install:
 - sudo apt-get update -qq
 - sudo apt-get install default-jdk
 - sudo wget https://github.com/TheThirdOne/rars/releases/download/v1.3.1/rars1_3_1.jar
-- sudo apt-get install gcc-multilib ia32-libs
+- sudo apt-get install gcc-multilib
 - sudo mkdir /sml
 - export SMLROOT=/sml
 - echo $SMLROOT
