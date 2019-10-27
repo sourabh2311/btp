@@ -7,9 +7,15 @@ before_install:
 - sudo apt-get update -qq
 - sudo apt-get install default-jdk
 - sudo wget https://github.com/TheThirdOne/rars/releases/download/v1.3.1/rars1_3_1.jar
-- sudo apt-get install smlnj
-- sudo apt-get install ml-yacc
-- sudo apt-get install ml-lex
+- sudo mkdir /sml
+- export SMLROOT=/sml
+- sudo wget http://smlnj.org/dist/working/110.78/config.tgz
+- sudo tar -C /sml xzvf config.tgz
+- sudo bash /sml/config/install.sh
+- sudo apt-get install gcc-multilib ia32-libs
+# - sudo apt-get install smlnj
+# - sudo apt-get install ml-yacc
+# - sudo apt-get install ml-lex
 # - sudo apt-get install -y texlive-full
 # - sudo apt-get install -y texlive-xetex
 # - sudo wget https://github.com/jgm/pandoc/releases/download/2.7.3/pandoc-2.7.3-1-amd64.deb
