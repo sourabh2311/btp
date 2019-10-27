@@ -10,7 +10,7 @@ before_install:
 - sudo mkdir /sml
 - export SMLROOT=/sml
 - sudo wget http://smlnj.org/dist/working/110.78/config.tgz
-- sudo tar -C /sml xzvf config.tgz
+- sudo tar -C /sml -xzvf config.tgz
 - sudo bash /sml/config/install.sh
 - sudo apt-get install gcc-multilib ia32-libs
 # - sudo apt-get install smlnj
