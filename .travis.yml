@@ -9,6 +9,7 @@ before_install:
 - sudo wget https://github.com/TheThirdOne/rars/releases/download/v1.3.1/rars1_3_1.jar
 - sudo apt-get install smlnj
 - sudo apt-get install ml-yacc
+- sudo apt-get install ml-lex
 # - sudo apt-get install -y texlive-full
 # - sudo apt-get install -y texlive-xetex
 # - sudo wget https://github.com/jgm/pandoc/releases/download/2.7.3/pandoc-2.7.3-1-amd64.deb
