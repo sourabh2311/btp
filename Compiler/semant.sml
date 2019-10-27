@@ -18,21 +18,21 @@ struct
     val curDepth = ref 0
 
     (* Helper functions *)
-
+    fun handleTypeError(pos, sym) = (Err.error pos ("following type is not defined: " ^ S.name(sym)))
     (* The type in the VarEntry will sometimes be a "NAME type", and all the types returned from transExp should be "actual" types (with the names traced through to their underlying definitions). So, "actual_ty" is used to skip past all the names. The result will be a Types.ty that is not a NAME, though if it is a record or array type it might contain NAME types to describe its components. *)
-    fun actual_ty (ty : T.ty, pos) =
+    fun actual_ty (ty, pos) =
         case ty of
             T.NAME(sym, tyref) =>
             (case (!tyref) of
-              NONE => (Err.error pos ("undefined type " ^ S.name(sym)); T.NIL)
+              NONE => (handleTypeError(pos, sym); T.NIL)
             | SOME(ty) => actual_ty (ty, pos))
-            (* For type checking of array with "init", we must trace the type of 't' *)
-            | T.ARRAY(t, u) => T.ARRAY(actual_ty (t, pos), u)
+            (* For type checking of array with "init", we must trace the type of 'ty'' *)
+            | T.ARRAY(ty', ref') => T.ARRAY(actual_ty (ty', pos), ref')
             | _ => ty
 
     (* augment ty to auxiliary record *)
     fun augmentR (t : T.ty) = {exp = L.errExp, ty = t}
-    fun getexp (t : expty) = (#exp t)
+    fun getexp (ety : expty) = (#exp ety)
     fun incDepth () = curDepth := !curDepth + 1
     fun decDepth () = curDepth := !curDepth - 1
     fun setDepth (newDepth) = curDepth := newDepth
@@ -467,15 +467,14 @@ struct
           (map (fn {name, escape, typ, pos} =>
                     case S.look(tenv, typ) of
                       SOME(t) => (name, t)
-                    | NONE => (Err.error pos ("undefined type " ^ S.name typ); (name, T.UNIT))
+                    | NONE => (Err.error pos ("following type is not defined: " ^ S.name typ); (name, T.UNIT))
                 ) fields
           ), ref ()))
 
       | transTy (tenv, A.ArrayTy (sym, pos)) =
         case S.look(tenv, sym) of
           SOME(t) => T.ARRAY(t, ref ())
-        | NONE => (Err.error pos ("undefined type " ^ S.name sym);
-                  T.ARRAY(T.NIL, ref ()))
+        | NONE => (Err.error pos ("following type is not defined: " ^ S.name sym); T.ARRAY(T.NIL, ref ()))
     fun transProg (my_exp : A.exp) = 
     let
       (* Clear fragment list *)

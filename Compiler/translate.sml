@@ -95,8 +95,8 @@ fun intlit (n) = Ex(Tr.CONST (n))
 fun strlit (s: string) : exp =
 let 
 	val there = List.find
-		(fn (x) =>
-			case x of
+		(fn (fragment) =>
+			case fragment of
 				F.PROC _ => false
 			| F.STRING(_, s') => s = s') (!fragments)
 in 

@@ -7,15 +7,15 @@ During $6^{th}$ Semester, I wrote a compiler to compile Tiger to MIPS. Now is my
 
 \begin{itemize}
   \item Currently the number of arguments that can be given to a function is exactly the number of available argument registers. This is to be fixed to support any number of function arguments.
-  \item Register allocation currently works only on saved registers and temporaries, this can be augmented to use free argument registers as well. (Subjective move)
-  \item Register allocation algorithm has to be implemented with better heuristics.
-  \item Basic blocks has to optimized with optimizations like constant propagation, constant folding, etc.
-  \item Error messages has to improved in semantic phase. 
+  \item Currently implementation of register allocation isn't completely as what is given in the book. My register allocator lacks coalescing and is therefore incomplete. This algorithm was written in hurry last semester and is to be implemented with better heuristics.
+  \item Basic blocks has to optimized with optimizations like constant propagation, constant folding, strength reduction etc.
+  \item Error messages has to improved in semantic phase. Possible improvement can be to give suggestion for basic typos. 
   \item To implement additional arithmetic operations like left/right shift.
   \item String comparison has to be made as simple as "str1 $>$ str2", etc.,  instead of calling the string comparison functions to determine it.
   \item To implement ability to include pre-written code (header) files.
   \item To implement garbage collection.
   \item Add support for compile time (initial) arguments.
+  \item Automated testing using Travis.
   \item And much more is possible, its like in a product.
 \end{itemize}
 
@@ -23,6 +23,18 @@ During $6^{th}$ Semester, I wrote a compiler to compile Tiger to MIPS. Now is my
 
 For this semester, my main focus is on translating everything from MIPS to RISC V (along with removing redundancy and refactoring of code) and if there is time then I'll work on the issues mentioned above. Translating to RISC V is taking time as I am doing three things simultaneously, viz., Recollecting what I did previously, simultaneously refactoring and converting those files to RISC V and writing a good documentation for it so that any new comer can easily grasp it with minimum prerequisites. 
 
+\section{What has been achieved this Semester}
+
+\begin{itemize}
+  \item Successfully translated compiler functionality from MIPS to RISC V. 
+
+  \item Wrote complete documentation of my compiler at \href{tigercompiler.ml}{tigercompiler.ml}.
+
+  \item Wrote automated testing using Travis. See \href{this}{...} and \href{this}{...}
+
+  \item \textbf{Fixed} a major bug, ...
+  
+\end{itemize}
 
 \section{Organization of The Report}
 
