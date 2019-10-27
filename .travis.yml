@@ -7,14 +7,16 @@ before_install:
 - sudo apt-get update -qq
 - sudo apt-get install default-jdk
 - sudo wget https://github.com/TheThirdOne/rars/releases/download/v1.3.1/rars1_3_1.jar
+- sudo apt-get install gcc-multilib ia32-libs
 - sudo mkdir /sml
 - export SMLROOT=/sml
 - echo $SMLROOT
 - sudo wget http://smlnj.org/dist/working/110.78/config.tgz
 - sudo tar -C /sml -xzvf config.tgz
+- export cwd=$(pwd)
 - cd /sml
 - sudo config/install.sh
-- sudo apt-get install gcc-multilib ia32-libs
+- cd $cwd
 # - sudo apt-get install smlnj
 # - sudo apt-get install ml-yacc
 # - sudo apt-get install ml-lex
