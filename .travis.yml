@@ -9,9 +9,10 @@ before_install:
 - sudo wget https://github.com/TheThirdOne/rars/releases/download/v1.3.1/rars1_3_1.jar
 - sudo mkdir /sml
 - export SMLROOT=/sml
+- echo $SMLROOT
 - sudo wget http://smlnj.org/dist/working/110.78/config.tgz
 - sudo tar -C /sml -xzvf config.tgz
-- sudo bash /sml/config/install.sh
+- sudo /sml/config/install.sh
 - sudo apt-get install gcc-multilib ia32-libs
 # - sudo apt-get install smlnj
 # - sudo apt-get install ml-yacc
