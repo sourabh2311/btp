@@ -18,16 +18,17 @@ struct
     val curDepth = ref 0
 
     (* Helper functions *)
-    fun handleTypeError(pos, sym) = (Err.error pos ("following type is not defined: " ^ S.name(sym)))
+    fun typeNotFound(tenv, pos, targetType, sym) = (Err.error pos ("following " ^ targetType ^ " is not defined: " ^ S.name(sym)))
+    fun variableNotFound(venv, pos, targetVar, sym) = (Err.error pos ("following " ^ targetVar ^ " is not defined: " ^ S.name(sym)))
     (* The type in the VarEntry will sometimes be a "NAME type", and all the types returned from transExp should be "actual" types (with the names traced through to their underlying definitions). So, "actual_ty" is used to skip past all the names. The result will be a Types.ty that is not a NAME, though if it is a record or array type it might contain NAME types to describe its components. *)
-    fun actual_ty (ty, pos) =
+    fun actual_ty (tenv, ty, pos) =
         case ty of
             T.NAME(sym, tyref) =>
             (case (!tyref) of
-              NONE => (handleTypeError(pos, sym); T.NIL)
-            | SOME(ty) => actual_ty (ty, pos))
+              NONE => (typeNotFound(tenv, pos, "type", sym); T.NIL)
+            | SOME(ty) => actual_ty (tenv, ty, pos))
             (* For type checking of array with "init", we must trace the type of 'ty'' *)
-            | T.ARRAY(ty', ref') => T.ARRAY(actual_ty (ty', pos), ref')
+            | T.ARRAY(ty', ref') => T.ARRAY(actual_ty (tenv, ty', pos), ref')
             | _ => ty
 
     (* augment ty to auxiliary record *)
@@ -44,18 +45,18 @@ struct
     fun checkInt ({exp = _, ty = T.INT}, pos) = ()
       | checkInt ({exp = _, ty = _ }, pos) = Err.error pos "error : integer required"
 
-    fun checkType ({exp = _, ty = T.INT}, {exp = _, ty = T.INT}, pos) = ()
-      | checkType ({exp = _, ty = T.STRING}, {exp = _, ty = T.STRING}, pos) = ()
+    fun checkType (tenv, {exp = _, ty = T.INT}, {exp = _, ty = T.INT}, pos) = ()
+      | checkType (tenv, {exp = _, ty = T.STRING}, {exp = _, ty = T.STRING}, pos) = ()
       (* Just need to match unit ref as said before *)
-      | checkType ({exp = _, ty = T.RECORD(_, ref1)}, {exp = _, ty = T.RECORD(_, ref2)}, pos) = if ref1 = ref2 then () else Err.error pos "can't compare different record types"
+      | checkType (tenv, {exp = _, ty = T.RECORD(_, ref1)}, {exp = _, ty = T.RECORD(_, ref2)}, pos) = if ref1 = ref2 then () else Err.error pos "can't compare different record types"
       (* As said before nil belongs to every record *)
-      | checkType ({exp = _, ty = T.NIL}, {exp = _, ty = T.RECORD(_, _)}, pos) = ()
-      | checkType ({exp = _, ty = T.RECORD(_, _)}, {exp = _, ty = T.NIL}, pos) = ()
-      | checkType ({exp = _, ty = T.ARRAY(_, ref1)}, {exp = _, ty = T.ARRAY(_, ref2)}, pos) = if ref1 = ref2 then () else Err.error pos "can't compare different array types"
-      | checkType ({exp = _, ty = T.UNIT}, {exp = _, ty = T.UNIT}, pos) = ()
-      | checkType ({exp = e1, ty = T.NAME (ll, lm)}, {exp = e2, ty = t2}, pos) = checkType (augmentR (actual_ty (T.NAME (ll, lm), pos)), {exp = e2, ty = t2}, pos)
-      | checkType ({exp = e1, ty = t1}, {exp = e2, ty = T.NAME (ll, lm)}, pos) = checkType (augmentR (actual_ty (T.NAME (ll, lm), pos)), {exp = e1, ty = t1}, pos)
-      | checkType ({exp = _, ty = _}, {exp = _, ty = _}, pos) = Err.error pos "type mismatch"
+      | checkType (tenv, {exp = _, ty = T.NIL}, {exp = _, ty = T.RECORD(_, _)}, pos) = ()
+      | checkType (tenv, {exp = _, ty = T.RECORD(_, _)}, {exp = _, ty = T.NIL}, pos) = ()
+      | checkType (tenv, {exp = _, ty = T.ARRAY(_, ref1)}, {exp = _, ty = T.ARRAY(_, ref2)}, pos) = if ref1 = ref2 then () else Err.error pos "can't compare different array types"
+      | checkType (tenv, {exp = _, ty = T.UNIT}, {exp = _, ty = T.UNIT}, pos) = ()
+      | checkType (tenv, {exp = e1, ty = T.NAME (ll, lm)}, {exp = e2, ty = t2}, pos) = checkType (tenv, augmentR (actual_ty (tenv, T.NAME (ll, lm), pos)), {exp = e2, ty = t2}, pos)
+      | checkType (tenv, {exp = e1, ty = t1}, {exp = e2, ty = T.NAME (ll, lm)}, pos) = checkType (tenv, augmentR (actual_ty (tenv, T.NAME (ll, lm), pos)), {exp = e1, ty = t1}, pos)
+      | checkType (tenv, {exp = _, ty = _}, {exp = _, ty = _}, pos) = Err.error pos "type mismatch"
 
     (* So that transExp can translate break statements, it has a formal parameter break that is the done label of the nearest enclosing loop. In translating a while loop, transExp is called upon body with the done label passed as the break parameter. When transExp is recursively calling itself in nonloop contexts, it can simply pass down the same break parameter that was passed to it. The break argument must also be added to the transDec function. *)
     fun transExp (venv, tenv, exp, level, break) = 
@@ -69,12 +70,12 @@ struct
       | trexp (A.CallExp({func, args, pos})) = 
         let
             val argET = map trexp args
-            fun checkFormals(formals, pos) = if (List.length (formals) <> List.length (argET)) then (Err.error pos "Number of arguments don't match corresponding to type") else (List.app (fn (t, e) => checkType (augmentR (actual_ty (t, pos)), e, pos)) (ListPair.zip (formals, argET)))
+            fun checkFormals(formals, pos) = if (List.length (formals) <> List.length (argET)) then (Err.error pos "Number of arguments don't match corresponding to type") else (List.app (fn (t, e) => checkType (tenv, augmentR (actual_ty (tenv, t, pos)), e, pos)) (ListPair.zip (formals, argET)))
         in
             case S.look(venv, func) of
-                SOME(E.FunEntry({level = funlevel, label, formals, result})) => (checkFormals(formals, pos); {exp = L.call(level, funlevel, label, map #exp argET), ty = actual_ty (result, pos)})
+                SOME(E.FunEntry({level = funlevel, label, formals, result})) => (checkFormals(formals, pos); {exp = L.call(level, funlevel, label, map #exp argET), ty = actual_ty (tenv, result, pos)})
               | SOME(_) => (Err.error pos ("symbol not a function " ^ S.name func); errResult)
-              | NONE => (Err.error pos ("no such function " ^ S.name func); errResult)
+              | NONE => (variableNotFound(venv, pos, "function", func); errResult)
         end
       | trexp (A.OpExp{left, oper, right, pos}) = 
         let 
@@ -91,10 +92,10 @@ struct
             val exptyright = trexp right
           in 
             ((case exptyleft of 
-            {exp = _, ty = T.RECORD(_, _)} => checkType (exptyleft, exptyright, pos)
-            | {exp = _, ty = T.ARRAY(_, _)} => checkType (exptyleft, exptyright, pos)
-            | {exp = _, ty = T.STRING} => checkType (exptyleft, exptyright, pos)
-            | {exp = _, ty = T.INT} => checkType (exptyleft, exptyright, pos)
+            {exp = _, ty = T.RECORD(_, _)} => checkType (tenv, exptyleft, exptyright, pos)
+            | {exp = _, ty = T.ARRAY(_, _)} => checkType (tenv, exptyleft, exptyright, pos)
+            | {exp = _, ty = T.STRING} => checkType (tenv, exptyleft, exptyright, pos)
+            | {exp = _, ty = T.INT} => checkType (tenv, exptyleft, exptyright, pos)
             | _ => (Err.error pos "Can compare only two ints, strings. arrays, records for eq/neq")); {exp = L.relop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
           end
           fun checkComp () = 
@@ -103,8 +104,8 @@ struct
             val exptyright = trexp right
           in 
             ((case (#ty exptyleft) of
-            T.INT => checkType (exptyleft, exptyright, pos)
-            | T.STRING => checkType (exptyleft, exptyright, pos)
+            T.INT => checkType (tenv, exptyleft, exptyright, pos)
+            | T.STRING => checkType (tenv, exptyleft, exptyright, pos)
             | _ => (Err.error pos "Comparison can be checked only on ints and strings")); {exp = L.relop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
           end
         in 
@@ -126,15 +127,15 @@ struct
         
       | trexp (A.RecordExp({fields, typ, pos})) = 
         (case S.look(tenv, typ) of
-            NONE => (Err.error pos ("record type " ^ S.name typ ^ " not found"); errResult)
+            NONE => (typeNotFound(tenv, pos, "record", typ); errResult)
           | SOME(t) =>
-            case actual_ty (t, pos) of
+            case actual_ty (tenv, t, pos) of
                 (* Recall: it is (symbol * ty) list * unique *)
                 T.RECORD (StyL, u) =>
                 let
                     val fieldsET = map (fn (_, e, pos) => (trexp e, pos)) fields
                     val fieldsE = map (fn ({exp, ty}, _) => exp) fieldsET 
-                    fun checkRecord () = if (List.length (StyL) <> List.length (fieldsET)) then (Err.error pos "Number of fields in a record doesn't match with its corresponding type declaration fields") else (List.app (fn (Sty, (t, pos)) => checkType (augmentR(#2Sty), t, pos)) (ListPair.zip (StyL, fieldsET)))
+                    fun checkRecord () = if (List.length (StyL) <> List.length (fieldsET)) then (Err.error pos "Number of fields in a record doesn't match with its corresponding type declaration fields") else (List.app (fn (Sty, (t, pos)) => checkType (tenv, augmentR(#2Sty), t, pos)) (ListPair.zip (StyL, fieldsET)))
                 in
                     (checkRecord (); {exp = L.record(fieldsE), ty = T.RECORD (StyL, u)})
                 end
@@ -152,29 +153,28 @@ struct
           val exptyvar = trvar var
           val exptyexp = trexp exp
         in 
-          (checkType (trvar var, trexp exp, pos); {exp = L.assign(getexp(exptyvar), getexp(exptyexp)), ty = T.UNIT})
+          (checkType (tenv, trvar var, trexp exp, pos); {exp = L.assign(getexp(exptyvar), getexp(exptyexp)), ty = T.UNIT})
         end
-        (* Maybe wrong, I have done this for simpler implementation in Translate *)
       | trexp (A.IfExp({test, then', else', pos})) = 
         let 
           val exptytest = trexp test
           val exptythen = trexp then'
-          val _ = checkType (exptytest, augmentR(T.INT), pos)
+          val _ = checkType (tenv, exptytest, augmentR(T.INT), pos)
           val exptyelse = case else' of 
-                    NONE => ((checkType (augmentR(T.UNIT), exptythen, pos)); {exp = L.errExp, ty = T.UNIT})
+                    NONE => ((checkType (tenv, augmentR(T.UNIT), exptythen, pos)); {exp = L.errExp, ty = T.UNIT})
                   | SOME(e) => (
-                    let val exptyelse = trexp e in (checkType (exptyelse, exptythen, pos); {exp = getexp(exptyelse), ty = (#ty exptythen)}) end)
+                    let val exptyelse = trexp e in (checkType (tenv, exptyelse, exptythen, pos); {exp = getexp(exptyelse), ty = (#ty exptythen)}) end)
         in 
           {exp = L.ifelse (getexp(exptytest), getexp(exptythen), getexp(exptyelse)), ty = (#ty exptythen)}
         end
       | trexp (A.WhileExp({test, body, pos})) = 
         let 
           val exptytest = trexp test
-          val _ = checkType (exptytest, augmentR(T.INT), pos)
+          val _ = checkType (tenv, exptytest, augmentR(T.INT), pos)
           val _ = incDepth ()
           val doneLabel = Temp.newlabel()
           val exptybody = transExp (venv, tenv, body, level, doneLabel)
-          val _ = checkType (exptybody, augmentR(T.UNIT), pos)
+          val _ = checkType (tenv, exptybody, augmentR(T.UNIT), pos)
           val _ = decDepth ()
         in 
             {exp = L.loop(getexp(exptytest), getexp(exptybody), doneLabel), ty = T.UNIT}
@@ -257,18 +257,18 @@ struct
         (* type of size should be int, type of array should be same as init *)
       | trexp (A.ArrayExp({typ, size, init, pos})) = 
         case S.look (tenv, typ) of 
-          NONE => ((Err.error pos "This array is not found"); errResult)
+          NONE => (typeNotFound(tenv, pos, "array", typ); errResult)
         | SOME (arrayty) =>
           let 
-            val acArrayty = actual_ty (arrayty, pos)
+            val acArrayty = actual_ty (tenv, arrayty, pos)
           in 
             case acArrayty of 
               T.ARRAY(realthing, uniq) => 
               let
                 val exptysize = trexp size
                 val exptyinit = trexp init
-                val _ = checkType (augmentR(T.INT), exptysize, pos)
-                val _ = checkType (augmentR(realthing), exptyinit, pos)
+                val _ = checkType (tenv, augmentR(T.INT), exptysize, pos)
+                val _ = checkType (tenv, augmentR(realthing), exptyinit, pos)
               in 
                 {exp = L.array (getexp(exptysize), getexp(exptyinit)), ty = arrayty}
               end
@@ -277,9 +277,9 @@ struct
           end
     and trvar (A.SimpleVar(id, pos)) = 
         (case S.look(venv, id) of
-            SOME(E.VarEntry({access, ty})) => {exp = L.simpleVar (access, level), ty = actual_ty (ty, pos)}
-          | SOME(_) => (Err.error pos ("expected variable, but function found"); errResult)
-          | NONE => (Err.error pos ("error: undeclared variable " ^ S.name id); errResult)
+            SOME(E.VarEntry({access, ty})) => {exp = L.simpleVar (access, level), ty = actual_ty (tenv, ty, pos)}
+          | SOME(_) => (Err.error pos ("variable was expected but instead function is given"); errResult)
+          | NONE => (variableNotFound(venv, pos, "variable", id); errResult)
         )
       | trvar (A.FieldVar(lval, id, pos)) =
         let 
@@ -287,24 +287,24 @@ struct
         in
           (case exptylval of
             {exp = _, ty = T.RECORD(StyL, uniq)} => 
-            (case List.find (fn x => (#1x) = id) StyL of
-                NONE => ((Err.error pos "Symbol not found in record"); errResult)
-              | SOME (x) => {exp = L.fieldVar(getexp (exptylval), id, map #1 StyL), ty = actual_ty (#2x, pos)}) 
-          | _ => (Err.error pos ("error : variable not record"); errResult)
+            (case List.find (fn elem => (#1elem) = id) StyL of
+                NONE => (typeNotFound(tenv, pos, "record symbol", id); errResult)
+              | SOME (elem) => {exp = L.fieldVar(getexp (exptylval), id, map #1 StyL), ty = actual_ty (tenv, #2elem, pos)}) 
+          | _ => (Err.error pos ("record was expected but something else is given"); errResult)
           )
         end
       | trvar (A.SubscriptVar(avar, index, pos)) = 
         let
           val exptyavar = trvar avar        
         in
-          case actual_ty(#ty exptyavar, pos) of 
+          case actual_ty(tenv, #ty exptyavar, pos) of 
             T.ARRAY(t, _) => (
               let
                 val exptyindex = trexp index
               in 
-                (checkType (exptyindex, augmentR(T.INT), pos); {exp = L.subscriptVar (getexp (exptyavar), getexp (exptyindex)), ty = t})
+                (checkType (tenv, exptyindex, augmentR(T.INT), pos); {exp = L.subscriptVar (getexp (exptyavar), getexp (exptyindex)), ty = t})
               end)
-          | _ => ((Err.error pos "Type should be array"); errResult)
+          | _ => ((Err.error pos "array was expected but something else is given"); errResult)
         end
     in
       trexp exp
@@ -324,12 +324,12 @@ struct
       val varexp = L.simpleVar (access', level)
     in
       case S.look (tenv, tname) of 
-        NONE => ((Err.error pos ("type " ^ S.name tname ^ " not found")); {tenv = tenv, venv = S.enter(venv, name, E.VarEntry{access = access', ty = ty}), expList = []})
+        NONE => (typeNotFound(tenv, pos, "type", tname); {tenv = tenv, venv = S.enter(venv, name, E.VarEntry{access = access', ty = ty}), expList = []})
       | SOME(dty) =>
           let
-            val at = actual_ty(dty, pos) 
+            val at = actual_ty(tenv, dty, pos) 
           in
-            (checkType(augmentR(at), augmentR(ty), pos);
+            (checkType(tenv, augmentR(at), augmentR(ty), pos);
             {tenv = tenv, venv = S.enter(venv, name, E.VarEntry{access = access', ty = at}), expList = [L.assign (varexp, exp)]})
           end
     end
@@ -342,42 +342,37 @@ struct
       To enter this header into an environment tenv we can use a NAME type with an empty binding (ty option):
       tenv' = S.enter(tenv, name, Types.NAME(name, ref NONE))
       Now, we can call transTy on the "body" of the type declaration, that is, on the record expression {first: int, rest: list}. The environment we give to transTy will be tenv'.
-      It's important that transTy stop as soon as it gets to any NAME type. If, for example, transTy behaved like actuality and tried to look "through" the NAME type bound to the identifier list, all it would find (in this case) would be NONE - which it is certainly not prepared for. This none can be replaced only by a valid type after the entire {first: int, rest: list} is translated.For more info, refer pg 120. 
+      It's important that transTy stop as soon as it gets to any NAME type. If, for example, transTy behaved like actual_ty and tried to look "through" the NAME type bound to the identifier list, all it would find (in this case) would be NONE - which it is certainly not prepared for. This none can be replaced only by a valid type after the entire {first: int, rest: list} is translated. For more info, refer pg 120. 
     *)
     | transDec (venv, tenv, A.TypeDec (tdecs), level, break) =
       let
-        (* Process the headers *)
-        val tenv' =
-          foldl (fn ({name, ...}, env) =>
-            S.enter(env, name, T.NAME(name, ref NONE))) tenv tdecs
+        fun processHeaders() = foldl (fn ({name, ...}, ienv) => (S.enter(ienv, name, T.NAME(name, ref NONE)))) tenv tdecs 
 
-        (* Pass the tenv to transTy to get the values *)
-        val tenv'' =
-          foldl (
-            fn ({name, ty, ...}, env) =>
-              (case S.look(env, name) of
-                SOME(T.NAME(n, r)) =>
-                  (r := SOME(transTy(env, ty)); env))) tenv' tdecs
+        val tenv' = processHeaders()
 
-        (* Returns false if it detects the cycle or in error situation *)
-        fun checkcycle(seen, to, pos) =
-            case to of
-              NONE => (Err.error pos "type not found"; false)
-            | SOME(t) =>
-              case t of
-                T.NAME(s2, r) =>
-                if (List.all (fn (x) => x <> s2) seen) then checkcycle(s2 :: seen, !r, pos) else false
-              | _ => true
+        fun processBody({name, ty, pos}) = 
+        case S.look(tenv', name) of 
+          SOME(T.NAME(name', ref')) => ref' := SOME(transTy(tenv', ty))
+        
+        fun processBodies() = app processBody tdecs 
+        (* Used to detect cycles *)
+        val seen = ref S.empty
+        (* Returns true if it detects the cycle *)
+        fun cycleExists(SOME(t)) =
+          case t of
+            T.NAME(sym, r) =>
+            if (S.look(!seen, sym) = NONE) then cycleExists(!r) else true
+          | _ => false
 
-        fun checkeach(nil) = ()
-          | checkeach({name, ty, pos} :: ds) =
-            case S.look(tenv'', name) of
-              SOME(T.NAME(_, r)) =>
-              if (not (checkcycle([name], !r, pos))) then
-                (Err.error pos ("name type: " ^ S.name(name) ^ " involved in cyclic definition."))
-              else checkeach(ds)
-
-      (* Every cycle on mutually recursive types must include a array or record. Not implemented as of now *)
+        fun traverse(nil) = ()
+          | traverse({name, ty, pos} :: ls) =
+            case S.look(tenv', name) of
+              SOME(T.NAME(_, r)) => (
+                seen := S.enter(!seen, name, 1); 
+                if (cycleExists(!r)) then
+                  (Err.error pos ("Cyclic definition starting from " ^ S.name(name)))
+                else traverse(ls)
+              )
       in 
         (* 
           Every cycle in a set of mutually recursive type declarations must pass through a record or array declaration; the declaration
@@ -387,17 +382,18 @@ struct
           type d = a 
           contains an illegal cycle a —► b —► d —► a. Illegal cycles should be detected by the type-checker.
         *)
-        (checkeach(tdecs);
+        (
+        processBodies();
+        traverse(tdecs);
         checkDup(map #name tdecs, map #pos tdecs);
-        {venv = venv, tenv = tenv'', expList = []})
+        {venv = venv, tenv = tenv', expList = []}
+        )
       end    
-      (* Maybe incorrect *)
     | transDec (venv, tenv, A.FunctionDec(fundecs), level, break) =
       let
         (* The first pass gathers information about the header of each function (function name, formal  parameter list, return type) but leaves the bodies of the functions untouched. In this pass, the types of the formal parameters are needed, but not their names *)
         (* The second pass processes the bodies of all functions in the mutually recursive declaration, taking advantage of the environment augmented with all the function headers. For each body, the formal parameter list is processed again, this time entering the parameters as VarEntrys in the value environment. *)
         (* first pass on a fundec: check formal types, and store header info in the venv. *)
-        (* Closely verified, first part seems to be correct *)
         fun transfun ({name, params, result, body, pos}, env) =
         let 
           val rt =
@@ -405,9 +401,9 @@ struct
               NONE => T.UNIT (* procedure - should return unit *)
             | SOME(t, pos) =>
               (case S.look(tenv, t) of
-                SOME t => t
+                SOME ty => ty
               | NONE =>
-                (Err.error pos ("result type: " ^ S.name(t) ^ " not found.");
+                (typeNotFound(tenv, pos, "type", t);
                   T.UNIT)
               )
           (* Transparam *)
@@ -416,7 +412,7 @@ struct
                 case S.look(tenv, typ) of
                   SOME t => t
                 | NONE =>
-                  (Err.error pos ("type: " ^ S.name typ ^ " for method parameter: " ^ S.name name ^ " not found"); 
+                  (typeNotFound(tenv, pos, "function's parameter for function " ^ S.name(name), typ); 
                     T.UNIT)
                 ) params
           val escapeL = map (fn {escape, ...} => !escape) params
@@ -424,40 +420,36 @@ struct
           checkDup(map #name params, map #pos params);
           S.enter(env, name, E.FunEntry{level = L.newLevel {parent = level, name = name, formals = escapeL}, label = name, formals = formalsTy, result = rt})
         end
-      in
+        val venv' = foldl transfun venv fundecs
+        (* First Part Done! *)
+        (* second pass on a fundec: do type checking, put VarEntry on venv, and check body *)
+        fun transbody ({name, params, result, body, pos}) =
         let
-          val venv' = foldl transfun venv fundecs
-          (* First Part Done! *)
-          (* second pass on a fundec: do type checking, put VarEntry on venv, and check body *)
-          fun transbody ({name, params, result, body, pos}) =
-          let
-            (* Must Match *)
-            val SOME(E.FunEntry{result, level = newlevel, ...}) =
-                S.look(venv', name)
+          (* Must Match *)
+          val SOME(E.FunEntry{result, level = newlevel, ...}) =
+              S.look(venv', name)
 
-            fun enterparam ({name, escape, typ, pos}, access) =
-                case S.look(tenv, typ) of
-                    SOME t => {access = access, name = name, ty = t}
-                  | NONE =>
-                    (Err.error pos ("method param type: " ^ S.name(typ) ^ " not found.");
-                    {access = access, name = name, ty = T.UNIT})
-            val params' = ListPair.map enterparam (params, L.formals newlevel)
-            val venv'' =
-                (foldl (fn ({access, name, ty}, env) =>
-                        S.enter(env, name, E.VarEntry{access = access, ty = ty})
-                       )
-                      venv' params')
-            val {exp, ty} = transExp(venv'', tenv, body, newlevel, break)
-          in 
-            checkType(augmentR(result), augmentR(ty), pos);
-            L.procEntryExit (newlevel, exp);
-            ()
-          end
+          fun enterparam ({name, escape, typ, pos}, access) =
+              case S.look(tenv, typ) of
+                  SOME t => {access = access, name = name, ty = t}
+                | NONE =>
+                  (typeNotFound(tenv, pos, "function's parameter", typ); {access = access, name = name, ty = T.UNIT})
+          val params' = ListPair.map enterparam (params, L.formals newlevel)
+          val venv'' =
+              (foldl (fn ({access, name, ty}, env) =>
+                      S.enter(env, name, E.VarEntry{access = access, ty = ty})
+                      )
+                    venv' params')
+          val {exp, ty} = transExp(venv'', tenv, body, newlevel, break)
         in 
-          checkDup(map #name fundecs, map #pos fundecs);
-          (app transbody fundecs);
-          {venv = venv', tenv = tenv, expList = []} 
+          checkType(tenv, augmentR(result), augmentR(ty), pos);
+          L.procEntryExit (newlevel, exp);
+          ()
         end
+      in
+        checkDup(map #name fundecs, map #pos fundecs);
+        (app transbody fundecs);
+        {venv = venv', tenv = tenv, expList = []} 
       end
     (* transTy translates type expressions as found in the abstract syntax to the corresponding digested type in Types(T).ty *)
     and transTy (tenv, A.NameTy (sym, pos)) = (case S.look(tenv, sym) of SOME(t) => t)
@@ -467,14 +459,14 @@ struct
           (map (fn {name, escape, typ, pos} =>
                     case S.look(tenv, typ) of
                       SOME(t) => (name, t)
-                    | NONE => (Err.error pos ("following type is not defined: " ^ S.name typ); (name, T.UNIT))
+                    | NONE => (typeNotFound(tenv, pos, "type", typ); (name, T.UNIT))
                 ) fields
           ), ref ()))
 
       | transTy (tenv, A.ArrayTy (sym, pos)) =
         case S.look(tenv, sym) of
           SOME(t) => T.ARRAY(t, ref ())
-        | NONE => (Err.error pos ("following type is not defined: " ^ S.name sym); T.ARRAY(T.NIL, ref ()))
+        | NONE => (typeNotFound(tenv, pos, "type", sym); T.ARRAY(T.NIL, ref ()))
     fun transProg (my_exp : A.exp) = 
     let
       (* Clear fragment list *)

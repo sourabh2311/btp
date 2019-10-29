@@ -34,7 +34,6 @@ struct
     end
 
   fun name(s, n) = s
-
 (* Till now we hashed string to int. Now, we will hash that int to 'a *)
 (* "Tables" map symbols to bindings *)
 (* 

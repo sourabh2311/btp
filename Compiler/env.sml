@@ -45,7 +45,6 @@ struct
             let 
                 val label = Temp.namedlabel name 
             in
-                (* making no variable escape now, will handle later in newFrame method of risc.sml (TODO) *)
                 S.enter (env, S.symbol(name), FunEntry{level = Translate.newLevel {parent = Translate.outermost, name = label, formals = map (fn _ => false) formals}, label = label, formals = formals, result = result})
             end)
             S.empty base_funs
