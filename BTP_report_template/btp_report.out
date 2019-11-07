@@ -1,24 +1,40 @@
 \BOOKMARK [0][-]{chapter.1}{Introduction}{}% 1
 \BOOKMARK [1][-]{section.1.1}{Issues to resolve}{chapter.1}% 2
-\BOOKMARK [1][-]{section.1.2}{Goal for this semester}{chapter.1}% 3
+\BOOKMARK [1][-]{section.1.2}{Work done this semester}{chapter.1}% 3
 \BOOKMARK [1][-]{section.1.3}{What has been achieved this Semester}{chapter.1}% 4
 \BOOKMARK [1][-]{section.1.4}{Organization of The Report}{chapter.1}% 5
-\BOOKMARK [0][-]{chapter.2}{Introduction to RISC V and runtime.s}{}% 6
+\BOOKMARK [0][-]{chapter.2}{Introduction to RISC V and Runtime}{}% 6
 \BOOKMARK [1][-]{section.2.1}{Choosing a Simulator}{chapter.2}% 7
 \BOOKMARK [1][-]{section.2.2}{Basic Examples}{chapter.2}% 8
-\BOOKMARK [1][-]{section.2.3}{runtime.s}{chapter.2}% 9
-\BOOKMARK [0][-]{chapter.3}{Phase I : Constructing Abstract Syntax Tree}{}% 10
-\BOOKMARK [1][-]{section.3.1}{parse.sml}{chapter.3}% 11
-\BOOKMARK [1][-]{section.3.2}{errormsg.sml}{chapter.3}% 12
-\BOOKMARK [1][-]{section.3.3}{tiger.lex}{chapter.3}% 13
-\BOOKMARK [1][-]{section.3.4}{table.sml, table.sig}{chapter.3}% 14
-\BOOKMARK [1][-]{section.3.5}{symbol.sml}{chapter.3}% 15
-\BOOKMARK [1][-]{section.3.6}{tiger.grm, absyn.sml}{chapter.3}% 16
-\BOOKMARK [0][-]{chapter.4}{Phase II : Constructing Intermediate Representation Tree}{}% 17
-\BOOKMARK [1][-]{section.4.1}{types.sml}{chapter.4}% 18
-\BOOKMARK [1][-]{section.4.2}{env.sml, env.sig, temp.sml, temp.sig}{chapter.4}% 19
-\BOOKMARK [1][-]{section.4.3}{findescape.sml}{chapter.4}% 20
-\BOOKMARK [1][-]{section.4.4}{tree.sml, tree.sig}{chapter.4}% 21
-\BOOKMARK [1][-]{section.4.5}{semant.sml}{chapter.4}% 22
-\BOOKMARK [0][-]{chapter.5}{Conclusion and Future Work}{}% 23
-\BOOKMARK [0][-]{chapter.5}{References}{}% 24
+\BOOKMARK [2][-]{subsection.2.2.1}{Hello World}{section.2.2}% 9
+\BOOKMARK [2][-]{subsection.2.2.2}{Saving callee save registers}{section.2.2}% 10
+\BOOKMARK [1][-]{section.2.3}{Runtime}{chapter.2}% 11
+\BOOKMARK [0][-]{chapter.3}{Phase I : Constructing Abstract Syntax Tree}{}% 12
+\BOOKMARK [1][-]{section.3.1}{Linking Lexer and Parser}{chapter.3}% 13
+\BOOKMARK [1][-]{section.3.2}{Intermediate Error Handling}{chapter.3}% 14
+\BOOKMARK [1][-]{section.3.3}{Lexer}{chapter.3}% 15
+\BOOKMARK [1][-]{section.3.4}{Key Map}{chapter.3}% 16
+\BOOKMARK [1][-]{section.3.5}{Symbols in Tiger}{chapter.3}% 17
+\BOOKMARK [1][-]{section.3.6}{Parser}{chapter.3}% 18
+\BOOKMARK [0][-]{chapter.4}{Phase II : Constructing Intermediate Representation Tree}{}% 19
+\BOOKMARK [1][-]{section.4.1}{Type Interface}{chapter.4}% 20
+\BOOKMARK [1][-]{section.4.2}{Types/Variables Environment}{chapter.4}% 21
+\BOOKMARK [1][-]{section.4.3}{Finding Escaped Variables}{chapter.4}% 22
+\BOOKMARK [1][-]{section.4.4}{Intermediate Tree Representation}{chapter.4}% 23
+\BOOKMARK [1][-]{section.4.5}{Understanding Functions Calls in Tiger}{chapter.4}% 24
+\BOOKMARK [1][-]{section.4.6}{RISC Frame}{chapter.4}% 25
+\BOOKMARK [1][-]{section.4.7}{Translating to IR}{chapter.4}% 26
+\BOOKMARK [1][-]{section.4.8}{Semantic Analysis}{chapter.4}% 27
+\BOOKMARK [0][-]{chapter.5}{Phase III : Generating Assembly Code}{}% 28
+\BOOKMARK [1][-]{section.5.1}{Canonisation}{chapter.5}% 29
+\BOOKMARK [2][-]{subsection.5.1.1}{Abstract}{section.5.1}% 30
+\BOOKMARK [1][-]{section.5.2}{Instruction Selection}{chapter.5}% 31
+\BOOKMARK [2][-]{subsection.5.2.1}{Instruction Representation}{section.5.2}% 32
+\BOOKMARK [2][-]{subsection.5.2.2}{Code Generation}{section.5.2}% 33
+\BOOKMARK [2][-]{subsection.5.2.3}{Maximal Munch Algorithm}{section.5.2}% 34
+\BOOKMARK [1][-]{section.5.3}{Liveness Analysis and Interference Graph}{chapter.5}% 35
+\BOOKMARK [2][-]{subsection.5.3.1}{Liveness Analysis}{section.5.3}% 36
+\BOOKMARK [2][-]{subsection.5.3.2}{Interference Graph}{section.5.3}% 37
+\BOOKMARK [1][-]{section.5.4}{Register Allocation}{chapter.5}% 38
+\BOOKMARK [2][-]{subsection.5.4.1}{Algorithm}{section.5.4}% 39
+\BOOKMARK [0][-]{Item.35}{References}{}% 40

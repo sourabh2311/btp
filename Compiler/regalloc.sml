@@ -22,7 +22,7 @@ fun color {interference, initAlloc, spillCost, registers} =
 let
     (* is spill cost of a <= b? *)
     fun less(L.NODE{temp = temp1, adj = adj1}, L.NODE{temp = temp2, adj = adj2}) = if (Real.<= (spillCost temp1 (List.length(!adj1)), spillCost temp2 (List.length(!adj2)))) then true else false
-    (* Get minimum is list *)
+    (* Get minimum in list *)
     fun getMinimum(min, []) = min
       | getMinimum(min, l :: ls) = if (less(l, min)) then getMinimum(l, ls) else getMinimum(min, ls)
     (* Nodes which we have to remove from graph, for them we will always be able to find colors *)

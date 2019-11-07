@@ -8,6 +8,7 @@
 \usepackage{subfigure}
 \usepackage{hyperref}
 \usepackage{epsfig,color}
+\usepackage{tcolorbox}
 \usepackage{minted}
 % Custom packages
 %\usepackage[first]{datestamp}   % Datestamp on first page of each chapter
@@ -23,6 +24,23 @@
 
 
 \newcommand{\git}{https://github.com/sourabh2311/btp/blob/master/Compiler/}
+\newcommand{\iph}[2]{
+   \includegraphics[width=#1\textwidth,height=#1\textheight,keepaspectratio]{#2}
+}
+\newcommand{\ph}[1]{
+   \includegraphics[width=0.5\textwidth,height=0.5\textheight,keepaspectratio]{#1}
+}
+\newcommand{\tfbox}[1]{
+\begin{tcolorbox}[colframe=purple!75!black,title=Associated File(s) Link]
+#1
+
+\textit{Please see comments in the file(s) for more details.}
+\end{tcolorbox}
+}
+\newcommand{\ghref}[1]{
+   \href{\git #1}{#1}
+}
+
 \btptitle = {Tiger to RISC V Compiler} % { and } are needed around your name
 \name = {Sourabh Aggarwal}          % and other feilds. don't remove.
 \rollno = {111601025}
@@ -35,9 +53,9 @@
 
 \include{title}
 
-% \include{certificate}
+\include{certificate}
 
-% \include{acknowledgement}
+\include{acknowledgement}
 
 \tableofcontents 
 
@@ -68,7 +86,8 @@
 \include{chapter4}
 \cleardoublepage 
 \typeout{}
-\include{futurework}
+\include{chapter5}
+\cleardoublepage 
 \typeout{}
 
 % \bibliographystyle{IEEEtran}

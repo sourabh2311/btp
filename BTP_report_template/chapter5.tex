@@ -1,0 +1,414 @@
+\chapter{Phase III : Generating Assembly Code}
+
+This final phase generates the machine assembly code and thus completing the purpose of compiler. 
+It involves the discussion of various concepts such as Canonisation, Instruction Selection, Liveness Analysis and Register Allocation.
+
+Each of these is explained in an understandable order below.
+
+\section{Canonisation}
+
+\tfbox{\ghref{canon.sml}}
+
+\hypertarget{abstract}{%
+\subsection{Abstract}\label{abstract}}
+
+It's useful to be able to evaluate the sub-expressions of an expression
+in any order. If tree expressions did not contain
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{ESEQ}
+and
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{CALL}
+nodes, then the order of evaluation would not matter.
+
+\hypertarget{why-call-nodes-are-an-issue}{%
+\subsubsection{\texorpdfstring{Why
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{CALL}
+nodes are an
+issue?}{Why  nodes are an issue?}}\label{why-call-nodes-are-an-issue}}
+
+In actual implementation,
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{CALL}
+nodes will return value in the same register
+(\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{a0} in
+case of RISC V). Thus in an expression like
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{BINOP(PLUS, CALL(...), CALL(...))};
+the second call will overwrite the
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{a0}
+register before the
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{PLUS}
+can be executed.
+
+Remedy is to do the transformation;
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{CALL(fun, args) -> ESEQ(MOVE(TEMP t, CALL(fun, args)), TEMP t)}
+
+\hypertarget{why-eseq-nodes-are-an-issue}{%
+\subsubsection{\texorpdfstring{Why
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{ESEQ}
+nodes are an
+issue?}{Why  nodes are an issue?}}\label{why-eseq-nodes-are-an-issue}}
+
+Clearly in case of simple
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{ESEQ(s, e)},
+statement
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{s} can
+have direct or side effects on an expression
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{e}.
+
+Remedy is as shown in figure 5.1 (basically lifting them higher and
+higher until they become
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{SEQ}
+nodes).
+
+\begin{figure}
+\centering
+\iph{0.70}{assets/canon1.png}
+\caption{ESEQ Removal}
+\end{figure}
+
+The transformation is done in three stages: First, a tree is rewritten
+into a list of canonical trees without
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{SEQ} or
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{ESEQ}
+nodes; then this list is grouped into a set of basic blocks, which
+contain no internal jumps or labels; then the basic blocks are ordered
+into a set of traces in which every
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{CJUMP}
+is immediately followed by its false label. This will become clear when
+seeing the well documented code.
+
+\section{Instruction Selection}
+
+\tfbox{\ghref{assem.sml} \\ \ghref{codegen.sml} \\ \ghref{accessConv.sml}}
+
+\hypertarget{instruction-representation}{%
+\subsection{Instruction
+Representation}\label{instruction-representation}}
+
+Now that we have done Canonisation, our compiler will now call code
+generator. It will basically convert the body into assembly language
+code with the restriction that we will still be using temporaries
+instead of actual machine registers. In this form, source registers will
+be labelled
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{`si} and
+destination registers as
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{`di}. So
+our each instruction would be represented as an operation string having
+these
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{`si},
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{`di}'s
+where
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{`si} is
+indexed from
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{src}
+list, and
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{`di} are
+indexed from
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{dst}
+list. This is captured as
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{datatype instr}
+in
+\href{https://www.github.com/sourabh2311/btp/tree/master/Compiler/assem.sml}{\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{assem.sml}}.
+
+\begin{minted}[breaklines=true, tabsize=2, breaksymbolleft=]{sml}
+datatype instr = 
+            OPER of {assem: string, dst: temp list, src: temp list, jump: label list option}
+    | LABEL of {assem: string, lab: Temp.label}
+    | MOVE of {assem: string,  dst: temp, src: temp}
+\end{minted}
+
+An \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{OPER}
+holds an assembly-language instruction
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{assem},
+a list of operand registers
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{src},
+and a list of result registers
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{dst}.
+Either of these lists may be empty. Operations that always fall through
+to the next instruction have
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{jump = NONE};
+other operations have a list of ``target'' labels to which they may jump
+(this list must explicitly include the next instruction if it is
+possible to fall through to it).
+
+A \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{LABEL}
+is a point in a program to which jumps may go. It has an
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{assem}
+component showing how the label will look in the assembly-language
+program, and a
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{lab}
+component identifying which label-symbol was used.
+
+A \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{MOVE}
+is like an
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{OPER},
+but must perform only data transfer. Then, if the
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{dst} and
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{src}
+temporaries are assigned to the same register, the
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{MOVE}
+can later be deleted (as done in my register allocator).
+
+\hypertarget{code-generation}{%
+\subsection{Code Generation}\label{code-generation}}
+
+Finding the appropriate machine instructions to implement a given
+intermediate representation tree is the job of the instruction selection
+phase of a compiler.
+
+We can express a machine instruction as a fragment of an IR tree, called
+a tree pattern as denoted in the figure below. Then instruction
+selection becomes the task of tiling the tree with a minimal set of tree
+patterns.
+
+\begin{figure}
+\centering
+\iph{0.7}{assets/is1.png}
+\caption{Tree Patterns showing arithmetic and memory instructions}
+\end{figure}
+
+The very first entry is not really an instruction, but expresses the
+idea that a
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{TEMP}
+node is implemented as a register, so it can ``produce a result in a
+register'' without executing any instructions at all.
+
+For each instruction, the tree-patterns it implements are shown. Some
+instructions correspond to more than one tree pattern; the alternate
+patterns are obtained for commutative operators (+ and *), and in some
+cases where a register or constant can be zero
+(\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{LOAD}
+and
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{STORE}).
+Here we abbreviate the tree diagrams slightly:
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{BINOP(PLUS, x, y)}
+nodes will be written as
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{+(x, y)},
+and the actual values of
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{CONST}
+and
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{TEMP}
+nodes will not always be shown.
+
+Consider the instruction
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{a[i] := x}.
+Two possible tilings for this instruction is shown in the diagram.
+(Remember that
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{a} is
+really the frame offset of the pointer to an array)
+
+\begin{figure}
+\centering
+\iph{0.7}{assets/is2.png}
+\caption{A tree tiled in two ways}
+\end{figure}
+
+\hypertarget{maximal-munch-algorithm}{%
+\subsection{Maximal Munch Algorithm}\label{maximal-munch-algorithm}}
+
+Suppose we could give each kind of instruction a cost. Then we could
+define an optimum tiling as the one whose tiles sum to the lowest
+possible value. An optimal tiling is one where no two adjacent tiles can
+be combined into a single tile of lower cost. If there is some tree
+pattern that can be split into several tiles of lower combined cost,
+then we should remove that pattern from our catalog of tiles before we
+begin. Every optimum tiling is also optimal, but not vice versa.
+
+The algorithm for optimal tiling is called \textbf{Maximal Munch}. It is
+quite simple. Starting at the root of the tree, find the largest tile
+that fits. Cover the root node - and perhaps several other nodes near
+the root - with this tile, leaving several subtrees. Now repeat the same
+algorithm for each subtree. As each tile is placed, the corresponding
+instruction is generated. The Maximal Munch algorithm generates the
+instructions in reverse order - after all, the instruction at the root
+is the first to be generated, but it can only execute after the other
+instructions have produced operand values in registers. The ``largest
+tile'' is the one with the most nodes. If two tiles of equal size match
+at the root, then the choice between them is arbitrary. Maximal Munch is
+quite straightforward to implement in ML. Simply write two recursive
+functions,
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{munchStm}
+for statements and
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{munchExp}
+for expressions. Each clause of
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{munchExp}
+will match one tile. The clauses are ordered in order of tile preference
+(biggest tiles first); ML's pattern-matching always chooses the first
+rule that matches.
+
+This algorithm is implemented in the file
+\href{https://www.github.com/sourabh2311/btp/tree/master/Compiler/codegen.sml}{\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{codegen.sml}}
+
+\section{Liveness Analysis and Interference Graph}
+
+\tfbox{\ghref{flowgraph.sml} \\ \ghref{makegraph.sml} \\ \ghref{liveness.sml}}
+
+\hypertarget{liveness-analysis}{%
+\subsection{Liveness Analysis}\label{liveness-analysis}}
+
+Two temporaries
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{a} and
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{b} can
+fit into the same register, if
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{a} and
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{b} are
+never ``in use'' at the same time.
+
+We say a variable is live if it holds a value that may be needed in the
+future, so this analysis is called liveness analysis. To perform
+analyses on a program, it is often useful to make a control-flow graph.
+Each statement in the program is a node in the flow graph; if statement
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{x} can
+be followed by statement
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{y} there
+is an edge from
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{x} to
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{y}.
+
+In this compiler, flow graph is as represented in
+\href{https://www.github.com/sourabh2311/btp/tree/master/Compiler/flowgraph.sml}{\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{flowgraph.sml}}.
+
+Similarly
+\href{https://www.github.com/sourabh2311/btp/tree/master/Compiler/flowgraph.sml}{\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{makegraph.sml}}
+constructs this graph.
+
+A variable is live on an edge if there is a directed path from that edge
+to a use of the variable that does not go through any
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{def}. A
+variable is live-in at a node if it is live on any of the in-edges of
+that node; it is live-out at a node if it is live on any of the
+out-edges of the node.
+
+Liveness of node is calculated as shown:
+
+\(in[n] = use[n] \cup (out[n] \setminus def[n])\)
+
+\(out[n] = \cup_{s \in succ[n]} in[s]\)
+
+A condition that prevents
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{a} and
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{b} being
+allocated to the same register is called an interference.
+
+The most common kind of interference is caused by overlapping live
+ranges when
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{a} and
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{b} are
+both live at the same program point, then they cannot be put in the same
+register.
+
+\hypertarget{interference-graph}{%
+\subsection{Interference Graph}\label{interference-graph}}
+
+Interference graph is created with vertices as temporaries and edges as
+follows:-
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  At any nonmove instruction that defines a variable \(a\), where the
+  live-out variables are \(b_1, \dots, b_j\), add interference edges
+  \((a, b_1), \dots, (a, b_j)\).
+\item
+  At a move instruction \(a \leftarrow c\), where variables
+  \(b_1, \dots, b_j\) are live-out, add interference edges
+  \((a, b_1), \dots, (a, b_j)\) for any \(b_i\) that is not the same as
+  \(c\).
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+All this is handled in
+\href{https://www.github.com/sourabh2311/btp/tree/master/Compiler/liveness.sml}{\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{liveness.sml}}
+
+\section{Register Allocation}
+
+\tfbox{\ghref{regalloc.sml} \\ \ghref{regalloc.sig}}
+
+Now that we have made our interference graph, where each edge denotes
+that its endpoints must go in different registers, thus, our problem
+reduced into coloring our graph with
+\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{K} (\#
+no. of available registers) colors such that no two end points have same
+colour.
+
+As of now this is implemented by below mentioned algorithm \textbf{but}
+later I would implement the exact algorithm which is given in book.
+Algorithm is implemented in the file
+\href{https://www.github.com/sourabh2311/btp/tree/master/Compiler/regalloc.sml}{\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{regalloc.sml}}
+and
+\href{https://www.github.com/sourabh2311/btp/tree/master/Compiler/regalloc.sig}{\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{regalloc.sig}}
+
+Note that graph coloring problem is not fixed parameter tractable with
+respect to number of colors.
+
+\hypertarget{algorithm}{%
+\subsection{Algorithm}\label{algorithm}}
+
+Recursive algorithm is defined as below, assume that we are given a set
+of instructions each of which may contain temporaries which might have
+been already mapped to some register.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Construct interference graph given the list of instructions.
+\item
+  Start with vertices (temporaries) which have not been assigned a
+  colour (register).
+\item
+  Such vertices whose \# Neighbours \(<\)
+  \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{K} can
+  be removed from the graph as we would always have a color available
+  for them. Thus this divides our list of vertices into two viz.,
+  (\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{simplify},
+  \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{potentialSpill}).
+\item
+  Now we should process these nodes in
+  \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{simplify},
+  let
+  ``\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{stack}''
+  denote the set of simplified nodes.
+\item
+  Repeat until
+  \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{potentialSpill}
+  nodes become empty
+
+  \begin{enumerate}
+  \def\labelenumii{\arabic{enumii}.}
+  \item
+    We ``simplify'' each node in our
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{simplify}
+    list by removing it from
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{simplify}
+    list and adding it to
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{stack}
+    and decrementing the degree of its neighbors which are not in
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{stack}
+    (\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{stack}
+    nodes are already removed) and also which aren't already colored.
+    Note that when we decrement the degree of the neighbors, if degree
+    becomes less then
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{K}
+    that means we can add this node to
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{simplify}
+    and remove it from
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{potentialSpill}.
+  \item
+    If
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{potentialSpill}
+    is empty then done, o/w select a node to spill, choose that which
+    has maximum neighbors and should have accessed temps/memory least
+    number of times. Assign it to
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{simplify}
+    and remove it from
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{potentialSpill}.
+  \end{enumerate}
+\item
+  Now process
+  \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{stack}
+  from top to bottom. For an element, colors available to it are total
+  minus those taken by its neighbors, if colors are available then
+  assign else we add it to actualSpill.
+\item
+  If by now actualSpill is empty then we stop else we rewrite the
+  program and repeat.
+\end{enumerate}

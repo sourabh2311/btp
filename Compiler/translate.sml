@@ -110,19 +110,19 @@ in
 		| SOME(F.STRING(lab, _)) => Ex(Tr.NAME(lab))
 end
 
-fun getLevelUsingStaticLink (Top, _, frameAddress) = ErrorMsg.impossible "You have issue with Static Links"
-  | getLevelUsingStaticLink (_, Top, frameAddress) = ErrorMsg.impossible "You have issue with Static Links"
-	| getLevelUsingStaticLink (Lev (ignore, targetLevelRef), Lev ({parent, frame}, curLevelRef), frameAddress) = 
+fun getLevelsFPUsingStaticLink (Top, _, frameAddress) = ErrorMsg.impossible "You have issue with Static Links"
+  | getLevelsFPUsingStaticLink (_, Top, frameAddress) = ErrorMsg.impossible "You have issue with Static Links"
+	| getLevelsFPUsingStaticLink (Lev (ignore, targetLevelRef), Lev ({parent, frame}, curLevelRef), frameAddress) = 
 		if (curLevelRef = targetLevelRef) then frameAddress
-		else getLevelUsingStaticLink (Lev (ignore, targetLevelRef), parent, (F.exp (List.hd(F.formals frame)) frameAddress))
+		else getLevelsFPUsingStaticLink (Lev (ignore, targetLevelRef), parent, (F.exp (List.hd(F.formals frame)) frameAddress))
 
 fun simpleVar (targetLevelAccess, curLevel) =
 let 
 	val (targetLevel, frameAccess) = targetLevelAccess  (* This is our target to reach *)
 	(* The passed level need not be our target level *)
-	val traceLevel = getLevelUsingStaticLink (targetLevel, curLevel, Tr.TEMP (F.fp))
+	val targetLevelsFP = getLevelsFPUsingStaticLink (targetLevel, curLevel, Tr.TEMP (F.fp))
 in 
-	Ex(F.exp frameAccess traceLevel)
+	Ex(F.exp frameAccess targetLevelsFP)
 end
 
 (* Just the way given in text. *)
@@ -234,7 +234,7 @@ fun call (_, Lev({parent = Top, ...}, _), label, exps) = Ex(F.externalCall(Symbo
   | call (callLevel, funLevel as Lev({parent, frame = frame'}, _), label, exps) =
     let
 			val Lev({parent, frame}, _) = funLevel
-			val traceLevel = getLevelUsingStaticLink (parent, callLevel, Tr.TEMP (F.fp))
+			val traceLevel = getLevelsFPUsingStaticLink (parent, callLevel, Tr.TEMP (F.fp))
 		in 
 			Ex (Tr.CALL (Tr.NAME label, traceLevel :: (map unEx exps), AccessConv.frameToTree(F.formals frame')))
     end

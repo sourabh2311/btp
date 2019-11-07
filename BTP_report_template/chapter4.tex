@@ -1,37 +1,30 @@
 \chapter{Phase II : Constructing Intermediate Representation Tree}
 
-Now that we have constructed our Abstract Syntax Tree, we will now have to convert it to an Intermediate Representation to solve $m \times n$ problem.
+Now that we have constructed our Abstract Syntax Tree, we will now have to convert it to an Intermediate Representation to solve $m \times n$ problem and also code generation would be easy on this language as it is more close to many machine languages.
 
-In this phase, files of interest are:-
+\section{Type Interface}
 
-\begin{itemize}
-  \item \href{\git types.sml}{types.sml}
-  \item \href{\git env.sml}{env.sml}, \href{\git env.sig}{env.sig}
-  \item \href{\git temp.sml}{temp.sml}, \href{\git temp.sig}{temp.sig}
-  \item \href{\git findescape.sml}{findescape.sml}
-  \item \href{\git tree.sml}{tree.sml}
-  \item \href{\git risc.sml}{risc.sml}
-  \item \href{\git translate.sml}{translate.sml}
-  \item \href{\git semant.sml}{semant.sml}
-\end{itemize}
+\tfbox{\href{\git types.sml}{types.sml}}
 
-Each of these is explained below.
+Our next step is to do type checking of our input AST. For this purpose we need to define auxiliary types. Thus, we have \texttt{types.sml} representing the same. Thus now we can easily map a "symbol" to its corresponding type.
 
-\section{types.sml}
+\section{Types/Variables Environment}
 
-Our next step is to do type checking of our input AST. For this purpose we need to define auxiliary types. Thus, we have "types.sml" representing the same. Thus now we can easily map a "symbol" to its corresponding type.
+\tfbox{\href{\git env.sml}{env.sml} \\ \href{\git env.sig}{env.sig} \\ \href{\git temp.sml}{temp.sml} \\ \href{\git temp.sig}{temp.sig}}
 
-\section{env.sml, env.sig, temp.sml, temp.sig}
+Now for type checking, we need some environment under which we have to check compatibility of types as for instance, environment can be different for different functions as within \texttt{let} block of each function there can be new declarations etc. By default we have some standard types and functions already present in our environment and are thus listed in \texttt{env.sml}. Now each of these functions will correspond to some label in our MIPS code, for which we have \texttt{temp.sml}. Note that \texttt{temp.sml} is also used to represent our infinite register in Intermediate Representation.
 
-Now for type checking, we need some environment under which we have to check compatibility of types as for instance, environment can be different for different functions as within let block of each function there can be new declarations etc. By default we have some standard types and functions already present in our environment. Now each of these functions will correspond to some label in our MIPS code, for which we have "temp.sml". Note that "temp.sml" is also used to represent our infinite register in Intermediate Representation.
+\section{Finding Escaped Variables}
 
-\section{findescape.sml}
+\tfbox{\href{\git findescape.sml}{findescape.sml}}
 
-It would be important for us to determine which variable cannot go to a register, i.e., which variable escapes. Idea of finding escapes is straight forward: Just see if this thing was defined in outer scope, note that scope extends only when we are calling a function.
+It would be important for us to determine which variable cannot go to a register, i.e., which variable escapes. Idea of finding escapes is straight forward: Just see if this thing was defined in outer scope, note that scope extends only when we are calling a function. Escaping is calculated in \texttt{findescape.sml}
 
-\section{tree.sml, tree.sig}
+\section{Intermediate Tree Representation}
 
-It is a datatype representing our Intermediate Tree.
+\tfbox{\href{\git tree.sml}{tree.sml} \\ \href{\git tree.sig}{tree.sig}}
+
+The files \texttt{tree.sml, tree.sig} consists of datatype representing our Intermediate Tree. Description of which is presented as below.
 
 \begin{minted}{sml}
   datatype stm = SEQ of stm * stm (* The statement s2 followed by s2. *)
@@ -58,237 +51,158 @@ and binop = PLUS | MINUS | MUL | DIV | AND | OR | LSHIFT | RSHIFT | ARSHIFT | XO
 and relop = EQ | NE | LT | GT | LE | GE | ULT | ULE | UGT | UGE
 \end{minted}
 
-\subsubsection{risc.sml}
+\section{Understanding Functions Calls in Tiger}
 
-Here we will define an interface for RISC V, which finds some use in this phase, but is mainly there for code generation phase. Its applications and purpose will become clear by seeing the below written code. Before proceeding please read and understand about \textbf{static links} given at page 132-134. Basic gist is that in languages that allow nested function declarations, the inner functions may use variables declared in outer functions. One way to accomplish this is that whenever a function $f$ is called, it can be passed a pointer to the frame of the function statically enclosing $f$; this pointer is the static link. 
+\begin{tcolorbox}
+  Note that some of this material will become clear after reading Phase III.
+\end{tcolorbox}
 
-\begin{minted}{sml}
-structure RiscFrame: FRAME = struct
+Below is explained in chronological sequence of what happens and for
+what reason when function call is executed in this compiler.
 
-structure T = Temp
-structure Tr = Tree
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  When a function is called. The current frame is extended to include
+  outgoing parameters (at the offset already determined by the callee)
+  in case some of them escape; rest of the arguments are put in argument
+  registers.
 
+  \begin{enumerate}
+  \def\labelenumii{\arabic{enumii}.}
+  \item
+    This step is done by our code generator.
+  \item
+    After moving escaped arguments to their pre-determined location and
+    remaining arguments to argument registers, it will then emit
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{jal}
+    instruction which will have
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{src = argTemps}
+    (\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{argTemps}
+    are chosen argument registers, this is done as these argument
+    registers are used in this time) and
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{dst = F.getFirstL F.callersaves};
+    as we know that caller is supposed to save some registers if it was
+    using them and thus setting
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{dst = F.getFirstL F.callersaves}
+    would enable the garbage collection to know that if function being
+    called \textbf{uses} these registers then it would clearly
+    interfere.
+  \item
+    Let
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{fp},
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{sp}
+    denote the current frame and stack pointer.
+  \item
+    To extend the current frame, we must subtract it by the amount
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{escaped-arguments * word-size}.
+    But since we should as well store the old frame pointer (as we will
+    update it with the current stack pointer); we must subtract
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{sp}
+    by
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{(escaped-arguments + 1) * word-size}.
+  \item
+    Now old value of fp is saved in 0th location of this
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{sp},
+    and other arguments are saved respectively at the offsets already
+    determined by the callee. (Callee predetermined these offsets
+    considering the fact that we will save old
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{fp}
+    at 0th word)
+  \item
+    Now as we are moving to the frame of other function
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{fp}
+    is updated to
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{sp},
+    and
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{sp}
+    value will be deducted by the amount needed by the callee stack.
+  \item
+    Thus local variables allocated will be referred with negative offset
+    wrt to
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{fp}
+    and escaped argument parameters will be referred with non negative
+    offset wrt
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{fp}.
+  \item
+    Thus it is evident that our code generator would need to know the
+    access list of the callee which wasn't there in the design mentioned
+    in the book, so I added it in
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{tree.sml}
+    but to avoid cyclic dependency between
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{tree.sml}
+    and
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{riscframe.sml},
+    I had to redefine
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{access}
+    and had to create
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{accessConv.sml}
+    to facilitate conversion between access of
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{tree}
+    and
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{riscframe}.
+  \item
+    Also since code generator must save escaped arguments with respect
+    to the new frame pointer which is not equal to current frame pointer
+    as this whole thing is updated in
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{procEntryExit3},
+    but since new frame pointer = current stack pointer - (escape-count
+    + 1) * word-size, I created new function
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{callexp}
+    in
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{riscframe}
+    to do this arithmetic.
+  \end{enumerate}
+\item
+  Now inside this called function, we must create new temporary for each
+  passed argument \textbf{in argument register} and move that register's
+  value to this new temporary. This might seem unnecessary but consider
+  \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{function m(x : int, y : int) = (h(y, y); h(x, x))}.
+  If \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{x}
+  stays in ``parameter register 1'' throughout
+  \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{m},
+  and \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{y}
+  is passed to
+  \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{h} in
+  parameter register 1, then there is a problem. The register allocator
+  will eventually choose which machine register should hold the
+  temporary. If there is no interference of the type shown in function
+  \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{m},
+  then (on the RISC) the allocator will take care to choose register the
+  same register as temporary to hold that register (not implemented as of now). Then the move
+  instructions will be unnecessary and will be deleted at that time.
 
-(* in register or in frame? i.e. whether are we putting it in register or in stack? *)
-datatype access = InFrame of int | InReg of T.temp
+  \begin{enumerate}
+  \def\labelenumii{\arabic{enumii}.}
+  \item
+    This is done in
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{newFrame}
+    of
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{riscframe},
+    named as
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{shiftInstr}
+    (shift instructions).
+  \end{enumerate}
+\item
+  Called function must save callee-save registers include
+  \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{ra},
+  this is done in
+  \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{procEntryExit1},
+  similarly restoring them in the end of function body is as well done
+  here.
+\end{enumerate}
 
-(* numLocals: How many variables got called by allocLocal which were put in our stack (i.e. not in register but in Frame) *)
-(* name: Name of the frame (function), access list: tells for each formal parameter whether it is in Frame or in reg. *)
-type frame = {name : T.label, formals : access list, numLocals : int ref, shiftInstr : Tr.stm list}
+\section{RISC Frame}
 
-type register = string  (* so type of our register list will be "string list", register list is useful to tell available registers *)
+\tfbox{\href{\git riscframe.sml}{riscframe.sml}}
 
-(* 
-  Given a Tiger function definition comprising a level and an already-translated body expression, the Translate phase should produce a descriptor for the function containing this necessary information: 
-    1. frame: The frame descriptor containing machine-specific information about local variables and parameters. 
-    2. body: The result returned from procEntryExit1 (defined in detail below). Call this pair a fragment to be translated to assembly language. 
-*)
-(* A string literal in the Tiger (or C) language is the constant address of a segment of memory initialized to the proper characters. *)
-(* For each string literal "lit", the Translate module makes a new label "lab", and returns the tree "Tree.name (lab)". It also puts the  assembly-language fragment "Frame.STRING (lab, lit)"" onto a global list of such fragments to be handed to the code emitter. *)
-(* All this would be handled in putting it all together phase (chapter 12 i.e. in main.sml) *)
-datatype frag = PROC of {body: Tree.stm, frame: frame}
-              | STRING of T.label * string
+File \texttt{riscframe.sml} contains an interface for RISC V, which finds some use in this phase, but is mainly there for code generation phase. Its applications and purpose will become clear by seeing the written code. Before proceeding please read and understand about \textbf{static links} given at page 132-134 of the \textit{Tiger Book}. Basic gist is that in languages that allow nested function declarations, the inner functions may use variables declared in outer functions. One way to accomplish this is that whenever a function $f$ is called, it can be passed a pointer to the frame of the function statically enclosing $f$; this pointer is the static link. 
 
-(* -----------------CPU Registers----------------------- *)
+\section{Translating to IR}
 
-val zero = T.newtemp() (* constant 0 *)
-val ra = T.newtemp() (* return address *)
-val sp = T.newtemp() (* stack pointer *)
+\tfbox{\ghref{translate.sml}}
 
-(* arguments *)
-val a0 = T.newtemp()
-val a1 = T.newtemp()
-val a2 = T.newtemp()
-val a3 = T.newtemp()
-val a4 = T.newtemp()
-val a5 = T.newtemp()
-val a6 = T.newtemp()
-val a7 = T.newtemp()
-
-val rv = a0
-
-(* temporary *)
-val t0 = T.newtemp()
-val t1 = T.newtemp()
-val t2 = T.newtemp()
-val t3 = T.newtemp()
-val t4 = T.newtemp()
-val t5 = T.newtemp()
-val t6 = T.newtemp()
-
-(* saved temporary *)
-val s0 = T.newtemp() (* s0 = fp *)
-val s1 = T.newtemp()
-val s2 = T.newtemp()
-val s3 = T.newtemp()
-val s4 = T.newtemp()
-val s5 = T.newtemp()
-val s6 = T.newtemp()
-val s7 = T.newtemp()
-val s8 = T.newtemp()
-val s9 = T.newtemp()
-val s10 = T.newtemp()
-val s11 = T.newtemp()
-
-val fp = s0 
-
-val specialregs = [(zero, "zero"), (sp, "sp"), (ra, "ra")]
-
-val argRegs = [(a0, "a0"), (a1, "a1"), (a2, "a2"), (a3, "a3"), (a4, "a4"), (a5, "a5"), (a6, "a6"), (a7, "a7")]
-
-val savedRegs = [(s0, "s0"), (s1, "s1"), (s2, "s2"), (s3, "s3"), (s4, "s4"), (s5, "s5"), (s6, "s6"), (s7, "s7"), (s8, "s8"), (s9, "s9"), (s10, "s10"), (s11, "s11")]
-
-val temporaries = [(t0, "t0"), (t1, "t1"), (t2, "t2"), (t3, "t3"), (t4, "t4"), (t5, "t5"), (t6, "t6"), (t7, "t7")] 
-
-(* Supporting only traditional a0 - a7 arguments, i.e. maximum of 8 arguments. *)
-exception ArgExceed of string
-
-val wordSize = 4
-
-(* registers allocated for arguments in risc *)
-val argRegsCount = List.length argRegs
-
-fun getFirstL (ls) = (map (fn (x, y) => x) ls)
-fun getSecondL (ls) = (map (fn (x, y) => y) ls)
-
-(* Getting all the registers available for coloring *)
-val registers = getSecondL(savedRegs @ temporaries) 
-
-(* tempMap is a table from registers (not all registers but some) to their name *)
-(* basically its use is for new temporaries, so that we can assign register to them as well *)
-val tempMap = 
-let
-  fun addToTable ((t, s), table) = T.Table.enter(table, t, s)
-  val toAdd = specialregs @ argRegs @ savedRegs @ temporaries
-in
-  foldl addToTable T.Table.empty toAdd
-end
-
-(* Helper Functions *)
-fun incrementNumLocals ({numLocals, ...} : frame) = numLocals := !numLocals + 1
-fun getOffset ({numLocals, ...} : frame) = !numLocals * (~wordSize) 
-fun getFOffset (frame' : frame) = ~(getOffset (frame')) + 8
-fun name ({name, ...} : frame) = name
-fun formals ({formals, ...} : frame) = formals
-
-(* To generate label for string *)
-fun genString (lab, s) = Symbol.name lab ^ ": .string \"" ^ s ^ "\"\n"
-
-(* The function Frame.exp is used by Translate to turn a Frame.access into the Tree expression. The Tree.exp argument to Frame.exp is the address of the stack frame that the access lives in. Thus, for an access "a" such as InFrame(k), we have Frame.exp (a) (TEMP(Frame.FP)) = MEM(BINOP(PLUS, TEMP(Frame.FP), CONST(k))). Why bother to pass the tree expression temp (Frame.FP) as an argument? The answer is that the address of the frame is the same as the current frame pointer only when accessing the variable from its own level. When accessing "a" from an inner-nested function, the frame address must be calculated using static links, and the result of this calculation will be the Tree.exp argument to Frame.exp. If "a" is a register access such as InReg(t932) then the frame-address  argument to Frame.exp will be discarded, and the result will be simply TEMP t932. *)
-fun exp frameAccess frameAddress = 
-  case frameAccess of
-      InFrame offset => Tr.MEM(Tr.BINOP(Tr.PLUS, frameAddress, Tr.CONST offset))
-    | InReg temp => Tr.TEMP(temp)
-
-
-(* Given the name of the frame and list of variables mentioned in the format of whether they escape or not, function returns the new frame *)
-(* Above comment is sufficient but can look at page 142 *)
-fun newFrame {name : T.label, formals : bool list} : frame = 
-let
-  fun allocFormals(offset, [], allocList) = allocList
-    | allocFormals(offset, curFormal::l, allocList) = 
-      (
-      case curFormal of
-          true => allocFormals(offset + wordSize, l, allocList @ [InFrame offset])
-        | false => allocFormals(offset, l, allocList @ [InReg(T.newtemp())])
-      )
-  val aformals = allocFormals (wordSize, formals, []) (* first word is reserved for something *)
-  fun viewShift (acc, reg) = Tr.MOVE(exp acc (Tr.TEMP fp), Tr.TEMP reg)
-  (* getting the value in argRegs to their correct positions *)
-  val shiftInstr = ListPair.map viewShift (aformals, getFirstL (argRegs))
-in
-  if (List.length formals <= List.length argRegs) then 
-    {name = name, formals = aformals, numLocals = ref 0, shiftInstr = shiftInstr}
-  else 
-    raise ArgExceed ("No. of arguments exceeded!")
-end
-
-(* allocating a variable for our frame *)
-fun allocLocal frame' escape = (
-  case escape of
-      true => (incrementNumLocals frame'; InFrame(getOffset frame'))
-    | false => InReg(T.newtemp())
-)
-
-
-(* Calling runtime-system functions. To call an external function named initArray with arguments a, b, simply generate a CALL such as CALL(NAME(Temp.namedlabel ( "initArray" )), [a, b]) This refers to an external function initArray which is written in a language such as C or assembly language - it cannot be written in Tiger because Tiger has no mechanism for manipulating raw memory. But on some operating systems, the C compiler puts an underscore at the beginning of each label; and the calling conventions for C functions may differ from those of Tiger functions; and C functions don't expect to receive a static link, and so on. All these target-machine-specific details should be encapsulated into a function provided by the Frame structure. where externalCall takes the name of the external procedure and the  arguments to be passed. *)
-fun externalCall (s, args) = Tr.CALL(Tr.NAME(T.namedlabel s), args)
-
-(* needed as we are going to add new tree instructions *)
-fun seq nil = Tr.EXP (Tr.CONST 0)
-  | seq [st] = st
-  | seq (st :: rest) = Tr.SEQ(st, seq (rest))
-
-(* 
-  Each Tiger function is translated into a segment of assembly language with a prologue, a body, and an epilogue. 
-
-  The body of a Tiger function is an expression, and the body of the translation is simply the translation of that expression.
-
-  The prologue, which precedes the body in the assembly-language version of the function, contains:
-    1. Pseudo-instructions, as needed in the particular assembly language, to 
-    announce the beginning of a function. (Not relevant in our context)
-    2. A label definition for the function name. (Done in procEntryExit3)
-    3. An instruction to adjust the stack pointer (to allocate a new frame). (Done in procEntryExit3)
-    4. Instructions to save "escaping" arguments - including the static link - into the
-    frame, and to move nonescaping arguments into fresh temporary registers. (Done in procEntryExit1)
-    5. Store instructions to save any callee-save registers - including the return 
-    address register - used within the function. (Done in procEntryExit1)
-
-  (6) The function body.
-
-  The epilogue comes after the body and contains
-    7. An instruction to move the return value (result of the function) to the register reserved for that purpose. (Already added in body by translate)
-    8. Load instructions to restore the callee-save registers. (Done in procEntryExit1)
-    9. An instruction to reset the stack pointer (to deallocate the frame). (Done in procEntryExit3)
-    10. A return instruction (JUMP to the return address). (Done in procEntryExit3)
-    11. pseudo-instructions, as needed, to announce the end of a function. (Not relevant in our context)
-
-  Some of these items (1, 3, 9 and 11) depend on exact knowledge of the frame size, which will not be known until after the register allocator determines how many local variables need to be kept in the frame because they don't fit in registers. So these instructions should be generated very late, in a frame function called procEntryExit3. 
-*)
-
-(* As mentioned in the above comment, it does what is known as "view shift" *)
-fun procEntryExit1(frame' as {shiftInstr, ...} : frame, body) = 
-let
-  val pairs = map (fn reg => (allocLocal frame' false, reg)) ([ra] @ getFirstL (savedRegs))
-  val saves = map (fn (allocLoc, reg) => Tr.MOVE (exp allocLoc (Tr.TEMP fp), Tr.TEMP reg)) pairs
-  val restores = map (fn (allocLoc, reg) => Tr.MOVE (Tr.TEMP reg, exp allocLoc (Tr.TEMP fp))) (List.rev pairs)
-in
-  seq(shiftInstr @ saves @ [body] @ restores)
-end
-
-
-(* This function appends a "sink" instruction to the function body to tell the register allocator that certain registers are live at procedure exit. Having zero live at the end means that it is live throughout, which will prevent the register allocator from trying to use it for some other purpose. The same trick works for any other special registers the machine might have. *)
-(* The following snippet was given in book, just modified src. *)
-fun procEntryExit2(frame, body) = 
-        body @
-        [Assem.OPER {assem = "",
-                  src = getFirstL (specialregs @ savedRegs),
-                  dst = [], jump = SOME[]}
-        ]
-
-fun procEntryExit3(frame' : frame, body) =
-  {prolog = Symbol.name (name frame') ^ ":\n" ^ 
-    (* fp -> 0(sp) *)
-    "sw fp 0(sp)\n" ^  
-    (* sp -> fp *)
-    "move fp sp\n" ^ 
-    (* sp = sp -  (allocating space in stack) *)
-    "addiu sp sp -" ^ Int.toString (getFOffset (frame')) ^ "\n",
-    body = body,
-            (* fp -> sp *)
-    epilog = "move sp fp\n" ^ 
-    (* lw Rdest, address			Load Word
-Load the 32-bit quantity (word) at address into register Rdest. *)
-    "lw fp 0(sp)\n" ^ 
-    (* jr Rsource				Jump Register
-Unconditionally jump to the instruction whose address is in register Rsource.*)
-    "jr ra\n"}
-end
-\end{minted}
-
-\subsubsection{translate.sml}
-
-This file is used by \texttt{semant.sml} to generate IR tree code. 
+Done by \texttt{translate.sml} and is used by \texttt{semant.sml} to generate IR tree code. 
 
 Its not reasonable to translate expression of our AST to an expression of IR as this is true only for certain kinds of expressions, the ones that  compute a value. Expressions that return no value (such as some procedure calls, or while expressions in the Tiger language) are more naturally represented by \texttt{Tree.stm}. And expressions with Boolean values, such as $a > b$, might best be represented as a conditional jump - a combination of \texttt{Tree.stm} and a pair of destinations represented by \texttt{Temp.labels}. Therefore, we will make a datatype exp in the Translate module to model these three kinds of expressions:
 
@@ -330,6 +244,8 @@ datatype level =  Top
 
 All of the functions of \texttt{translate.sml} are straight forward so please see and understand them.
 
-\section{semant.sml}
+\section{Semantic Analysis}
 
-After we receive our AST, we run semant's function \texttt{transProg} on it which will do type checking of our AST and simultaneously convert it into our IR. Both this and \texttt{translate.sml} are big so I have not put their code here, however please see linked code which is properly documented and thus is easy to understand.
+\tfbox{\ghref{semant.sml}}
+
+After we receive our AST, we run semant's (in \texttt{semant.sml}) function \texttt{transProg} on it which will do type checking of our AST and simultaneously convert it into our IR. Both this and \texttt{translate.sml} are big so I have not put their code here, however please see linked code which is properly documented and thus is easy to understand.

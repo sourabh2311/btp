@@ -3,3 +3,5 @@ Compiler/tiger.grm.sig
 Compiler/tiger.grm.sml
 Compiler/tiger.lex.sml
 Compiler/.cm
+BTP_report_template/_minted-btp_report/
+TODO.txt
