@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2019.10.30)  7 NOV 2019 20:14
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2019.10.30)  10 NOV 2019 10:46
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -155,25 +155,38 @@ Package: multicol 2018/12/27 v1.8v multicolumn formatting (FMi)
 \mult@nat@firstbox=\box53
 \colbreak@box=\box54
 \mc@col@check@num=\count113
-) (/usr/share/texlive/texmf-dist/tex/latex/subfigure/subfigure.sty
-Package: subfigure 2002/03/15 v2.1.5 subfigure package
-\subfigtopskip=\skip48
-\subfigcapskip=\skip49
-\subfigcaptopadj=\dimen127
-\subfigbottomskip=\skip50
-\subfigcapmargin=\dimen128
-\subfiglabelskip=\skip51
-\c@subfigure=\count114
-\c@lofdepth=\count115
-\c@subtable=\count116
-\c@lotdepth=\count117
+) (/usr/share/texlive/texmf-dist/tex/latex/caption/subcaption.sty
+Package: subcaption 2018/05/01 v1.1-162 Sub-captions (AR)
+ (/usr/share/texlive/texmf-dist/tex/latex/caption/caption.sty
+Package: caption 2018/10/06 v3.3-154 Customizing captions (AR)
+ (/usr/share/texlive/texmf-dist/tex/latex/caption/caption3.sty
+Package: caption3 2018/09/12 v1.8c caption3 kernel (AR)
+Package caption3 Info: TeX engine: e-TeX on input line 64.
+ (/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
+\KV@toks@=\toks24
+)
+\captionmargin=\dimen127
+\captionmargin@=\dimen128
+\captionwidth=\dimen129
+\caption@tempdima=\dimen130
+\caption@indent=\dimen131
+\caption@parindent=\dimen132
+\caption@hangindent=\dimen133
+Package caption Info: Unknown document class (or package),
+(caption)             standard defaults will be used.
+)
 
-****************************************
-* Local config file subfigure.cfg used *
-****************************************
-(/usr/share/texlive/texmf-dist/tex/latex/subfigure/subfigure.cfg)
-\subfig@top=\skip52
-\subfig@bottom=\skip53
+Package caption Warning: Unsupported document class (or package) detected,
+(caption)                usage of the caption package is not recommended.
+See the caption package documentation for explanation.
+
+Package caption Info: \@makecaption = \long macro:#1#2->\vskip \abovecaptionskip \sbox \@tempboxa {\captionfontsize #1\quad #2}\ifdim \wd \@tempboxa >\captiontextfraction \hsize \hbox to \hsize {\hfil \parbox {\captiontextfraction \hsize }{\captionfontsize #1\quad #2}\hfil }\else \global \@minipagefalse \hbox to \hsize {\hfil \box \@tempboxa \hfil }\fi \vskip \belowcaptionskip .
+\c@caption@flags=\count114
+\c@ContinuedFloat=\count115
+)
+\c@subfigure=\count116
+\c@subtable=\count117
 ) (/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
 Package: hyperref 2018/11/30 v6.88e Hypertext links for LaTeX
  (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/hobsub-hyperref.sty
@@ -211,9 +224,6 @@ Package atveryend Info: \enddocument detected (standard20110627).
 Package: atbegshi 2016/06/09 v1.18 At begin shipout hook (HO)
 Package: refcount 2016/05/16 v3.5 Data extraction from label references (HO)
 Package: hycolor 2016/05/16 v1.8 Color options for hyperref/bookmark (HO)
-) (/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty
-Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
-\KV@toks@=\toks24
 ) (/usr/share/texlive/texmf-dist/tex/generic/ifxetex/ifxetex.sty
 Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
 ) (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/auxhook.sty
@@ -221,7 +231,7 @@ Package: auxhook 2016/05/16 v1.4 Hooks for auxiliary files (HO)
 ) (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/kvoptions.sty
 Package: kvoptions 2016/05/16 v3.12 Key value format for package options (HO)
 )
-\@linkdim=\dimen129
+\@linkdim=\dimen134
 \Hy@linkcounter=\count118
 \Hy@pagecounter=\count119
  (/usr/share/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def
@@ -246,10 +256,10 @@ Package hyperref Info: Bookmarks ON on input line 4772.
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
 LaTeX Info: Redefining \url on input line 5125.
-\XeTeXLinkMargin=\dimen130
+\XeTeXLinkMargin=\dimen135
 \Fld@menulength=\count122
-\Field@Width=\dimen131
-\Fld@charsize=\dimen132
+\Field@Width=\dimen136
+\Fld@charsize=\dimen137
 Package hyperref Info: Hyper figures OFF on input line 6380.
 Package hyperref Info: Link nesting OFF on input line 6385.
 Package hyperref Info: Hyper index ON on input line 6388.
@@ -272,16 +282,16 @@ File: hpdftex.def 2018/11/30 v6.88e Hyperref driver for pdfTeX
 Package: rerunfilecheck 2016/05/16 v1.8 Rerun checks for auxiliary files (HO)
 Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 282.
 )
-\Hy@SectionHShift=\skip54
+\Hy@SectionHShift=\skip48
 ) (/usr/share/texlive/texmf-dist/tex/latex/graphics/epsfig.sty
 Package: epsfig 2017/06/25 v1.7b (e)psfig emulation (SPQR)
  (/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
 Package: graphicx 2017/06/01 v1.1a Enhanced LaTeX Graphics (DPC,SPQR)
-\Gin@req@height=\dimen133
-\Gin@req@width=\dimen134
+\Gin@req@height=\dimen138
+\Gin@req@width=\dimen139
 )
-\epsfxsize=\dimen135
-\epsfysize=\dimen136
+\epsfxsize=\dimen140
+\epsfysize=\dimen141
 ) (/usr/share/texlive/texmf-dist/tex/latex/graphics/color.sty
 Package: color 2016/07/10 v1.1e Standard LaTeX Color (DPC)
  (/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/color.cfg
@@ -292,8 +302,8 @@ Package color Info: Driver file: pdftex.def on input line 147.
 Package: tcolorbox 2019/03/02 version 4.20 text color boxes
  (/usr/share/texlive/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty (/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty (/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.tex
 \pgfutil@everybye=\toks25
-\pgfutil@tempdima=\dimen137
-\pgfutil@tempdimb=\dimen138
+\pgfutil@tempdima=\dimen142
+\pgfutil@tempdimb=\dimen143
  (/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfutil-common-lists.tex)) (/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfutil-latex.def
 \pgfutil@abb=\box55
  (/usr/share/texlive/texmf-dist/tex/latex/ms/everyshi.sty
@@ -310,16 +320,16 @@ Package: pgfsys 2019/05/09 v3.1.3 (3.1.3)
  (/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeysfiltered.code.tex
 \pgfkeys@tmptoks=\toks28
 ))
-\pgf@x=\dimen139
-\pgf@y=\dimen140
-\pgf@xa=\dimen141
-\pgf@ya=\dimen142
-\pgf@xb=\dimen143
-\pgf@yb=\dimen144
-\pgf@xc=\dimen145
-\pgf@yc=\dimen146
-\pgf@xd=\dimen147
-\pgf@yd=\dimen148
+\pgf@x=\dimen144
+\pgf@y=\dimen145
+\pgf@xa=\dimen146
+\pgf@ya=\dimen147
+\pgf@xb=\dimen148
+\pgf@yb=\dimen149
+\pgf@xc=\dimen150
+\pgf@yc=\dimen151
+\pgf@xd=\dimen152
+\pgf@yd=\dimen153
 \w@pgf@writea=\write3
 \r@pgf@reada=\read1
 \c@pgf@counta=\count128
@@ -363,7 +373,7 @@ Package xcolor Info: Model `wave' substituted by `hsb' on input line 1371.
 ) (/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcore.code.tex
 Package: pgfcore 2019/05/09 v3.1.3 (3.1.3)
  (/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex (/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathcalc.code.tex (/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathutil.code.tex) (/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathparser.code.tex
-\pgfmath@dimen=\dimen149
+\pgfmath@dimen=\dimen154
 \pgfmath@count=\count135
 \pgfmath@box=\box56
 \pgfmath@toks=\toks32
@@ -373,28 +383,28 @@ Package: pgfcore 2019/05/09 v3.1.3 (3.1.3)
 \c@pgfmathroundto@lastzeros=\count136
 )) (/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfint.code.tex) (/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepoints.code.tex
 File: pgfcorepoints.code.tex 2019/05/09 v3.1.3 (3.1.3)
-\pgf@picminx=\dimen150
-\pgf@picmaxx=\dimen151
-\pgf@picminy=\dimen152
-\pgf@picmaxy=\dimen153
-\pgf@pathminx=\dimen154
-\pgf@pathmaxx=\dimen155
-\pgf@pathminy=\dimen156
-\pgf@pathmaxy=\dimen157
-\pgf@xx=\dimen158
-\pgf@xy=\dimen159
-\pgf@yx=\dimen160
-\pgf@yy=\dimen161
-\pgf@zx=\dimen162
-\pgf@zy=\dimen163
+\pgf@picminx=\dimen155
+\pgf@picmaxx=\dimen156
+\pgf@picminy=\dimen157
+\pgf@picmaxy=\dimen158
+\pgf@pathminx=\dimen159
+\pgf@pathmaxx=\dimen160
+\pgf@pathminy=\dimen161
+\pgf@pathmaxy=\dimen162
+\pgf@xx=\dimen163
+\pgf@xy=\dimen164
+\pgf@yx=\dimen165
+\pgf@yy=\dimen166
+\pgf@zx=\dimen167
+\pgf@zy=\dimen168
 ) (/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathconstruct.code.tex
 File: pgfcorepathconstruct.code.tex 2019/05/09 v3.1.3 (3.1.3)
-\pgf@path@lastx=\dimen164
-\pgf@path@lasty=\dimen165
+\pgf@path@lastx=\dimen169
+\pgf@path@lasty=\dimen170
 ) (/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathusage.code.tex
 File: pgfcorepathusage.code.tex 2019/05/09 v3.1.3 (3.1.3)
-\pgf@shorten@end@additional=\dimen166
-\pgf@shorten@start@additional=\dimen167
+\pgf@shorten@end@additional=\dimen171
+\pgf@shorten@start@additional=\dimen172
 ) (/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorescopes.code.tex
 File: pgfcorescopes.code.tex 2019/05/09 v3.1.3 (3.1.3)
 \pgfpic=\box57
@@ -403,12 +413,12 @@ File: pgfcorescopes.code.tex 2019/05/09 v3.1.3 (3.1.3)
 \pgf@picture@serial@count=\count137
 ) (/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoregraphicstate.code.tex
 File: pgfcoregraphicstate.code.tex 2019/05/09 v3.1.3 (3.1.3)
-\pgflinewidth=\dimen168
+\pgflinewidth=\dimen173
 ) (/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransformations.code.tex
 File: pgfcoretransformations.code.tex 2019/05/09 v3.1.3 (3.1.3)
-\pgf@pt@x=\dimen169
-\pgf@pt@y=\dimen170
-\pgf@pt@temp=\dimen171
+\pgf@pt@x=\dimen174
+\pgf@pt@y=\dimen175
+\pgf@pt@temp=\dimen176
 ) (/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorequick.code.tex
 File: pgfcorequick.code.tex 2019/05/09 v3.1.3 (3.1.3)
 ) (/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreobjects.code.tex
@@ -417,10 +427,10 @@ File: pgfcoreobjects.code.tex 2019/05/09 v3.1.3 (3.1.3)
 File: pgfcorepathprocessing.code.tex 2019/05/09 v3.1.3 (3.1.3)
 ) (/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorearrows.code.tex
 File: pgfcorearrows.code.tex 2019/05/09 v3.1.3 (3.1.3)
-\pgfarrowsep=\dimen172
+\pgfarrowsep=\dimen177
 ) (/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreshade.code.tex
 File: pgfcoreshade.code.tex 2019/05/09 v3.1.3 (3.1.3)
-\pgf@max=\dimen173
+\pgf@max=\dimen178
 \pgf@sys@shading@range@num=\count138
 \pgf@shadingcount=\count139
 ) (/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreimage.code.tex
@@ -443,8 +453,8 @@ File: pgfmoduleshapes.code.tex 2019/05/09 v3.1.3 (3.1.3)
 File: pgfmoduleplot.code.tex 2019/05/09 v3.1.3 (3.1.3)
 ) (/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65.sty
 Package: pgfcomp-version-0-65 2019/05/09 v3.1.3 (3.1.3)
-\pgf@nodesepstart=\dimen174
-\pgf@nodesepend=\dimen175
+\pgf@nodesepstart=\dimen179
+\pgf@nodesepend=\dimen180
 ) (/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18.sty
 Package: pgfcomp-version-1-18 2019/05/09 v3.1.3 (3.1.3)
 )) (/usr/share/texlive/texmf-dist/tex/latex/tools/verbatim.sty
@@ -495,53 +505,53 @@ Package: lineno 2005/11/02 line numbers on paragraphs v4.41
 \linenopenalty=\count147
 \output=\toks37
 \linenoprevgraf=\count148
-\linenumbersep=\dimen176
-\linenumberwidth=\dimen177
+\linenumbersep=\dimen181
+\linenumberwidth=\dimen182
 \c@linenumber=\count149
 \c@pagewiselinenumber=\count150
 \c@LN@truepage=\count151
 \c@internallinenumber=\count152
 \c@internallinenumbers=\count153
-\quotelinenumbersep=\dimen178
-\bframerule=\dimen179
-\bframesep=\dimen180
+\quotelinenumbersep=\dimen183
+\bframerule=\dimen184
+\bframesep=\dimen185
 \bframebox=\box71
 LaTeX Info: Redefining \\ on input line 3056.
 )
 \c@FV@TrueTabGroupLevel=\count154
 \c@FV@TrueTabCounter=\count155
 \FV@TabBox@Group=\box72
-\FV@TmpLength=\skip55
+\FV@TmpLength=\skip49
 \c@FV@HighlightLinesStart=\count156
 \c@FV@HighlightLinesStop=\count157
 \FV@LoopCount=\count158
 \FV@NCharsBox=\box73
-\FV@BreakIndent=\dimen181
+\FV@BreakIndent=\dimen186
 \FV@BreakIndentNChars=\count159
-\FV@BreakSymbolSepLeft=\dimen182
+\FV@BreakSymbolSepLeft=\dimen187
 \FV@BreakSymbolSepLeftNChars=\count160
-\FV@BreakSymbolSepRight=\dimen183
+\FV@BreakSymbolSepRight=\dimen188
 \FV@BreakSymbolSepRightNChars=\count161
-\FV@BreakSymbolIndentLeft=\dimen184
+\FV@BreakSymbolIndentLeft=\dimen189
 \FV@BreakSymbolIndentLeftNChars=\count162
-\FV@BreakSymbolIndentRight=\dimen185
+\FV@BreakSymbolIndentRight=\dimen190
 \FV@BreakSymbolIndentRightNChars=\count163
 \c@FancyVerbLineBreakLast=\count164
 \FV@LineBox=\box74
 \FV@LineIndentBox=\box75
-\FV@LineWidth=\dimen186
+\FV@LineWidth=\dimen191
 ) (/usr/share/texlive/texmf-dist/tex/latex/tools/calc.sty
 Package: calc 2017/05/25 v4.3 Infix arithmetic (KKT,FJ)
 \calc@Acount=\count165
 \calc@Bcount=\count166
-\calc@Adimen=\dimen187
-\calc@Bdimen=\dimen188
-\calc@Askip=\skip56
-\calc@Bskip=\skip57
+\calc@Adimen=\dimen192
+\calc@Bdimen=\dimen193
+\calc@Askip=\skip50
+\calc@Bskip=\skip51
 LaTeX Info: Redefining \setlength on input line 80.
 LaTeX Info: Redefining \addtolength on input line 81.
 \calc@Ccount=\count167
-\calc@Cskip=\skip58
+\calc@Cskip=\skip52
 ) (/usr/share/texlive/texmf-dist/tex/latex/tools/shellesc.sty
 Package: shellesc 2016/06/07 v0.02a unified shell escape interface for LaTeX
 Package shellesc Info: Unrestricted shell escape enabled on input line 67.
@@ -562,11 +572,11 @@ runsystem(rm -- "btp_report.w18")...executed.
 Package: xstring 2019/02/06 v1.83 String manipulations (CT)
 ) (/usr/share/texlive/texmf-dist/tex/latex/framed/framed.sty
 Package: framed 2011/10/22 v 0.96: framed or shaded text with page breaks
-\OuterFrameSep=\skip59
-\fb@frw=\dimen189
-\fb@frh=\dimen190
-\FrameRule=\dimen191
-\FrameSep=\dimen192
+\OuterFrameSep=\skip53
+\fb@frw=\dimen194
+\fb@frh=\dimen195
+\FrameRule=\dimen196
+\FrameSep=\dimen197
 ) (/usr/share/texlive/texmf-dist/tex/latex/float/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
 \c@float@type=\count170
@@ -592,30 +602,30 @@ runsystem(rm btp_report.aex)...executed.
  (./btp_report.aux (./title.aux) (./certificate.aux) (./acknowledgement.aux) (./chapter1.aux) (./chapter2.aux) (./chapter3.aux) (./chapter4.aux) (./chapter5.aux))
 \openout1 = `btp_report.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 52.
-LaTeX Font Info:    ... okay on input line 52.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 52.
-LaTeX Font Info:    ... okay on input line 52.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 52.
-LaTeX Font Info:    ... okay on input line 52.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 52.
-LaTeX Font Info:    ... okay on input line 52.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 52.
-LaTeX Font Info:    ... okay on input line 52.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 52.
-LaTeX Font Info:    ... okay on input line 52.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 52.
-LaTeX Font Info:    ... okay on input line 52.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
  (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count174
-\scratchdimen=\dimen193
+\scratchdimen=\dimen198
 \scratchbox=\box79
 \nofMPsegments=\count175
 \nofMParguments=\count176
 \everyMPshowfont=\toks41
 \MPscratchCnt=\count177
-\MPscratchDim=\dimen194
+\MPscratchDim=\dimen199
 \MPnumerator=\count178
 \makeMPintoPDFobject=\count179
 \everyMPtoPDFconversion=\toks42
@@ -631,8 +641,12 @@ Package grfext Info: Graphics extension search list:
  (/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: float package is loaded.
+Package caption Info: hyperref package is loaded.
+Package caption Info: End \AtBeginDocument code.
 \AtBeginShipoutBox=\box80
-Package hyperref Info: Link coloring OFF on input line 52.
+Package hyperref Info: Link coloring OFF on input line 53.
  (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
  (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
@@ -640,9 +654,9 @@ Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
 \c@section@level=\count180
 )
-LaTeX Info: Redefining \ref on input line 52.
-LaTeX Info: Redefining \pageref on input line 52.
-LaTeX Info: Redefining \nameref on input line 52.
+LaTeX Info: Redefining \ref on input line 53.
+LaTeX Info: Redefining \pageref on input line 53.
+LaTeX Info: Redefining \nameref on input line 53.
  (./btp_report.out) (./btp_report.out)
 \@outlinefile=\write8
 \openout8 = `btp_report.out'.
@@ -651,7 +665,7 @@ LaTeX Info: Redefining \nameref on input line 52.
 \openout2 = `title.aux'.
 
  (./title.tex
-<IITPkdFullLogoColor.pdf, id=167, 270.00874pt x 264.99pt>
+<IITPkdFullLogoColor.pdf, id=175, 270.00874pt x 264.99pt>
 File: IITPkdFullLogoColor.pdf Graphic file (type pdf)
 <use IITPkdFullLogoColor.pdf>
 Package pdftex.def Info: IITPkdFullLogoColor.pdf  used on input line 19.
@@ -676,35 +690,94 @@ Package pdftex.def Info: IITPkdFullLogoColor.pdf  used on input line 19.
 ] (./btp_report.toc [3
 
 
-])
+]
+\openout7 = `btp_report.pyg'.
+
+ (./_minted-btp_report/default-pyg-prefix.pygstyle) (./_minted-btp_report/default.pygstyle) (./_minted-btp_report/72AB237210D032602BDA88DCB4B845CAC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
+\openout7 = `btp_report.pyg'.
+
+ (./_minted-btp_report/A3C79C18AA3B76035AA401F9278A009DC10BE7C546AB936BC0B71780EEC7C66C.pygtex))
 \tf@toc=\write9
 \openout9 = `btp_report.toc'.
+
+ [4] (./btp_report.lof)
+\tf@lof=\write10
+\openout10 = `btp_report.lof'.
 
 
 
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.77 \include{chapter1}
-                        [1]
+l.78 \include{chapter1}
+                        [1
+
+
+]
 \openout2 = `chapter1.aux'.
 
  (./chapter1.tex
 Chapter 1.
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 10.
-(/usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
-File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
-)
-LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 10.
+<assets/lexError.png, id=291, 1278.7775pt x 760.8425pt>
+File: assets/lexError.png Graphic file (type png)
+<use assets/lexError.png>
+Package pdftex.def Info: assets/lexError.png  used on input line 18.
+(pdftex.def)             Requested size: 370.01645pt x 220.15108pt.
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.14   \item T
-              o implement additional arithmetic operations like left/right s... [1
+l.22   \item W
+              rote complete documentation of my compiler at \href{https://ti... [1
 
 
-] [2] [3]) [4]
+]
+<assets/tigercompiler.png, id=305, 1822.81pt x 675.52374pt>
+File: assets/tigercompiler.png Graphic file (type png)
+<use assets/tigercompiler.png>
+Package pdftex.def Info: assets/tigercompiler.png  used on input line 25.
+(pdftex.def)             Requested size: 370.00705pt x 137.12265pt.
+<assets/travis.png, id=310, 1422.31375pt x 908.39375pt>
+File: assets/travis.png Graphic file (type png)
+<use assets/travis.png>
+Package pdftex.def Info: assets/travis.png  used on input line 32.
+(pdftex.def)             Requested size: 370.00989pt x 236.31541pt.
+<assets/funargs.png, id=315, 1770.615pt x 504.88625pt>
+File: assets/funargs.png Graphic file (type png)
+<use assets/funargs.png>
+Package pdftex.def Info: assets/funargs.png  used on input line 39.
+(pdftex.def)             Requested size: 370.00294pt x 105.50536pt.
+<assets/gitfunargs.png, id=316, 1737.49126pt x 609.27625pt>
+File: assets/gitfunargs.png Graphic file (type png)
+<use assets/gitfunargs.png>
+Package pdftex.def Info: assets/gitfunargs.png  used on input line 45.
+(pdftex.def)             Requested size: 370.02725pt x 129.75536pt.
+ [2 <./assets/lexError.png> <./assets/tigercompiler.png>]
+<assets/shiftoperations.png, id=326, 1243.64626pt x 529.98pt>
+File: assets/shiftoperations.png Graphic file (type png)
+<use assets/shiftoperations.png>
+Package pdftex.def Info: assets/shiftoperations.png  used on input line 52.
+(pdftex.def)             Requested size: 370.02257pt x 157.68515pt.
+<assets/mulopt1.png, id=329, 1200.485pt x 480.79625pt>
+File: assets/mulopt1.png Graphic file (type png)
+<use assets/mulopt1.png>
+Package pdftex.def Info: assets/mulopt1.png  used on input line 62.
+(pdftex.def)             Requested size: 370.02164pt x 148.19427pt.
+<assets/mulopt2.png, id=330, 498.86375pt x 309.155pt>
+File: assets/mulopt2.png Graphic file (type png)
+<use assets/mulopt2.png>
+Package pdftex.def Info: assets/mulopt2.png  used on input line 69.
+(pdftex.def)             Requested size: 259.02243pt x 160.52094pt.
+ [3 <./assets/travis.png> <./assets/funargs.png>] [4 <./assets/gitfunargs.png> <./assets/shiftoperations.png>]
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 77.
+ (/usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
+File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 77.
+ [5 <./assets/mulopt1.png> <./assets/mulopt2.png>] [6]) [7] [8
+
+
+]
 
 \openout2 = `chapter2.aux'.
 
@@ -712,27 +785,25 @@ l.14   \item T
 Chapter 2.
 \openout6 = `btp_report.pyg'.
 
-(./_minted-btp_report/default-pyg-prefix.pygstyle) (./_minted-btp_report/default.pygstyle) (./_minted-btp_report/F61682FE093585806A83CE5DB3D8397F014A7D30D01DDB64A90DC94FEB868415.pygtex [5
-
-
+(./_minted-btp_report/F61682FE093585806A83CE5DB3D8397F014A7D30D01DDB64A90DC94FEB868415.pygtex [9
 
 
 ])
 \openout6 = `btp_report.pyg'.
 
- (./_minted-btp_report/B4EE3A6A28D3EB4C247B3B0B9BEE59A7451D2C37E6E6572707A63A6EB4EF9017.pygtex [6])
+ (./_minted-btp_report/B4EE3A6A28D3EB4C247B3B0B9BEE59A7451D2C37E6E6572707A63A6EB4EF9017.pygtex [10])
 \openout6 = `btp_report.pyg'.
 
- (./_minted-btp_report/FE1A1C8BA52DE7D928E0FEAD30F487F9451D2C37E6E6572707A63A6EB4EF9017.pygtex [7])
+ (./_minted-btp_report/FE1A1C8BA52DE7D928E0FEAD30F487F9451D2C37E6E6572707A63A6EB4EF9017.pygtex [11])
 \openout6 = `btp_report.pyg'.
 
- (./_minted-btp_report/12279EE33678E256D8E7B9B301CDC959451D2C37E6E6572707A63A6EB4EF9017.pygtex [8]) [9]) [10]
+ (./_minted-btp_report/12279EE33678E256D8E7B9B301CDC959451D2C37E6E6572707A63A6EB4EF9017.pygtex [12]) [13]) [14]
 
 \openout2 = `chapter3.aux'.
 
 (./chapter3.tex
 Chapter 3.
-[11
+[15
 
 
 
@@ -747,7 +818,7 @@ Overfull \hbox (9.82597pt too wide) in paragraph at lines 15--16
 (./_minted-btp_report/8153C08BA82A1B3DB57BB7409ACA8F9BA508512970308FA877B480F3970C5615.pygtex
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <12> not available
 (Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 4.
- [12]) [13]
+ [16]) [17]
 \openout6 = `btp_report.pyg'.
 
  (./_minted-btp_report/74C6093B0306348971593F5BFBB76B4785202E5909C17349CA034DE043C030B0.pygtex)
@@ -759,10 +830,10 @@ LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <12> not available
  (./_minted-btp_report/123F461706CB435A8CF60B4714C39EA885202E5909C17349CA034DE043C030B0.pygtex)
 \openout6 = `btp_report.pyg'.
 
- (./_minted-btp_report/3D619650DFDD9059546B8ACFBCB4332F91D819D9B397CF8B3CC6F4F38D71D80D.pygtex) [14] [15]
+ (./_minted-btp_report/3D619650DFDD9059546B8ACFBCB4332F91D819D9B397CF8B3CC6F4F38D71D80D.pygtex) [18] [19]
 \openout6 = `btp_report.pyg'.
 
- (./_minted-btp_report/48C8819AA4811C57730D9AEA023D0F97014A7D30D01DDB64A90DC94FEB868415.pygtex [16])) [17] [18
+ (./_minted-btp_report/48C8819AA4811C57730D9AEA023D0F97014A7D30D01DDB64A90DC94FEB868415.pygtex [20])) [21] [22
 
 
 ]
@@ -771,13 +842,13 @@ LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <12> not available
 
 (./chapter4.tex
 Chapter 4.
-[19
+[23
 
 
-] [20]
+] [24]
 \openout6 = `btp_report.pyg'.
 
- (./_minted-btp_report/B1F33505AF240BD5598329A784D62D19A508512970308FA877B480F3970C5615.pygtex [21]) [22]
+ (./_minted-btp_report/B1F33505AF240BD5598329A784D62D19A508512970308FA877B480F3970C5615.pygtex [25]) [26]
 \openout7 = `btp_report.pyg'.
 
  (./_minted-btp_report/B2EAAD0E09F4865C728E2030F0BE515DC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
@@ -826,7 +897,7 @@ Overfull \hbox (18.90047pt too wide) in paragraph at lines 97--105
  (./_minted-btp_report/120D7F3E68408BB9C5002B3A528AF783C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
 \openout7 = `btp_report.pyg'.
 
- (./_minted-btp_report/120D7F3E68408BB9C5002B3A528AF783C10BE7C546AB936BC0B71780EEC7C66C.pygtex) [23]
+ (./_minted-btp_report/120D7F3E68408BB9C5002B3A528AF783C10BE7C546AB936BC0B71780EEC7C66C.pygtex) [27]
 \openout7 = `btp_report.pyg'.
 
  (./_minted-btp_report/91BAFE9A72D7632EC626810EC27A3A4DC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
@@ -900,7 +971,7 @@ Overfull \hbox (18.20879pt too wide) in paragraph at lines 187--193
 []\OT1/cmr/m/n/12 Called func-tion must save callee-save reg-is-ters in-clude \OT1/cmtt/m/n/12 ra\OT1/cmr/m/n/12 , this is done in \OT1/cmtt/m/n/12 procEntryExit1\OT1/cmr/m/n/12 ,
  []
 
-[24] [25]
+[28] [29]
 \openout6 = `btp_report.pyg'.
 
  (./_minted-btp_report/20B5CAF48FCB8D279D4EA3FED1B84169A508512970308FA877B480F3970C5615.pygtex)
@@ -915,7 +986,7 @@ Overfull \hbox (18.20879pt too wide) in paragraph at lines 187--193
  (./_minted-btp_report/DE389EAEF659E5DEA9BA13252F303087A508512970308FA877B480F3970C5615.pygtex)
 \openout6 = `btp_report.pyg'.
 
- (./_minted-btp_report/161B4D836F68565728AAD472BB0470C4A508512970308FA877B480F3970C5615.pygtex) [26]) [27] [28
+ (./_minted-btp_report/161B4D836F68565728AAD472BB0470C4A508512970308FA877B480F3970C5615.pygtex) [30]) [31] [32
 
 
 ]
@@ -947,7 +1018,7 @@ Chapter 5.
  (./_minted-btp_report/317C77303BF3D8D83CE39E9670F8566DC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
 \openout7 = `btp_report.pyg'.
 
- (./_minted-btp_report/EFE46905E91367D4A22B17CC5702AD90C10BE7C546AB936BC0B71780EEC7C66C.pygtex) [29
+ (./_minted-btp_report/EFE46905E91367D4A22B17CC5702AD90C10BE7C546AB936BC0B71780EEC7C66C.pygtex) [33
 
 
 ]
@@ -973,7 +1044,7 @@ Overfull \hbox (23.30289pt too wide) in paragraph at lines 40--42
 \openout7 = `btp_report.pyg'.
 
  (./_minted-btp_report/B8F2EB1DB866935E5100B7BD0FDA7414C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-<assets/canon1.png, id=442, 757.83125pt x 985.6825pt>
+<assets/canon1.png, id=533, 757.83125pt x 985.6825pt>
 File: assets/canon1.png Graphic file (type png)
 <use assets/canon1.png>
 Package pdftex.def Info: assets/canon1.png  used on input line 63.
@@ -1016,12 +1087,7 @@ Package pdftex.def Info: assets/canon1.png  used on input line 63.
  (./_minted-btp_report/61E43486194FCF03E1CF161C7D9D2D6DC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
 \openout7 = `btp_report.pyg'.
 
- (./_minted-btp_report/4B9E0A2EC0553FD81686619C1147C7B4C10BE7C546AB936BC0B71780EEC7C66C.pygtex) [30] [31pdfTeX warning (ext4): destination with the same identifier (name{figure.5.1}) has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.110 
-       <./assets/canon1.png>]
+ (./_minted-btp_report/4B9E0A2EC0553FD81686619C1147C7B4C10BE7C546AB936BC0B71780EEC7C66C.pygtex) [34] [35 <./assets/canon1.png>]
 \openout6 = `btp_report.pyg'.
 
  (./_minted-btp_report/379B43892DF92ADF96DC654D8E8D2813A508512970308FA877B480F3970C5615.pygtex)
@@ -1063,8 +1129,8 @@ l.110
  (./_minted-btp_report/369990B384D3CB76276C5AA5C98725C9C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
 \openout7 = `btp_report.pyg'.
 
- (./_minted-btp_report/BD54F33B86A980BCA586E037D49F4CF6C10BE7C546AB936BC0B71780EEC7C66C.pygtex) [32]
-<assets/is1.png, id=469, 1103.12125pt x 929.4725pt>
+ (./_minted-btp_report/BD54F33B86A980BCA586E037D49F4CF6C10BE7C546AB936BC0B71780EEC7C66C.pygtex) [36]
+<assets/is1.png, id=557, 1103.12125pt x 929.4725pt>
 File: assets/is1.png Graphic file (type png)
 <use assets/is1.png>
 Package pdftex.def Info: assets/is1.png  used on input line 164.
@@ -1089,19 +1155,14 @@ Package pdftex.def Info: assets/is1.png  used on input line 164.
  (./_minted-btp_report/D90AF744435C221126848D0D10825FD8C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
 \openout7 = `btp_report.pyg'.
 
- (./_minted-btp_report/A22167340403DC522002275A93AA4B1AC10BE7C546AB936BC0B71780EEC7C66C.pygtex) [33pdfTeX warning (ext4): destination with the same identifier (name{figure.5.2}) has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.190 
-       <./assets/is1.png>]
+ (./_minted-btp_report/A22167340403DC522002275A93AA4B1AC10BE7C546AB936BC0B71780EEC7C66C.pygtex) [37 <./assets/is1.png>]
 \openout7 = `btp_report.pyg'.
 
  (./_minted-btp_report/387E0455CC2C7085FB212A66CC73FF44C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
 \openout7 = `btp_report.pyg'.
 
  (./_minted-btp_report/60B725F10C9C85C70D97880DFE8191B3C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-<assets/is2.png, id=476, 1085.05376pt x 698.61pt>
+<assets/is2.png, id=566, 1085.05376pt x 698.61pt>
 File: assets/is2.png Graphic file (type png)
 <use assets/is2.png>
 Package pdftex.def Info: assets/is2.png  used on input line 200.
@@ -1114,12 +1175,7 @@ Package pdftex.def Info: assets/is2.png  used on input line 200.
  (./_minted-btp_report/48F31B717CCDCA470D4B08D10E32C241C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
 \openout7 = `btp_report.pyg'.
 
- (./_minted-btp_report/48F31B717CCDCA470D4B08D10E32C241C10BE7C546AB936BC0B71780EEC7C66C.pygtex) [34pdfTeX warning (ext4): destination with the same identifier (name{figure.5.3}) has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.236 
-       <./assets/is2.png>]
+ (./_minted-btp_report/48F31B717CCDCA470D4B08D10E32C241C10BE7C546AB936BC0B71780EEC7C66C.pygtex) [38 <./assets/is2.png>]
 \openout7 = `btp_report.pyg'.
 
  (./_minted-btp_report/1AE58F92EB6BB0BCEBFD772B7C0EFC5BC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
@@ -1152,7 +1208,7 @@ l.236
  (./_minted-btp_report/5CCE070E8AD6B9A0728931657B2F5EF7C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
 \openout7 = `btp_report.pyg'.
 
- (./_minted-btp_report/236B72014E034FC8E36D3AF9EC3C4BD7C10BE7C546AB936BC0B71780EEC7C66C.pygtex) [35]
+ (./_minted-btp_report/236B72014E034FC8E36D3AF9EC3C4BD7C10BE7C546AB936BC0B71780EEC7C66C.pygtex) [39]
 \openout7 = `btp_report.pyg'.
 
  (./_minted-btp_report/614DD0E977BECB4C6F7FA99E64549B12C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
@@ -1170,7 +1226,7 @@ l.236
  (./_minted-btp_report/3B5D5C3712955042212316173CCF37BEC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
 \openout7 = `btp_report.pyg'.
 
- (./_minted-btp_report/84FF7F038FBFA0AA9D02CCD3AB3DE52FC10BE7C546AB936BC0B71780EEC7C66C.pygtex) [36]
+ (./_minted-btp_report/84FF7F038FBFA0AA9D02CCD3AB3DE52FC10BE7C546AB936BC0B71780EEC7C66C.pygtex) [40]
 \openout7 = `btp_report.pyg'.
 
  (./_minted-btp_report/46028609922581AFCFC377A820AB5684C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
@@ -1221,7 +1277,7 @@ l.236
  (./_minted-btp_report/7E90C093039493C8DE83F657D91772F5C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
 \openout7 = `btp_report.pyg'.
 
- (./_minted-btp_report/1EDC0E46BAC009FE5E9080D033D2BC25C10BE7C546AB936BC0B71780EEC7C66C.pygtex) [37]
+ (./_minted-btp_report/1EDC0E46BAC009FE5E9080D033D2BC25C10BE7C546AB936BC0B71780EEC7C66C.pygtex) [41]
 \openout7 = `btp_report.pyg'.
 
  (./_minted-btp_report/1EDC0E46BAC009FE5E9080D033D2BC25C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
@@ -1233,38 +1289,38 @@ l.236
  (./_minted-btp_report/1EDC0E46BAC009FE5E9080D033D2BC25C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
 \openout7 = `btp_report.pyg'.
 
- (./_minted-btp_report/E06CD975D0D1B511F71DE80CCC2C7DE6C10BE7C546AB936BC0B71780EEC7C66C.pygtex)) [38]
+ (./_minted-btp_report/E06CD975D0D1B511F71DE80CCC2C7DE6C10BE7C546AB936BC0B71780EEC7C66C.pygtex)) [42]
 
-[39
+(./btp_report.bbl) [43
 
 
 
 
 ]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 103.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 103.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 97.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 97.
  (./btp_report.aux (./title.aux) (./certificate.aux) (./acknowledgement.aux) (./chapter1.aux) (./chapter2.aux) (./chapter3.aux) (./chapter4.aux) (./chapter5.aux))
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 103.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 103.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 97.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 97.
 Package rerunfilecheck Info: File `btp_report.out' has not changed.
-(rerunfilecheck)             Checksum: 391EF80DC9A3050B49E315CFA27BC536;2712.
+(rerunfilecheck)             Checksum: 62D47357617376500E3E6C7A88489BC2;2841.
 runsystem(rm btp_report.pyg)...executed.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 103.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 97.
  ) 
 Here is how much of TeX's memory you used:
- 19421 strings out of 492609
- 398418 string characters out of 6131461
- 520365 words of memory out of 5000000
- 22435 multiletter control sequences out of 15000+600000
- 15248 words of font info for 54 fonts, out of 8000000 for 9000
+ 20470 strings out of 492609
+ 418437 string characters out of 6131461
+ 532290 words of memory out of 5000000
+ 23448 multiletter control sequences out of 15000+600000
+ 15416 words of font info for 55 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 54i,10n,73p,996b,669s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbxsl10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbxti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmitt10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on btp_report.pdf (44 pages, 761602 bytes).
+ 54i,10n,73p,996b,659s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbxsl10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbxti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmitt10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
+Output written on btp_report.pdf (49 pages, 1210207 bytes).
 PDF statistics:
- 623 PDF objects out of 1000 (max. 8388607)
- 548 compressed objects within 6 object streams
- 140 named destinations out of 1000 (max. 500000)
- 353 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 720 PDF objects out of 1000 (max. 8388607)
+ 617 compressed objects within 7 object streams
+ 155 named destinations out of 1000 (max. 500000)
+ 409 words of extra memory for PDF output out of 10000 (max. 10000000)
 

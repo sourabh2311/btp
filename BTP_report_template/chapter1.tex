@@ -3,27 +3,6 @@
 
 During $6^{th}$ Semester, I wrote a compiler to compile Tiger to MIPS. Now is my attempt to build upon this compiler, to improve its functionality, efficiency and fix various issues/bugs. Also now instead of MIPS, I'll be compiling to RISC V.
 
-\section{Issues to resolve}
-
-
-\begin{itemize}
-  \item Currently the number of arguments that can be given to a function is exactly the number of available argument registers. This is to be fixed to support any number of function arguments. 
-  \item Currently implementation of register allocation isn't completely as what is given in the book. My register allocator lacks coalescing and is therefore incomplete. This algorithm was written in hurry last semester and is to be implemented with better heuristics.
-  \item Basic blocks has to optimized with optimizations like constant propagation, constant folding, strength reduction etc.
-  \item Error messages has to improved in semantic phase. Possible improvement can be to give suggestion for basic typos. 
-  \item To implement additional arithmetic operations like left/right shift.
-  \item String comparison has to be made as simple as "str1 $>$ str2", etc.,  instead of calling the string comparison functions to determine it.
-  \item To implement ability to include pre-written code (header) files.
-  \item To implement garbage collection.
-  \item Add support for compile time (initial) arguments.
-  \item Automated testing using Travis.
-  \item And much more is possible, its like in a product.
-\end{itemize}
-
-\section{Work done this semester}
-
-For this semester, my main focus is on translating everything from MIPS to RISC V (along with removing redundancy and refactoring of code) and if there is time then I'll work on the issues mentioned above. Translating to RISC V is taking time as I am doing three things simultaneously, viz., Recollecting what I did previously, simultaneously refactoring and converting those files to RISC V and writing a good documentation for it so that any new comer can easily grasp it with minimum prerequisites. 
-
 \section{What has been achieved this Semester}
 
 \begin{enumerate}
@@ -32,14 +11,67 @@ For this semester, my main focus is on translating everything from MIPS to RISC 
       \item Now the compiled code is generated based on RISC V machine and corresponding ISA.
       \item During this process, lots of code refactoring is done along with improvement in time complexity of various intermediate computations. Like instead of finding an element in a list, a red black map is used, etc.  
       \item Files such as \href{https://github.com/sourabh2311/btp/blob/master/Compiler/runtime.s}{runtime.s} and \href{https://github.com/sourabh2311/btp/blob/master/Compiler/riscframe.sml}{riscframe.sml} were completely rewritten along with various modifications required at other places.
-      \item Implemented improvements in lexical phase to detect more errors; errors in lexical phase are reported immediately resulting in program termination unlike in semantic analysis where a guess is made to facilitate printing all errors in the end.
     \end{enumerate}
-  \item Wrote complete documentation of my compiler at \href{https://tigercompiler.ml}{tigercompiler.ml}. This is done to help me and anyone interested in this project to quickly revise the fundamentals and understand the working of this compiler.
-
-  \item Wrote automated testing using Travis. See \href{https://travis-ci.org/sourabh2311/btp}{this}. Now I'll be able to see whether my changes don't break the existing functionalities and also it is useful in case someone sends a pull request.
-
-  \item \textbf{Fixed} a major bug; Initially my compiler supported only fixed number of arguments (same as number of argument registers in the machine). Now this has been extended to support any number of arguments. During this process I have as well figured out how to completely remove \texttt{fp} register as it is as such obsolete.   
-  \item Implemented multiplication by power of 2 optimization inside basic block thus laid foundation for other basic block optimizations like constant propagation, constant folding.
+  \item Implemented improvements in lexical phase to detect more errors; errors in lexical phase are reported immediately resulting in program termination unlike in semantic analysis where a guess is made to facilitate printing all errors in the end. See figure \ref{fig:lexError} for an example.
+    \begin{figure}
+    \centering
+    \iph{0.80}{assets/lexError.png}
+    \caption{Lexer detecting error where newline is inserted in a string}
+    \label{fig:lexError}
+    \end{figure}
+  \item Wrote complete documentation of my compiler at \href{https://tigercompiler.ml}{tigercompiler.ml}. This is done to help me and anyone interested in this project to quickly revise the fundamentals and understand the working of this compiler. Figure \ref{fig:tigercompiler} shows image of the site.
+    \begin{figure}
+    \centering
+    \iph{0.80}{assets/tigercompiler.png}
+    \caption{Website: \href{https://tigercompiler.ml}{tigercompiler.ml}}
+    \label{fig:tigercompiler}
+    \end{figure}
+  \item Wrote automated testing using Travis. See \href{https://travis-ci.org/sourabh2311/btp}{this}. Now I'll be able to see whether my changes don't break the existing functionalities and also it is useful in case someone sends a pull request. Figure \ref{fig:travis} shows my project at Travis.
+    \begin{figure}
+    \centering
+    \iph{0.80}{assets/travis.png}
+    \caption{Automated testing using \href{https://travis-ci.org/sourabh2311/btp}{Travis}}
+    \label{fig:travis}
+    \end{figure}
+  \item \textbf{Fixed} a major bug; Initially my compiler supported only fixed number of arguments (same as number of argument registers in the machine). Now this has been extended to support any number of arguments (see fig \ref{fig:gitfunargs}). During this process I have as well figured out how to completely remove \texttt{fp} register as it is as such obsolete. This will be done in future. Figure \ref{fig:funargs} shows an example where a lot many arguments are passed to a function and the last argument is returned.   
+    \begin{figure}
+    \centering
+    \iph{0.80}{assets/funargs.png}
+    \caption{As many function arguments possible}
+    \label{fig:funargs}
+    \end{figure}
+    \begin{figure}
+    \centering
+    \iph{0.80}{assets/gitfunargs.png}
+    \caption{Git commit showing addition of this feature}
+    \label{fig:gitfunargs}
+    \end{figure}
+  \item Added 2 more arithmetic operations, viz. \texttt{left shift} and \texttt{right shift}. Figure \ref{fig:shiftoperations} shows an example usage of these operations.
+    \begin{figure}
+    \centering
+    \iph{0.80}{assets/shiftoperations.png}
+    \caption{Arithmetic Shift Operations}
+    \label{fig:shiftoperations}
+    \end{figure}
+  \item Implemented multiplication by power of 2 optimization inside basic block thus laid foundation for other basic block optimizations like constant propagation, constant folding. An example of multiplication by power of two optimization is shown in figure \ref{fig:mulopt1} and \ref{fig:mulopt2}.
+    \begin{figure}[t!]
+      \centering
+      \begin{subfigure}[t]{\textwidth}
+      \centering
+      % \includegraphics[width=50mm]{assets/mulopt1.png}
+      \iph{0.80}{assets/mulopt1.png}
+      \caption{Code}
+      \label{fig:mulopt1}
+      \end{subfigure}
+      \begin{subfigure}[t]{0.8\textwidth}
+      \centering
+      % \includegraphics[width=50mm]{assets/mulopt1.png}
+      \iph{0.70}{assets/mulopt2.png}
+      \caption{\texttt{mul} statements replaced with \texttt{sll}}
+      \label{fig:mulopt2}
+      \end{subfigure}
+      \caption{Multiplication Optimization}
+    \end{figure}
   \item Started work on giving a guess of literal in case of small typo. 
   \begin{itemize}
     \item Thinking of printing suggestions which are atmost 2 \href{https://en.wikipedia.org/wiki/Edit_distance}{distance} apart. This will bring the time complexity of standard DP approach of $O(n^2)$ to just $O(n)$. 
@@ -49,6 +81,23 @@ For this semester, my main focus is on translating everything from MIPS to RISC 
   \end{itemize}
   \item Started work on improving my Register Allocator. Current version is a bit simplified version of the algorithm mentioned in the text and is without coalescing.
 \end{enumerate}
+
+\section{Road Ahead}
+
+Some among many possible improvements are mentioned below:-
+
+\begin{itemize}
+  \item Current implementation of register allocation isn't completely as what is given in the book. My register allocator lacks coalescing and is therefore incomplete. This algorithm was written in hurry last semester and is to be implemented with better heuristics.
+  \item Basic blocks has to optimized with optimizations like constant propagation, constant folding, strength reduction etc.
+  \item Error messages has to improved in semantic phase. Possible improvement can be to give suggestion for basic typos. 
+  \item String comparison has to be made as simple as "str1 $>$ str2", etc.,  instead of calling the string comparison functions to determine it.
+  \item To implement ability to include pre-written code (header) files.
+  \item To implement garbage collection.
+  \item To implement dataflow analyses such as reaching definitions and available expressions and use them to implement some of the optimizations. 
+  \item To implement first-class function values in Tiger, so that functions can be passed as arguments and returned as results.
+  \item Add support for compile time (initial) arguments.
+  \item And much more is possible, its like in a product.
+\end{itemize}
 
 \section{Organization of The Report}
 

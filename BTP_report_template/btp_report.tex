@@ -5,11 +5,12 @@
 \usepackage{setspace}       % 1.5 spacing
 %\usepackage{psfig,epsfig}
 \usepackage{multicol}
-\usepackage{subfigure}
+\usepackage{subcaption}
 \usepackage{hyperref}
 \usepackage{epsfig,color}
 \usepackage{tcolorbox}
 \usepackage{minted}
+% \usepackage[superscript, biblabel, nomove]{cite}
 % Custom packages
 %\usepackage[first]{datestamp}   % Datestamp on first page of each chapter
 
@@ -59,10 +60,10 @@
 
 \tableofcontents 
 
-% \cleardoublepage
-% \phantomsection
-% \addcontentsline{toc}{chapter}{List of Figures} 
-% \listoffigures 
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{List of Figures} 
+\listoffigures 
 
 % \cleardoublepage
 % \phantomsection
@@ -90,15 +91,8 @@
 \cleardoublepage 
 \typeout{}
 
-% \bibliographystyle{IEEEtran}
-% \bibliography{btp}
-\begin{thebibliography}{9}
-  \bibitem{tigerbook} 
-  \href{https://www.cs.princeton.edu/~appel/modern/ml/}{Modern Compiler Implementation in ML}.   
-  \bibitem{risc} 
-  \href{https://github.com/TheThirdOne/rars/wiki}{RARS wiki}.   
-  \bibitem{mllexyacc}
-  \href{http://www.cs.tufts.edu/comp/181/ug.pdf}{User's Guide to ML-Lex and ML-Yacc}.
-  \end{thebibliography}
+\bibliographystyle{IEEEtran}
+\nocite{*}
+\bibliography{btp}
 \end{document}
 

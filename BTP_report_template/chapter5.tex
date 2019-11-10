@@ -20,7 +20,7 @@ and
 nodes, then the order of evaluation would not matter.
 
 \hypertarget{why-call-nodes-are-an-issue}{%
-\subsubsection{\texorpdfstring{Why
+\subsection{\texorpdfstring{Why
 \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{CALL}
 nodes are an
 issue?}{Why  nodes are an issue?}}\label{why-call-nodes-are-an-issue}}
@@ -41,7 +41,7 @@ Remedy is to do the transformation;
 \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{CALL(fun, args) -> ESEQ(MOVE(TEMP t, CALL(fun, args)), TEMP t)}
 
 \hypertarget{why-eseq-nodes-are-an-issue}{%
-\subsubsection{\texorpdfstring{Why
+\subsection{\texorpdfstring{Why
 \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{ESEQ}
 nodes are an
 issue?}{Why  nodes are an issue?}}\label{why-eseq-nodes-are-an-issue}}
@@ -61,7 +61,7 @@ nodes).
 \begin{figure}
 \centering
 \iph{0.70}{assets/canon1.png}
-\caption{ESEQ Removal}
+\caption{ESEQ Removal. Image source: \cite{tigerbook}}
 \end{figure}
 
 The transformation is done in three stages: First, a tree is rewritten
@@ -162,7 +162,7 @@ patterns.
 \begin{figure}
 \centering
 \iph{0.7}{assets/is1.png}
-\caption{Tree Patterns showing arithmetic and memory instructions}
+\caption{Tree Patterns showing arithmetic and memory instructions. Image source: \cite{tigerbook}}
 \end{figure}
 
 The very first entry is not really an instruction, but expresses the
@@ -198,7 +198,7 @@ really the frame offset of the pointer to an array)
 \begin{figure}
 \centering
 \iph{0.7}{assets/is2.png}
-\caption{A tree tiled in two ways}
+\caption{A tree tiled in two ways. Image source: \cite{tigerbook}}
 \end{figure}
 
 \hypertarget{maximal-munch-algorithm}{%
@@ -277,7 +277,7 @@ variable is live-in at a node if it is live on any of the in-edges of
 that node; it is live-out at a node if it is live on any of the
 out-edges of the node.
 
-Liveness of node is calculated as shown:
+Liveness of node is calculated as shown$^{\cite{tigerbook}}$:
 
 \(in[n] = use[n] \cup (out[n] \setminus def[n])\)
 
@@ -299,7 +299,7 @@ register.
 \subsection{Interference Graph}\label{interference-graph}}
 
 Interference graph is created with vertices as temporaries and edges as
-follows:-
+follows$^{\cite{tigerbook}}$:-
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
