@@ -534,8 +534,6 @@ INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/sansmathaccent/mathkerncmss
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/sansmathaccent/mathkerncmssi8.tfm
 INPUT assets/tiger.png
 INPUT ./assets/tiger.png
-INPUT assets/tiger.png
-INPUT ./assets/tiger.png
 OUTPUT btpP1.nav
 OUTPUT btpP1.toc
 OUTPUT btpP1.snm

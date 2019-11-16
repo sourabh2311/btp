@@ -4,4 +4,4 @@ title: Intro
 sidebar_label: Intro
 ---
 
-Tiger Compiler.
+Companion documentation of my [Tiger compiler](https://www.github.com/sourabh2311/btp/).
