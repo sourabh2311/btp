@@ -30,7 +30,7 @@ fun printError (errorCode, yytext) =
   else 
     print ("Symbol: " ^ yytext ^ " not valid, remember that identifier should begin with a lower case character\n")
   ; 
-  raise ErrorMsg.Error
+  OS.Process.exit (OS.Process.success)
 )
 
 fun eof() = 

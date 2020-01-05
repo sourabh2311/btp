@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{\PYGZbs{}begin}\PYG{p}{\PYGZob{}}\PYG{n}{frame}\PYG{p}{\PYGZcb{}\PYGZob{}}\PYG{n}{About} \PYG{n}{Tiger}\PYG{p}{\PYGZcb{}}
+\PYG{n}{\PYGZbs{}begin}\PYG{p}{\PYGZob{}}\PYG{n}{block}\PYG{p}{\PYGZcb{}\PYGZob{}}\PYG{n}{Task} \PYG{n}{Description}\PYG{p}{\PYGZcb{}}
+  \PYG{n}{jk}
+  \PYG{n}{\PYGZpc{}} \PYG{n}{\PYGZbs{}begin}\PYG{p}{\PYGZob{}}\PYG{n}{minted}\PYG{p}{\PYGZcb{}\PYGZob{}}\PYG{n}{sml}\PYG{p}{\PYGZcb{}}
+  \PYG{n}{\PYGZpc{}}   \PYG{n}{var} \PYG{n}{x} \PYG{n}{:=} \PYG{l+m+mi}{3}
+\end{Verbatim}
