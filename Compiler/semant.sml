@@ -44,7 +44,7 @@ struct
         else (Err.error pos ("Duplicate definition " ^ (S.name name)))
     fun checkInt ({exp = _, ty = T.INT}, pos) = ()
       | checkInt ({exp = _, ty = _ }, pos) = Err.error pos "error : integer required"
-
+    
     fun checkType (tenv, {exp = _, ty = T.INT}, {exp = _, ty = T.INT}, pos) = ()
       | checkType (tenv, {exp = _, ty = T.STRING}, {exp = _, ty = T.STRING}, pos) = ()
       (* Just need to match unit ref as said before *)
@@ -60,7 +60,19 @@ struct
 
     (* So that transExp can translate break statements, it has a formal parameter break that is the done label of the nearest enclosing loop. In translating a while loop, transExp is called upon body with the done label passed as the break parameter. When transExp is recursively calling itself in nonloop contexts, it can simply pass down the same break parameter that was passed to it. The break argument must also be added to the transDec function. *)
     fun transExp (venv, tenv, exp, level, break) = 
-    let fun
+    let 
+    fun
+      (* Will replace string comparison by corresponsing function call *)
+      callStringFunction (left, oper, right, pos) = 
+      case oper of
+        (* A.PlusOp => trexp(A.CallExp({func = Symbol.symbol "stringEqual", args = [left, right], pos = pos})) *)
+        A.EqOp => trexp(A.CallExp({func = Symbol.symbol "stringEqual", args = [left, right], pos = pos}))
+      | A.NeqOp => trexp(A.IfExp({test = A.CallExp({func = Symbol.symbol "stringEqual", args = [left, right], pos = pos}), then' = A.IntExp(0), else' = SOME (A.IntExp(1)), pos = pos}))
+      | A.LtOp => trexp(A.CallExp({func = Symbol.symbol "stringLess", args = [left, right], pos = pos}))
+      | A.LeOp => trexp(A.IfExp({test = A.CallExp({func = Symbol.symbol "stringLess", args = [left, right], pos = pos}), then' = A.IntExp(1), else' = SOME (A.CallExp({func = Symbol.symbol "stringEqual", args = [left, right], pos = pos})), pos = pos}))
+      | A.GtOp => trexp(A.CallExp({func = Symbol.symbol "stringGreat", args = [left, right], pos = pos}))
+      | A.GeOp => trexp(A.IfExp({test = A.CallExp({func = Symbol.symbol "stringGreat", args = [left, right], pos = pos}), then' = A.IntExp(1), else' = SOME (A.CallExp({func = Symbol.symbol "stringEqual", args = [left, right], pos = pos})), pos = pos}))
+    and
         (* trexp recurs over Absyn.exp and trvar recurs over Absyn.var *)
         (* In rare cases when trexp wants to change venv, it must call transExp instead of just trexp *)
         trexp (A.VarExp(var)) = trvar var
@@ -91,22 +103,28 @@ struct
             val exptyleft = trexp left
             val exptyright = trexp right
           in 
-            ((case exptyleft of 
-            {exp = _, ty = T.RECORD(_, _)} => checkType (tenv, exptyleft, exptyright, pos)
-            | {exp = _, ty = T.ARRAY(_, _)} => checkType (tenv, exptyleft, exptyright, pos)
-            | {exp = _, ty = T.STRING} => checkType (tenv, exptyleft, exptyright, pos)
-            | {exp = _, ty = T.INT} => checkType (tenv, exptyleft, exptyright, pos)
-            | _ => (Err.error pos "Can compare only two ints, strings. arrays, records for eq/neq")); {exp = L.relop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
+            (
+            case exptyleft of 
+            {exp = _, ty = T.RECORD(_, _)} => (checkType (tenv, exptyleft, exptyright, pos); {exp = L.relop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
+            | {exp = _, ty = T.ARRAY(_, _)} => (checkType (tenv, exptyleft, exptyright, pos); {exp = L.relop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
+            | {exp = _, ty = T.STRING} => (checkType (tenv, exptyleft, exptyright, pos); callStringFunction(left, oper, right, pos))
+            | {exp = _, ty = T.INT} => (checkType (tenv, exptyleft, exptyright, pos); {exp = L.relop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
+            | _ => ((Err.error pos "Can compare only two ints, strings. arrays, records for eq/neq"); {exp = L.relop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
+            ) 
           end
           fun checkComp () = 
           let 
             val exptyleft = trexp left
             val exptyright = trexp right
           in 
-            ((case (#ty exptyleft) of
-            T.INT => checkType (tenv, exptyleft, exptyright, pos)
-            | T.STRING => checkType (tenv, exptyleft, exptyright, pos)
-            | _ => (Err.error pos "Comparison can be checked only on ints and strings")); {exp = L.relop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
+            
+            (
+            case (#ty exptyleft) of
+              T.INT => (checkType (tenv, exptyleft, exptyright, pos); {exp = L.relop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
+              | T.STRING => (checkType (tenv, exptyleft, exptyright, pos); callStringFunction(left, oper, right, pos))
+              | _ => ((Err.error pos "Comparison can be checked only on ints and strings"); {exp = L.relop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
+            )
+            
           end
         in 
           (case oper of

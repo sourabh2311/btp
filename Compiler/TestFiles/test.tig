@@ -1,0 +1,10 @@
+let 
+  var a := "A" > "B"
+  var b := "B" > "A"
+  var c := "B" >= "B"
+  var d := "B" >= "A"
+  var e := "A" = "A"
+  var f := "B" <> "A"
+in 
+  (printI (a); printI(b); printI(c); printI(d); printI(e); printI(f); exit(0))
+end
