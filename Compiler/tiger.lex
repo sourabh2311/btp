@@ -94,6 +94,7 @@ end
 <INITIAL>":" =>                              (colNo := !colNo + size yytext; Tokens.COLON(yypos, yypos + size yytext));
 <INITIAL>"," =>                              (colNo := !colNo + size yytext; Tokens.COMMA(yypos, yypos + size yytext));
 <INITIAL>[0-9]* =>                           (colNo := !colNo + size yytext; Tokens.INT(valOf (Int.fromString yytext), yypos, yypos + size yytext));
+<INITIAL>[0-9]*"."[0-9]* =>                  (colNo := !colNo + size yytext; Tokens.REAL(valOf (Real.fromString yytext), yypos, yypos + size yytext));
 <INITIAL>[a-zA-Z][a-zA-Z0-9_]* =>            (colNo := !colNo + size yytext; Tokens.ID(yytext, yypos, yypos + size yytext));
 <INITIAL>"/*" =>                             (colNo := !colNo + size yytext; commentDepth := 1; YYBEGIN COMMENT; continue());
 <INITIAL>"*/" =>                             (printError (3, yytext); continue());

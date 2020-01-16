@@ -10,6 +10,7 @@ datatype var = SimpleVar of symbol * pos
 and exp = VarExp of var
         | NilExp
         | IntExp of int
+        | RealExp of real
         | StringExp of string * pos
         | CallExp of {func: symbol, args: exp list, pos: pos}
         | OpExp of {left: exp, oper: oper, right: exp, pos: pos}

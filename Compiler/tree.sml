@@ -23,6 +23,7 @@ datatype stm = SEQ of stm * stm
              | ESEQ of stm * exp
              | NAME of label
              | CONST of int
+             | REAL of real
              (* exp = f, exp list = args. *)
 	           | CALL of exp * exp list * access list 
 
@@ -67,6 +68,7 @@ datatype stm = SEQ of stm * stm (* The statement s2 followed by s2. *)
              | ESEQ of stm * exp (* The statement s is evaluated for side effects, then e is evaluated for result *)
              | NAME of label (* The value NAME(n) may be the target of jumps, calls, etc. *)
              | CONST of int (* The integer constant int. *)
+             | REAL of real
 	           | CALL of exp * exp list * access list (* A procedure call: the application of function exp1 to argument list exp2 list. The subexpression exp1 is evaluated before the arguments which are evaluated left to right. *)
 
      and binop = PLUS | MINUS | MUL | DIV | AND | OR | LSHIFT | RSHIFT | ARSHIFT | XOR

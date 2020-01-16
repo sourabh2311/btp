@@ -14,6 +14,7 @@ sig
   val fieldVar : exp * Symbol.symbol * Symbol.symbol list -> exp
   val intlit : int -> exp
   val strlit : string -> exp
+  val reallit : real -> exp
   val relop : Absyn.oper * exp * exp -> exp
   val binop : Absyn.oper * exp * exp -> exp
   val ifelse : exp * exp * exp -> exp

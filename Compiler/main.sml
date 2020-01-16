@@ -42,10 +42,9 @@ structure Main = struct
         TextIO.output(out, epilog)
         (* app (fn i => TextIO.output(out,format0 i)) instrs *)
     end
-    | emitproc out (F.STRING(lab,s)) = TextIO.output(out, (Symbol.name lab) ^ ": " ^ s ^ "\n")
 
-
-    fun emitstr out (F.STRING(lab, str)) = TextIO.output(out, F.genString(lab, str))
+    fun emitothers out (F.STRING (lab, str)) = TextIO.output(out, F.genString(lab, str))
+    | emitothers out (F.REAL(lab, r)) = TextIO.output(out, F.genReal(lab, r)) 
 
     fun withOpenFile fname f = 
     let 
@@ -62,20 +61,19 @@ structure Main = struct
         val frags = Semant.transProg absyn 
         val frags = if (!ErrorMsg.anyErrors) then frags else (FindEscape.findEscape absyn; Semant.transProg absyn)
         (* val frags = (FindEscape.findEscape absyn; Semant.transProg absyn) *)
-        val (proc, strs) = List.partition 
-                          (
-                            fn (x) => 
-                              case x of 
-                                  F.PROC (_) => true
-                                | _ => false
-                          ) frags
-
+        val (proc, others) = List.partition 
+                              (
+                                fn (x) => 
+                                  case x of 
+                                      F.PROC (_) => true
+                                    | _ => false
+                              ) frags
     in 
         withOpenFile (filename ^ ".s") 
         (fn out => (
                     TextIO.output(out, "\n.globl main\n");
                     TextIO.output(out, ".data\n");
-                    app (emitstr out) strs;
+                    app (emitothers out) others;
                     TextIO.output(out, "\n.text\n");
                     app (emitproc out) proc
                    )

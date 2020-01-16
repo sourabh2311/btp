@@ -1,0 +1,20 @@
+let 
+  var A := 2.12
+  var B := 2.33
+  var a := A > B
+  var b := B > A
+  var c := B >= B
+  var d := B >= A
+  var e := A = A
+  var f := B <> A
+  var g := A < B
+  var h := B < A
+  var i := B <= B
+  var j := B <= A
+  var k := A + B
+  var l := A - B
+  var m := A * B
+  var n := A / B
+in 
+  (printR (A); print ("\n"); printR(B); print("\n"); printI (a); printI(b); printI(c); printI(d); printI(e); printI(f); printI(g); printI(h); printI(i); printI(j); print ("\n"); printR (k); print ("\n"); printR (l); print ("\n"); printR (m); print ("\n"); printR (n); print ("\n"); exit(0))
+end

@@ -17,6 +17,7 @@ sig
   val allocLocal : frame -> bool -> access
   datatype frag = PROC of {body: Tree.stm, frame: frame}
                 | STRING of Temp.label * string
+                | REAL of Temp.label * real
   val fp : Temp.temp
   val rv : Temp.temp
   (* val calldefs : Temp.temp list *)
@@ -29,6 +30,7 @@ sig
   type register
   val tempMap : register Temp.Table.table
   val genString : Tree.label * string -> string
+  val genReal : Tree.label * real -> string
   val getTempString : Temp.temp -> string
   val argregs : (Temp.temp * string) list
   val argregsCount : int

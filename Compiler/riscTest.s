@@ -1,10 +1,20 @@
+.globl main
 .data 
 
 __exitMessage: .string "Exited with code: "
 __newLine: .string "\n"
+fno1: .float 3.23
+fno2: .float 1.11
 
 .text
 
+main:
+  la a0, fno1
+  la a1, fno2
+  jal realLess
+  jal printI
+  li a0, 1
+  jal exit
 # Many of the below written functions assume that the given input is correct. May augment with more information later.  
 # Will need to modify env.sml (Take care)
 
@@ -39,10 +49,10 @@ not:
 # ------------------ Function for Real Type Begin ----------------------
 
 printR:
-    flw fa0, (a0)
-    li a7, 2
-    ecall
-    jr ra
+  flw fa0, (a0)
+  li a7, 2
+  ecall
+  jr ra
 
 radd:
     flw fa0, (a0)
@@ -93,13 +103,13 @@ realGreat:
 realLess:
     flw fa0, (a0)
     flw fa1, (a1) 
-    flt.s a0, fa0, fa1
+    flt.s a0, fa0, fa0
     jr ra
 
 realEqual:
     flw fa0, (a0)
     flw fa1, (a1) 
-    feq.s a0, fa0, fa1
+    feq.s a0, fa0, fa0
     jr ra
 
 # ------------------ Function for Real Type END ------------------------

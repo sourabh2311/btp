@@ -38,6 +38,7 @@ type register = string  (* so type of our register list will be "string list", r
 (* All this would be handled in putting it all together phase (chapter 12) *)
 datatype frag = PROC of {body: Tree.stm, frame: frame}
               | STRING of T.label * string
+              | REAL of T.label * real
 
 (* -----------------CPU Registers----------------------- *)
 
@@ -134,6 +135,7 @@ fun formals ({formals, ...} : frame) = formals
 
 (* To generate label for string *)
 fun genString (lab, s) = Symbol.name lab ^ ": .string \"" ^ s ^ "\"\n"
+fun genReal (lab, r) = Symbol.name lab ^ ": .float " ^ Real.toString (r) ^ "\n"
 
 (* The function Frame.exp is used by Translate to turn a Frame.access into the Tree expression. The Tree.exp argument to Frame.exp is the address of the stack frame that the access lives in. Thus, for an access "a" such as InFrame(k), we have Frame.exp (a) (TEMP(Frame.FP)) = MEM(BINOP(PLUS, TEMP(Frame.FP), CONST(k))). Why bother to pass the tree expression temp (Frame.FP) as an argument? The answer is that the address of the frame is the same as the current frame pointer only when accessing the variable from its own level. When accessing "a" from an inner-nested function, the frame address must be calculated using static links, and the result of this calculation will be the Tree.exp argument to Frame.exp. If "a" is a register access such as InReg(t932) then the frame-address  argument to Frame.exp will be discarded, and the result will be simply TEMP t932. *)
 fun exp frameAccess frameAddress = 
