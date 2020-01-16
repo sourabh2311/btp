@@ -47,6 +47,7 @@ struct
     
     fun checkType (tenv, {exp = _, ty = T.INT}, {exp = _, ty = T.INT}, pos) = ()
       | checkType (tenv, {exp = _, ty = T.STRING}, {exp = _, ty = T.STRING}, pos) = ()
+      | checkType (tenv, {exp = _, ty = T.REAL}, {exp = _, ty = T.REAL}, pos) = ()
       (* Just need to match unit ref as said before *)
       | checkType (tenv, {exp = _, ty = T.RECORD(_, ref1)}, {exp = _, ty = T.RECORD(_, ref2)}, pos) = if ref1 = ref2 then () else Err.error pos "can't compare different record types"
       (* As said before nil belongs to every record *)
@@ -72,6 +73,19 @@ struct
       | A.LeOp => trexp(A.IfExp({test = A.CallExp({func = Symbol.symbol "stringLess", args = [left, right], pos = pos}), then' = A.IntExp(1), else' = SOME (A.CallExp({func = Symbol.symbol "stringEqual", args = [left, right], pos = pos})), pos = pos}))
       | A.GtOp => trexp(A.CallExp({func = Symbol.symbol "stringGreat", args = [left, right], pos = pos}))
       | A.GeOp => trexp(A.IfExp({test = A.CallExp({func = Symbol.symbol "stringGreat", args = [left, right], pos = pos}), then' = A.IntExp(1), else' = SOME (A.CallExp({func = Symbol.symbol "stringEqual", args = [left, right], pos = pos})), pos = pos}))
+    and 
+      callRealFunction (left, oper, right, pos) = 
+      case oper of
+        A.EqOp => trexp(A.CallExp({func = Symbol.symbol "realEqual", args = [left, right], pos = pos}))
+      | A.NeqOp => trexp(A.IfExp({test = A.CallExp({func = Symbol.symbol "realEqual", args = [left, right], pos = pos}), then' = A.IntExp(0), else' = SOME (A.IntExp(1)), pos = pos}))
+      | A.LtOp => trexp(A.CallExp({func = Symbol.symbol "realLess", args = [left, right], pos = pos}))
+      | A.LeOp => trexp(A.IfExp({test = A.CallExp({func = Symbol.symbol "realLess", args = [left, right], pos = pos}), then' = A.IntExp(1), else' = SOME (A.CallExp({func = Symbol.symbol "realEqual", args = [left, right], pos = pos})), pos = pos}))
+      | A.GtOp => trexp(A.CallExp({func = Symbol.symbol "realGreat", args = [left, right], pos = pos}))
+      | A.GeOp => trexp(A.IfExp({test = A.CallExp({func = Symbol.symbol "realGreat", args = [left, right], pos = pos}), then' = A.IntExp(1), else' = SOME (A.CallExp({func = Symbol.symbol "realEqual", args = [left, right], pos = pos})), pos = pos}))
+      | A.PlusOp => trexp(A.CallExp({func = Symbol.symbol "radd", args = [left, right], pos = pos}))
+      | A.MinusOp => trexp(A.CallExp({func = Symbol.symbol "rsub", args = [left, right], pos = pos}))
+      | A.TimesOp => trexp(A.CallExp({func = Symbol.symbol "rmul", args = [left, right], pos = pos}))
+      | A.DivideOp => trexp(A.CallExp({func = Symbol.symbol "rdiv", args = [left, right], pos = pos}))
     and
         (* trexp recurs over Absyn.exp and trvar recurs over Absyn.var *)
         (* In rare cases when trexp wants to change venv, it must call transExp instead of just trexp *)
@@ -79,6 +93,7 @@ struct
       | trexp (A.NilExp) = {exp = L.nilexp, ty = T.NIL}
       | trexp (A.IntExp(intvalue)) = {exp = L.intlit(intvalue), ty = T.INT}
       | trexp (A.StringExp(stringvalue, pos)) = {exp = L.strlit(stringvalue), ty = T.STRING}
+      | trexp (A.RealExp(realvalue)) = {exp = L.reallit(realvalue), ty = T.REAL}
       | trexp (A.CallExp({func, args, pos})) = 
         let
             val argET = map trexp args
@@ -91,7 +106,18 @@ struct
         end
       | trexp (A.OpExp{left, oper, right, pos}) = 
         let 
-          fun checkArith () = 
+          fun checkArith () = (* for both int, real valid operations. *)
+          let
+            val exptyleft = trexp left
+            val exptyright = trexp right
+          in 
+            (case exptyleft of 
+              {exp = _, ty = T.REAL} => (checkType (tenv, exptyleft, exptyright, pos); callRealFunction(left, oper, right, pos))
+            | {exp = _, ty = T.INT} => (checkType (tenv, exptyleft, exptyright, pos); {exp = L.binop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
+            | _ => ((Err.error pos "Arithmetic operations supported only upon ints and reals"); {exp = L.binop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
+            )
+          end
+          fun checkIArith () = (* for lshift, rshift which require strictly integers *)
           let
             val exptyleft = trexp left
             val exptyright = trexp right
@@ -108,8 +134,9 @@ struct
             {exp = _, ty = T.RECORD(_, _)} => (checkType (tenv, exptyleft, exptyright, pos); {exp = L.relop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
             | {exp = _, ty = T.ARRAY(_, _)} => (checkType (tenv, exptyleft, exptyright, pos); {exp = L.relop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
             | {exp = _, ty = T.STRING} => (checkType (tenv, exptyleft, exptyright, pos); callStringFunction(left, oper, right, pos))
+            | {exp = _, ty = T.REAL} => (checkType (tenv, exptyleft, exptyright, pos); callRealFunction(left, oper, right, pos))
             | {exp = _, ty = T.INT} => (checkType (tenv, exptyleft, exptyright, pos); {exp = L.relop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
-            | _ => ((Err.error pos "Can compare only two ints, strings. arrays, records for eq/neq"); {exp = L.relop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
+            | _ => ((Err.error pos "Can compare only two ints, strings, arrays, records and reals for eq/neq"); {exp = L.relop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
             ) 
           end
           fun checkComp () = 
@@ -122,7 +149,8 @@ struct
             case (#ty exptyleft) of
               T.INT => (checkType (tenv, exptyleft, exptyright, pos); {exp = L.relop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
               | T.STRING => (checkType (tenv, exptyleft, exptyright, pos); callStringFunction(left, oper, right, pos))
-              | _ => ((Err.error pos "Comparison can be checked only on ints and strings"); {exp = L.relop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
+              | T.REAL => (checkType (tenv, exptyleft, exptyright, pos); callRealFunction(left, oper, right, pos))
+              | _ => ((Err.error pos "Comparison can be checked only on ints, strings and reals"); {exp = L.relop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
             )
             
           end
@@ -132,8 +160,8 @@ struct
             | A.MinusOp => (checkArith ())
             | A.TimesOp => (checkArith ())
             | A.DivideOp => (checkArith ())
-            | A.LShift => (checkArith ())
-            | A.RShift => (checkArith ())
+            | A.LShift => (checkIArith ())
+            | A.RShift => (checkIArith ())
             | A.EqOp => (checkEq ())
             | A.NeqOp => (checkEq ())
             | A.LtOp => (checkComp ())

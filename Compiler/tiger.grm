@@ -9,7 +9,7 @@ fun forSyntaxHighlighting () = ()
 %term
     EOF 
   | ID of string
-  | INT of int | STRING of string 
+  | INT of int | STRING of string | REAL of real
   | COMMA | COLON | SEMICOLON | LPAREN | RPAREN | LBRACK | RBRACK 
   | LBRACE | RBRACE | DOT 
   | PLUS | MINUS | TIMES | DIVIDE | EQ | NEQ | LT | LE | GT | GE | UMINUS | LSHIFT | RSHIFT
@@ -102,6 +102,9 @@ exp:                    NIL                                 (
                                                             )
                         | STRING                            (
                                                             A.StringExp(STRING, STRINGleft)
+                                                            )
+                        | REAL                              (
+                                                            A.RealExp(REAL)
                                                             )
                         (* Function Call *)
                         (* As always funas is evaluated left to right. 

@@ -23,6 +23,7 @@ and traverseExp(env : escEnv, d : depth, s : A.exp): unit =
 case s of
       A.NilExp => ()
     | A.IntExp(_) => ()
+    | A.RealExp(_) => ()
     | A.StringExp(_, _) => ()
     | A.CallExp({args, ...}) => foldl (fn (arg, _) => traverseExp(env, d, arg)) () args
     | A.ArrayExp({size, init, ...}) => (traverseExp(env, d, size); traverseExp(env, d, init))

@@ -5,6 +5,10 @@ let
   var d := "B" >= "A"
   var e := "A" = "A"
   var f := "B" <> "A"
+  var g := "A" < "B"
+  var h := "B" < "A"
+  var i := "B" <= "B"
+  var j := "B" <= "A"
 in 
-  (printI (a); printI(b); printI(c); printI(d); printI(e); printI(f); exit(0))
+  (printI (a); printI(b); printI(c); printI(d); printI(e); printI(f); printI(g); printI(h); printI(i); printI(j); exit(0))
 end

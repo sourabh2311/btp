@@ -44,7 +44,14 @@ case oper of
 	| A.DivideOp => Tr.DIV
 	| A.LShift => Tr.LSHIFT
 	| A.RShift => Tr.RSHIFT
-	
+
+(* fun getRBinOper(oper) = 
+case oper of 
+		A.PlusOp => Tr.RPLUS
+	| A.MinusOp => Tr.RMINUS
+	| A.TimesOp => Tr.RMUL
+	| A.DivideOp => Tr.RDIV *)
+
 fun getRelOper(oper) = 
 case oper of 
 	  A.EqOp => Tr.EQ
@@ -92,12 +99,31 @@ fun unNx (Ex e) = Tr.EXP(e)
 
 val nilexp = Ex(Tr.CONST(0))
 fun intlit (n) = Ex(Tr.CONST (n))
+fun reallit (r : real) : exp = 
+let 
+	val there = List.find
+		(fn (fragment) =>
+			case fragment of
+				F.PROC _ => false
+			| F.STRING _ => false
+			| F.REAL(_, r') => Real.== (r, r')) (!fragments)
+in 
+	case there of
+			NONE =>
+			let 
+				val l = Temp.newlabel() 
+			in
+				(fragments := F.REAL(l, r) :: !fragments; Ex(Tr.NAME(l))) 
+			end
+		| SOME(F.REAL(lab, _)) => Ex(Tr.NAME(lab))
+end
 fun strlit (s: string) : exp =
 let 
 	val there = List.find
 		(fn (fragment) =>
 			case fragment of
 				F.PROC _ => false
+			| F.REAL _ => false
 			| F.STRING(_, s') => s = s') (!fragments)
 in 
 	case there of
@@ -137,8 +163,6 @@ let
 in
 	Ex(memPlus(unEx(base), Tr.BINOP(Tr.MUL, Tr.CONST(findindex(0, id, SL)), Tr.CONST(F.wordSize))))
 end
-
-
 
 fun binop (oper, e1, e2) =
 let
