@@ -53,13 +53,24 @@ structure Main = struct
         (f out before TextIO.closeOut out) 
         handle e => (TextIO.closeOut out; raise e)
     end 
-
+    fun appendRuntime fname = 
+    let 
+        val rin = TextIO.openIn "runtime.s" 
+        val out = TextIO.openAppend fname
+        fun loop rin = 
+        case TextIO.inputLine rin of 
+            SOME line => (TextIO.output(out, line); loop rin)
+          | NONE      => ()
+    in 
+        loop rin before (TextIO.closeIn rin; TextIO.closeOut out) 
+    end
     fun compile filename = 
     let 
         val absyn = Parse.parse filename
         (* FindEscape may fail in case there are some errors, in which case it is better to first make sure that we don't have these semantic errors *)
         val frags = Semant.transProg absyn 
-        val frags = if (!ErrorMsg.anyErrors) then frags else (FindEscape.findEscape absyn; Semant.transProg absyn)
+        val _ = if (!ErrorMsg.anyErrors) then (print ("Unsuccessful compilation due to above errors\n"); OS.Process.exit (OS.Process.failure)) else ()
+        val frags = (FindEscape.findEscape absyn; Semant.transProg absyn)
         (* val frags = (FindEscape.findEscape absyn; Semant.transProg absyn) *)
         val (proc, others) = List.partition 
                               (
@@ -69,6 +80,7 @@ structure Main = struct
                                     | _ => false
                               ) frags
     in 
+      (
         withOpenFile (filename ^ ".s") 
         (fn out => (
                     TextIO.output(out, "\n.globl main\n");
@@ -77,7 +89,9 @@ structure Main = struct
                     TextIO.output(out, "\n.text\n");
                     app (emitproc out) proc
                    )
-        )
+        );
+        appendRuntime (filename ^ ".s")
+      )
     end
 
 end

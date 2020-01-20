@@ -7,6 +7,8 @@ sig
   val empty : 'a table
   val enter : 'a table * symbol * 'a -> 'a table
   val look  : 'a table * symbol -> 'a option
+  val lengthSymbols : int -> symbol list
+  val inDomain : 'a table * symbol -> bool
 end
 
 structure Symbol :> SYMBOL =
@@ -20,20 +22,30 @@ struct
   val nextsym = ref 0
   val sizeHint = 128
   val hashtable : (string, int) H.hash_table = H.mkTable(HashString.hashString, op = ) (sizeHint, Symbol)  (* so for our hash table, key is string and value is int *)
-  
+  val sizeStrings = ref (IntBinaryMap.insert(IntBinaryMap.empty, ~1, [("hello", ~1)]))
   fun symbol name =
   case H.find hashtable name
     of SOME i => (name, i)
     | NONE => 
     let 
       val i = !nextsym
+      val ssize = String.size (name)
     in 
+      (case IntBinaryMap.find ((!sizeStrings), ssize) of 
+        NONE => (sizeStrings := IntBinaryMap.insert ((!sizeStrings), ssize, [(name, i)]))
+      | SOME ls => (sizeStrings := IntBinaryMap.insert ((!sizeStrings), ssize, ls @ [(name, i)]))
+      );
       nextsym := i + 1;
       H.insert hashtable (name, i);
       (name, i)
     end
 
   fun name(s, n) = s
+  fun lengthSymbols(len) = 
+  (case IntBinaryMap.find ((!sizeStrings), len) of 
+    NONE => []
+  | SOME ls => ls
+  )
 (* Till now we hashed string to int. Now, we will hash that int to 'a *)
 (* "Tables" map symbols to bindings *)
 (* 
@@ -57,10 +69,10 @@ struct
 *)
 
   structure Table = IntMapTable(type key = symbol fun getInt(s, n) = n)
-
   type 'a table = 'a Table.table
   val empty = Table.empty
   val enter = Table.enter
   val look = Table.look
+  val inDomain = Table.inDomain
   val listItemsi = Table.listItemsi
 end

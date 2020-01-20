@@ -19,7 +19,42 @@ struct
 
     (* Helper functions *)
     fun typeNotFound(tenv, pos, targetType, sym) = (Err.error pos ("following " ^ targetType ^ " is not defined: " ^ S.name(sym)))
-    fun variableNotFound(venv, pos, targetVar, sym) = (Err.error pos ("following " ^ targetVar ^ " is not defined: " ^ S.name(sym)))
+    (* Need of the time is to check for string in symbol "sym" in the map "venv" which is mapping integer in symbols to the entry. What is simply required is the strings corresponding to all those ints in our venv. *)
+    fun editDistance (a, b) = 
+    let 
+      fun initEntries (i, j) = if i = 0 then j else if j = 0 then i else 0
+      val mem = Array2.tabulate Array2.RowMajor (String.size (b) + 1, String.size (a) + 1, initEntries)
+      val reg = {base = mem, row = 1, col = 1, nrows = NONE, ncols = NONE}
+      fun updateEntries (i, j, _) = if String.sub (a, j - 1) = String.sub (b, i - 1) then (Array2.sub(mem, i - 1, j - 1)) else Int.min(Array2.sub(mem, i - 1, j - 1), Int.min(Array2.sub(mem, i - 1, j), Array2.sub(mem, i, j - 1))) + 1
+      (* val mem = ref (Array2.array (String.size(b), String.size(a), 0)) *)
+    in 
+      (Array2.modifyi Array2.RowMajor updateEntries reg; Array2.sub(mem, String.size(b), String.size(a)))
+    end
+    
+
+    fun traverseSyms (env, nil, orig, currentMin, currentMinSym) = 
+    (case currentMinSym of 
+        NONE => ()
+      | SOME sym => print ("Did you mean: " ^ S.name(sym) ^ "\n")
+    )
+      | traverseSyms (env, sym :: ls, orig, currentMin, currentMinSym) = 
+        let 
+          val sysString = S.name(sym)
+          val editDis = editDistance (sysString, orig)
+          (* val _ = print ("Edit distance with string: " ^ sysString ^ " is: " ^ Int.toString editDis ^ "\n") *)
+        in 
+          if (editDis < currentMin andalso S.inDomain(env, sym)) then traverseSyms(env, ls, orig, editDis, SOME sym) else traverseSyms(env, ls, orig, currentMin, currentMinSym)
+        end
+    fun variableNotFound(venv, pos, targetVar, sym) = 
+    let 
+      val symString = S.name (sym)
+      val stringSize = String.size (symString) 
+      val listSame = S.lengthSymbols (stringSize) @ S.lengthSymbols (stringSize + 1) @ S.lengthSymbols (stringSize - 1)
+    in 
+      (Err.error pos ("following " ^ targetVar ^ " is not defined: " ^ symString));
+      (if List.length (listSame) = 0 then () else traverseSyms(venv, listSame, symString, 100, NONE)
+      )
+    end
     (* The type in the VarEntry will sometimes be a "NAME type", and all the types returned from transExp should be "actual" types (with the names traced through to their underlying definitions). So, "actual_ty" is used to skip past all the names. The result will be a Types.ty that is not a NAME, though if it is a record or array type it might contain NAME types to describe its components. *)
     fun actual_ty (tenv, ty, pos) =
         case ty of
