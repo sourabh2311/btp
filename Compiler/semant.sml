@@ -18,7 +18,6 @@ struct
     val curDepth = ref 0
 
     (* Helper functions *)
-    fun typeNotFound(tenv, pos, targetType, sym) = (Err.error pos ("following " ^ targetType ^ " is not defined: " ^ S.name(sym)))
     (* Need of the time is to check for string in symbol "sym" in the map "venv" which is mapping integer in symbols to the entry. What is simply required is the strings corresponding to all those ints in our venv. *)
     fun editDistance (a, b) = 
     let 
@@ -45,14 +44,14 @@ struct
         in 
           if (editDis < currentMin andalso S.inDomain(env, sym)) then traverseSyms(env, ls, orig, editDis, SOME sym) else traverseSyms(env, ls, orig, currentMin, currentMinSym)
         end
-    fun variableNotFound(venv, pos, targetVar, sym) = 
+    fun variableOrTypeNotFound(env, pos, target, sym) = 
     let 
       val symString = S.name (sym)
       val stringSize = String.size (symString) 
       val listSame = S.lengthSymbols (stringSize) @ S.lengthSymbols (stringSize + 1) @ S.lengthSymbols (stringSize - 1)
     in 
-      (Err.error pos ("following " ^ targetVar ^ " is not defined: " ^ symString));
-      (if List.length (listSame) = 0 then () else traverseSyms(venv, listSame, symString, 100, NONE)
+      (Err.error pos ("following " ^ target ^ " is not defined: " ^ symString));
+      (if List.length (listSame) = 0 then () else traverseSyms(env, listSame, symString, 100, NONE)
       )
     end
     (* The type in the VarEntry will sometimes be a "NAME type", and all the types returned from transExp should be "actual" types (with the names traced through to their underlying definitions). So, "actual_ty" is used to skip past all the names. The result will be a Types.ty that is not a NAME, though if it is a record or array type it might contain NAME types to describe its components. *)
@@ -60,7 +59,7 @@ struct
         case ty of
             T.NAME(sym, tyref) =>
             (case (!tyref) of
-              NONE => (typeNotFound(tenv, pos, "type", sym); T.NIL)
+              NONE => (variableOrTypeNotFound(tenv, pos, "type", sym); T.NIL)
             | SOME(ty) => actual_ty (tenv, ty, pos))
             (* For type checking of array with "init", we must trace the type of 'ty'' *)
             | T.ARRAY(ty', ref') => T.ARRAY(actual_ty (tenv, ty', pos), ref')
@@ -137,7 +136,7 @@ struct
             case S.look(venv, func) of
                 SOME(E.FunEntry({level = funlevel, label, formals, result})) => (checkFormals(formals, pos); {exp = L.call(level, funlevel, label, map #exp argET), ty = actual_ty (tenv, result, pos)})
               | SOME(_) => (Err.error pos ("symbol not a function " ^ S.name func); errResult)
-              | NONE => (variableNotFound(venv, pos, "function", func); errResult)
+              | NONE => (variableOrTypeNotFound(venv, pos, "function", func); errResult)
         end
       | trexp (A.OpExp{left, oper, right, pos}) = 
         let 
@@ -208,7 +207,7 @@ struct
         
       | trexp (A.RecordExp({fields, typ, pos})) = 
         (case S.look(tenv, typ) of
-            NONE => (typeNotFound(tenv, pos, "record", typ); errResult)
+            NONE => (variableOrTypeNotFound(tenv, pos, "record", typ); errResult)
           | SOME(t) =>
             case actual_ty (tenv, t, pos) of
                 (* Recall: it is (symbol * ty) list * unique *)
@@ -338,7 +337,7 @@ struct
         (* type of size should be int, type of array should be same as init *)
       | trexp (A.ArrayExp({typ, size, init, pos})) = 
         case S.look (tenv, typ) of 
-          NONE => (typeNotFound(tenv, pos, "array", typ); errResult)
+          NONE => (variableOrTypeNotFound(tenv, pos, "array", typ); errResult)
         | SOME (arrayty) =>
           let 
             val acArrayty = actual_ty (tenv, arrayty, pos)
@@ -360,7 +359,7 @@ struct
         (case S.look(venv, id) of
             SOME(E.VarEntry({access, ty})) => {exp = L.simpleVar (access, level), ty = actual_ty (tenv, ty, pos)}
           | SOME(_) => (Err.error pos ("variable was expected but instead function is given"); errResult)
-          | NONE => (variableNotFound(venv, pos, "variable", id); errResult)
+          | NONE => (variableOrTypeNotFound(venv, pos, "variable", id); errResult)
         )
       | trvar (A.FieldVar(lval, id, pos)) =
         let 
@@ -369,7 +368,7 @@ struct
           (case exptylval of
             {exp = _, ty = T.RECORD(StyL, uniq)} => 
             (case List.find (fn elem => (#1elem) = id) StyL of
-                NONE => (typeNotFound(tenv, pos, "record symbol", id); errResult)
+                NONE => (variableOrTypeNotFound(tenv, pos, "record symbol", id); errResult)
               | SOME (elem) => {exp = L.fieldVar(getexp (exptylval), id, map #1 StyL), ty = actual_ty (tenv, #2elem, pos)}) 
           | _ => (Err.error pos ("record was expected but something else is given"); errResult)
           )
@@ -405,7 +404,7 @@ struct
       val varexp = L.simpleVar (access', level)
     in
       case S.look (tenv, tname) of 
-        NONE => (typeNotFound(tenv, pos, "type", tname); {tenv = tenv, venv = S.enter(venv, name, E.VarEntry{access = access', ty = ty}), expList = []})
+        NONE => (variableOrTypeNotFound(tenv, pos, "type", tname); {tenv = tenv, venv = S.enter(venv, name, E.VarEntry{access = access', ty = ty}), expList = []})
       | SOME(dty) =>
           let
             val at = actual_ty(tenv, dty, pos) 
@@ -484,7 +483,7 @@ struct
               (case S.look(tenv, t) of
                 SOME ty => ty
               | NONE =>
-                (typeNotFound(tenv, pos, "type", t);
+                (variableOrTypeNotFound(tenv, pos, "type", t);
                   T.UNIT)
               )
           (* Transparam *)
@@ -493,7 +492,7 @@ struct
                 case S.look(tenv, typ) of
                   SOME t => t
                 | NONE =>
-                  (typeNotFound(tenv, pos, "function's parameter for function " ^ S.name(name), typ); 
+                  (variableOrTypeNotFound(tenv, pos, "function's parameter for function " ^ S.name(name), typ); 
                     T.UNIT)
                 ) params
           val escapeL = map (fn {escape, ...} => !escape) params
@@ -514,7 +513,7 @@ struct
               case S.look(tenv, typ) of
                   SOME t => {access = access, name = name, ty = t}
                 | NONE =>
-                  (typeNotFound(tenv, pos, "function's parameter", typ); {access = access, name = name, ty = T.UNIT})
+                  (variableOrTypeNotFound(tenv, pos, "function's parameter", typ); {access = access, name = name, ty = T.UNIT})
           val params' = ListPair.map enterparam (params, L.formals newlevel)
           val venv'' =
               (foldl (fn ({access, name, ty}, env) =>
@@ -540,14 +539,14 @@ struct
           (map (fn {name, escape, typ, pos} =>
                     case S.look(tenv, typ) of
                       SOME(t) => (name, t)
-                    | NONE => (typeNotFound(tenv, pos, "type", typ); (name, T.UNIT))
+                    | NONE => (variableOrTypeNotFound(tenv, pos, "type", typ); (name, T.UNIT))
                 ) fields
           ), ref ()))
 
       | transTy (tenv, A.ArrayTy (sym, pos)) =
         case S.look(tenv, sym) of
           SOME(t) => T.ARRAY(t, ref ())
-        | NONE => (typeNotFound(tenv, pos, "type", sym); T.ARRAY(T.NIL, ref ()))
+        | NONE => (variableOrTypeNotFound(tenv, pos, "type", sym); T.ARRAY(T.NIL, ref ()))
     fun transProg (my_exp : A.exp) = 
     let
       (* Clear fragment list *)

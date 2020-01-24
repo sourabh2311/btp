@@ -1,0 +1,8 @@
+let 
+  var N := 10
+  type intArray = array of int
+  var row := intArray [N] of 0
+  var col := intrray [N] of 0
+in
+    print ("Type not found check\n")
+end
