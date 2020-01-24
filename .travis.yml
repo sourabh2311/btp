@@ -10,7 +10,7 @@ before_install:
 - sudo mkdir /sml
 - export SMLROOT=/sml
 - echo $SMLROOT
-- sudo wget http://smlnj.org/dist/working/110.78/config.tgz
+- sudo wget http://smlnj.cs.uchicago.edu/dist/working/110.96/config.tgz
 - sudo tar -C /sml -xzvf config.tgz
 - export cwd=$(pwd)
 - cd /sml
