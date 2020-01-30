@@ -39,5 +39,6 @@ sig
   val calleesaves : (Temp.temp * string) list
   val callersaves : (Temp.temp * string) list
   val registers : string list
+  val allRegisters : (Temp.temp * string) list
   val getFirstL : ('a * 'b) list -> 'a list
 end

@@ -107,6 +107,7 @@ fun getSecondL (ls) = (map (fn (x, y) => y) ls)
 
 (* Getting all the registers available for coloring *)
 val registers = getSecondL(savedregs @ temporaries) 
+val allRegisters = (specialregs @ argregs @ savedregs @ temporaries)
 
 (* tempMap is a table from registers (not all registers but some) to their name *)
 (* basically its use is for new temporaries, so that we can assign register to them as well *)
@@ -146,7 +147,7 @@ fun exp frameAccess frameAddress =
 fun callexp frameAccess frameAddress escapes = 
   case frameAccess of
       InFrame offset => Tr.MEM(Tr.BINOP(Tr.PLUS, frameAddress, Tr.CONST (offset - (escapes + 1) * wordSize)))
-    | InReg temp => Tr.TEMP(temp)
+    | InReg temp => Tr.TEMP(temp) (* this line is useless, delete it later *)
 
 (* Given the name of the frame and list of variables mentioned in the format of whether they escape or not, function returns the new frame *)
 (* Above comment is sufficient but can look at page 142 *)

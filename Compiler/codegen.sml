@@ -259,7 +259,7 @@ struct
         (* 
           The following steps are necessary to effect a call:
 
-          1. Pass the arguments. By convention, the first eight arguments are passed in registers $a0--$a7 (though simplier compilers may choose to ignore this convention and pass all arguments via the stack). The remaining arguments are pushed on the stack.
+          1. Pass the arguments. By convention, the first eight arguments are passed in registers $a0--$a7 (though simpler compilers may choose to ignore this convention and pass all arguments via the stack). The remaining arguments are pushed on the stack.
           2. Save the caller-saved registers. This includes registers $t0--$t7, if they contain live values at the call site.
           3. Execute a jal instruction. 
         *)
@@ -280,7 +280,7 @@ struct
             (emit(A.OPER {
                 assem = "jal " ^ S.name(label) ^ "\n",
                 src = argTemps,	
-                (* All these dst registers are named, i.e. they are not arbitrary temporaries but are already mapped to actual machine regs, thus if the function being called wants to use them, our register allocation will handle it *)
+                (* All these dst registers are named, i.e. they are not arbitrary temporaries but are already mapped to actual machine regs, thus if the function being called wants to use them, our register allocation will handle it. Also see highlighted portion of page 237. *)
                 dst = F.getFirstL F.callersaves,	
                 jump = NONE});
             F.rv)

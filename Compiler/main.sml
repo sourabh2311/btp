@@ -4,12 +4,13 @@ structure Main = struct
     structure F = RiscFrame
     structure R = RegAlloc
     structure A = Assem
+    structure TM = Temp.TempMap
     fun getsome (SOME x) = x
       | getsome (_) = ErrorMsg.impossible "Compiler Bug! Error during getSome in MainGiven..."
 
     (* Get a name of the temporary from the allocationTable received from register allocator *)
     fun tempName allocationTable temp =
-    case Temp.Table.look(allocationTable, temp) of
+    case TM.find(allocationTable, temp) of
         SOME(r) => r
       | NONE => ErrorMsg.impossible "there is a register unallocated!"
 
