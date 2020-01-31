@@ -58,12 +58,19 @@ struct
       fun insertC(l :: ls, currentI, targetI, ch) = if currentI = targetI then ch :: l :: ls else l :: insertC(ls, currentI + 1, targetI, ch)
         | insertC(nil, _, _, ch) = [ch]
       fun replaceC(l :: ls, currentI, targetI, rep : char) = if currentI = targetI then rep :: ls else (l :: replaceC(ls, currentI + 1, targetI, rep))
+      fun swapCC(la :: lb :: ls, currentI, targetI) = if currentI = targetI then lb :: la :: ls else (la :: swapCC(lb :: ls, currentI + 1, targetI))
       fun DYM (str) = print ("Did you mean: " ^ str ^ "\n")
       fun tryAllDelete(currentI) = 
       let 
         val str' = String.implode(deleteC(symStringL, 0, currentI))
       in 
         if (S.symPresent(str') andalso S.inDomain(env, S.getSym(str'))) then DYM(str') else if currentI < symStringS - 1 then tryAllDelete(currentI + 1) else ()
+      end
+      fun tryAllSwap(currentI) = 
+      let 
+        val str' = String.implode(swapCC(symStringL, 0, currentI))
+      in 
+        if (S.symPresent(str') andalso S.inDomain(env, S.getSym(str'))) then DYM(str') else if currentI < symStringS - 2 then tryAllSwap(currentI + 1) else ()
       end
       fun tryAllInsert(currentI) = 
       (
@@ -94,7 +101,8 @@ struct
       (Err.error pos ("following " ^ target ^ " is not defined: " ^ symString));
       tryAllDelete(0);
       tryAllInsert(0);
-      tryAllReplace(0)
+      tryAllReplace(0);
+      if (symStringS > 1) then tryAllSwap(0) else ()
     )
     end
     fun vtnf0(env, pos, target, sym) = 
