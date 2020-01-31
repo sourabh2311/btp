@@ -9,6 +9,8 @@ sig
   val look  : 'a table * symbol -> 'a option
   val lengthSymbols : int -> symbol list
   val inDomain : 'a table * symbol -> bool
+  val symPresent : string -> bool
+  val getSym : string -> symbol
 end
 
 structure Symbol :> SYMBOL =
@@ -39,7 +41,16 @@ struct
       H.insert hashtable (name, i);
       (name, i)
     end
-
+  (* First check whether sym is there or not *)
+  fun symPresent (name) = 
+  case H.find hashtable name
+    of SOME i => true
+     | NONE => false
+  exception SNF
+  fun getSym(name) = 
+  case H.find hashtable name
+    of SOME i => (name, i)
+     | NONE => raise SNF
   fun name(s, n) = s
   fun lengthSymbols(len) = 
   (case IntBinaryMap.find ((!sizeStrings), len) of 

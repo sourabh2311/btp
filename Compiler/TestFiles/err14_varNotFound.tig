@@ -6,5 +6,5 @@ let
     var ajxyslkj := 3
     var ajxysdkk := 3
 in
-    printI (ajzy); printI (zjay); printI (souajay); printI (ajxyskk)
+    printI(aajy); printI (ajzy); printI (zjay); printI (souajay); printI (ajxyskk)
 end

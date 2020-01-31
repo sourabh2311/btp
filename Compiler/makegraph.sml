@@ -12,23 +12,23 @@ end
 structure MakeGraph : MAKE_GRAPH =
 struct
 
-
+structure TS = Temp.TempSet
 
 (* create graph from the instruction list *)
 fun instrs2graph instrs =
 let
   (* Step 1: Make a node for each instruction! *)
-  val nodeC = ref 0
+  val nodeCnt = ref 0
   fun getNode(instr, nodeList) =
   let
     val (def', use', ismove') =
       case instr of
-          Assem.OPER{assem, dst, src, jump} => (dst, src, false)
-        | Assem.LABEL{assem, lab} => (nil, nil, false)
-        | Assem.MOVE{assem, dst, src} => ([dst], [src], true)
+          Assem.OPER{assem, dst, src, jump} => (TS.fromList (dst), TS.fromList (src), false)
+        | Assem.LABEL{assem, lab} => (TS.empty, TS.empty, false)
+        | Assem.MOVE{assem, dst, src} => (TS.singleton (dst), TS.singleton (src), true)
 
   in
-    nodeList @ [Flow.FNODE{id = (nodeC := !nodeC + 1; !nodeC), def = def', use = use', ismove = ismove', succ = ref nil, prev = ref nil, liveOut = ref nil}]
+    nodeList @ [Flow.FNODE{index = (nodeCnt := (!nodeCnt) + 1; (!nodeCnt)), def = def', use = use', ismove = ismove', succ = ref nil, succSet = ref IntRedBlackSet.empty, liveIn = ref TS.empty, liveOut = ref TS.empty}]
   end
 
   val nodeList = foldl getNode nil instrs
@@ -38,20 +38,20 @@ let
 
   (* Step 2: Add edges *)
   (* Function to add an edge *)
-  fun addEdge(from as Flow.FNODE{succ, ...}, to as Flow.FNODE{prev, ...}) =
-    if List.exists (fn n => n = to) (!succ) then ()
-    else (succ := to :: (!succ); prev := from :: (!prev))
+  fun addEdge(from as Flow.FNODE{succ, succSet, ...}, to as Flow.FNODE{index, ...}) =
+    if IntRedBlackSet.member(!succSet, index) then ()
+    else (succ := to :: (!succ); succSet := IntRedBlackSet.add(!succSet, index))
 
   (* When instruction at node is a JUMP instruction, jumping to possibly givenLabel, add an edge between this and corresponding LABEL node  *)
   fun addEdgeToLabel node givenLabel =
     case List.find
-      (fn (sintr, nodeNo) =>
+      (fn (sintr, lnode) =>
         case sintr of
           Assem.LABEL{lab, ...} => givenLabel = lab
           | _ => false
       ) instrNodeList
       of
-      SOME ((_, nodeNo)) => addEdge (node, nodeNo)
+      SOME ((_, lnode)) => addEdge (node, lnode)
 
   fun join nil = ()
     | join [(instr, node)] = 

@@ -20,7 +20,7 @@ sig
                 | REAL of Temp.label * real
   val fp : Temp.temp
   val rv : Temp.temp
-  (* val calldefs : Temp.temp list *)
+  val calldefs : (Temp.temp * string) list
   val wordSize : int
   val exp : access -> Tree.exp -> Tree.exp
   val externalCall : string * Tree.exp list -> Tree.exp
@@ -37,7 +37,9 @@ sig
   val zero : Temp.temp
   val sp : Temp.temp
   val calleesaves : (Temp.temp * string) list
+  (* val jalDst : (Temp.temp * string) list *)
   val callersaves : (Temp.temp * string) list
   val registers : string list
+  val allRegisters : (Temp.temp * string) list
   val getFirstL : ('a * 'b) list -> 'a list
 end

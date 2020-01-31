@@ -14,6 +14,7 @@ struct
     (* Translate.exp is the translation of the expression into intermediate code and ty is the type of the expression *)
     type expty = {exp: Translate.exp, ty: T.ty}
     (* Helper types/vals *)
+    val stringAlgorithm = ref ~1
     val errResult = {exp = L.errExp, ty = T.NIL}
     val curDepth = ref 0
 
@@ -44,7 +45,67 @@ struct
         in 
           if (editDis < currentMin andalso S.inDomain(env, sym)) then traverseSyms(env, ls, orig, editDis, SOME sym) else traverseSyms(env, ls, orig, currentMin, currentMinSym)
         end
-    fun variableOrTypeNotFound(env, pos, target, sym) = 
+    fun vtnf1(env, pos, target, sym) = 
+    let 
+      val symString = S.name(sym)
+      val symStringS = String.size (symString)
+      val az = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "s", "t", "u", "v", "w", "x", "y", "z"]
+      val az = String.explode(String.concat(az))
+      val symStringL = String.explode(symString)
+      (* try with 0 to string size - 1 *)
+      fun deleteC(l :: ls, currentI, targetI) = if currentI = targetI then ls else (l :: deleteC(ls, currentI + 1, targetI))
+      (* try with 0 to string size *)
+      fun insertC(l :: ls, currentI, targetI, ch) = if currentI = targetI then ch :: l :: ls else l :: insertC(ls, currentI + 1, targetI, ch)
+        | insertC(nil, _, _, ch) = [ch]
+      fun replaceC(l :: ls, currentI, targetI, rep : char) = if currentI = targetI then rep :: ls else (l :: replaceC(ls, currentI + 1, targetI, rep))
+      fun swapCC(la :: lb :: ls, currentI, targetI) = if currentI = targetI then lb :: la :: ls else (la :: swapCC(lb :: ls, currentI + 1, targetI))
+      fun DYM (str) = print ("Did you mean: " ^ str ^ "\n")
+      fun tryAllDelete(currentI) = 
+      let 
+        val str' = String.implode(deleteC(symStringL, 0, currentI))
+      in 
+        if (S.symPresent(str') andalso S.inDomain(env, S.getSym(str'))) then DYM(str') else if currentI < symStringS - 1 then tryAllDelete(currentI + 1) else ()
+      end
+      fun tryAllSwap(currentI) = 
+      let 
+        val str' = String.implode(swapCC(symStringL, 0, currentI))
+      in 
+        if (S.symPresent(str') andalso S.inDomain(env, S.getSym(str'))) then DYM(str') else if currentI < symStringS - 2 then tryAllSwap(currentI + 1) else ()
+      end
+      fun tryAllInsert(currentI) = 
+      (
+        List.app (
+          fn r =>
+          let 
+            val str' = String.implode(insertC(symStringL, 0, currentI, r))
+          in 
+            if (S.symPresent(str') andalso S.inDomain(env, S.getSym(str'))) then DYM(str') else ()
+          end
+        ) az;
+        if (currentI < symStringS) then tryAllInsert(currentI + 1) else ()
+      )
+      fun tryAllReplace (currentI) = 
+      (
+        List.app (
+          fn r =>
+          let 
+            val str' = String.implode(replaceC(symStringL, 0, currentI, r))
+          in 
+            if (S.symPresent(str') andalso S.inDomain(env, S.getSym(str'))) then DYM(str') else ()
+          end
+        ) az;
+        if (currentI < symStringS - 1) then tryAllReplace(currentI + 1) else ()
+      )
+    in 
+    (
+      (Err.error pos ("following " ^ target ^ " is not defined: " ^ symString));
+      tryAllDelete(0);
+      tryAllInsert(0);
+      tryAllReplace(0);
+      if (symStringS > 1) then tryAllSwap(0) else ()
+    )
+    end
+    fun vtnf0(env, pos, target, sym) = 
     let 
       val symString = S.name (sym)
       val stringSize = String.size (symString) 
@@ -54,6 +115,7 @@ struct
       (if List.length (listSame) = 0 then () else traverseSyms(env, listSame, symString, 100, NONE)
       )
     end
+    fun variableOrTypeNotFound(env, pos, target, sym) = if (!stringAlgorithm = 0) then vtnf0(env, pos, target, sym) else vtnf1 (env, pos, target, sym)
     (* The type in the VarEntry will sometimes be a "NAME type", and all the types returned from transExp should be "actual" types (with the names traced through to their underlying definitions). So, "actual_ty" is used to skip past all the names. The result will be a Types.ty that is not a NAME, though if it is a record or array type it might contain NAME types to describe its components. *)
     fun actual_ty (tenv, ty, pos) =
         case ty of

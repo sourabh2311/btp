@@ -1,15 +1,18 @@
 structure Flow =
 struct
 
+  structure TS = Temp.TempSet
 (* 
-  A flow graph has four components:
-  * control: a directed graph wherein each node represents an instruction (or,  perhaps, a basic block);
-  * def: a table of the temporaries defined at each node (destination registers of the instruction);
-  * use: a table of the temporaries used at each node (source registers of the  instruction);
-  * ismove: tells whether each instruction is a move instruction, which could be detected if the def and use are identical. 
+  ismove: could be detected if the def and use are identical. 
 *)
 
-  datatype node = FNODE of {id : int, def : Temp.temp list, use : Temp.temp list, ismove : bool, succ : node list ref, prev : node list ref, liveOut : Temp.temp list ref}
+  datatype node = FNODE of {index : int, def : TS.set, use : TS.set, ismove : bool, succ : node list ref, succSet : IntRedBlackSet.set ref, liveIn : TS.set ref, liveOut : TS.set ref}
+  (* fun ncompare ({id = id1, ...} : FNODE, {id = id2, ...} : FNODE) = Int.compare (id1, id2)
+  structure nodeKey : ORD_KEY =
+  struct
+      type ord_key = node
+      fun compare (n1, n2) = ncompare (n1, n2)
+  end
+  structure nodeSet = RedBlackSetFn (nodeKey) *)
   type flowgraph = node list
-
 end
