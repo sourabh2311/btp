@@ -1,4 +1,5 @@
 (* can uncomment those live lines after checking *)
+(* Mention that it took many hours to get to that pivotal line *)
 (* Seemingly the possible errors could be only with codegen, check tomorrow  *)
 (* Tell them that it took time to figure out that actually there was no fault with your register allocator but had to just include ra in codegen and these things take some time *)
 (* Add in report, static link <> old fp *)
@@ -146,7 +147,7 @@ let
             (
                 live := TS.subtract (!live, u);
                 moveList := TM.insert (!moveList, d, TPS.add (getTMPSet (!moveList, d), (d, u)));
-                moveList := TM.insert (!moveList, u, TPS.add (getTMPSet (!moveList, u), (d, u)));
+                moveList := TM.insert (!moveList, u, TPS.add (getTMPSet (!moveList, u), (d, u))); 
                 worklistMoves := TPS.add (!worklistMoves, (d, u))  
             )
             end
@@ -168,12 +169,12 @@ end
 AddEdge (u, v) = 
 if (TPS.member ((!adjSet), (u, v)) = false andalso u <> v) then (
     adjSet := TPS.addList (!adjSet, [(u, v), (v, u)]);
-    if TS.member (precolored, u) = false then  (
+    if TS.member (precolored, u) = false then (
         adjList := TM.insert (!adjList, u, TS.add (getTMSet (!adjList, u), v));
         degree := TM.insert (!degree, u, getTMInt (!degree, u) + 1)
     )
     else ();
-    if TS.member (precolored, v) = false then  (
+    if TS.member (precolored, v) = false then (
         adjList := TM.insert (!adjList, v, TS.add (getTMSet (!adjList, v), u));
         degree := TM.insert (!degree, v, getTMInt (!degree, v) + 1)
     )
@@ -209,7 +210,7 @@ let
 in 
 (
     simplifyWorklist := TS.subtract (!simplifyWorklist, n);
-    selectStack := (!selectStack) @ [n];
+    selectStack := [n] @ (!selectStack);
     TS.app (fn m => DecrementDegree(m)) (Adjacent (n))
 )
 end
@@ -338,7 +339,7 @@ TPS.app (
         else 
             v := GetAlias (y);
         activeMoves := TPS.subtract (!activeMoves, m);
-        if (TPS.isEmpty(NodeMoves (!v)) andalso getTMInt(!degree, !v) < K) then (
+        if (TPS.isEmpty(NodeMoves (!v)) andalso getTMInt(!degree, !v) < K andalso TS.member(precolored, !v) = false) then (  (* adding v check in precolored was pivotal *)
             freezeWorklist := TS.subtract(!freezeWorklist, !v);
             simplifyWorklist := TS.add(!simplifyWorklist, !v)
         ) else ()
@@ -379,7 +380,7 @@ case (!selectStack) of
         selectStack := ns;
         TS.app (
             fn w => if TS.member(TS.union(!coloredNodes, precolored), GetAlias(w)) then (
-                if (TM.inDomain (!color, GetAlias (w))) then okColors := colors.subtract (!okColors, TM.lookup(!color, GetAlias(w))) else ()
+                okColors := colors.subtract (!okColors, TM.lookup(!color, GetAlias(w)))
             )
             else ()
         ) (getTMSet(!adjList, n));
@@ -395,9 +396,7 @@ case (!selectStack) of
   | nil => (
         TS.app (
         fn n =>
-            if (TM.inDomain(!color, GetAlias(n))) then 
             color := TM.insert(!color, n, TM.lookup(!color, GetAlias(n)))
-            else ()
         ) (!coalescedNodes)
     )
     and
