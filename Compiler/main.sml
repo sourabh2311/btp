@@ -5,6 +5,7 @@ structure Main = struct
     structure R = RegAlloc
     structure A = Assem
     structure TM = Temp.TempMap
+    val stringAlgorithm = ref ~1
     fun getsome (SOME x) = x
       | getsome (_) = ErrorMsg.impossible "Compiler Bug! Error during getSome in MainGiven..."
 
@@ -65,8 +66,10 @@ structure Main = struct
     in 
         loop rin before (TextIO.closeIn rin; TextIO.closeOut out) 
     end
-    fun compile filename = 
+    fun compile (filename, stringAlgo) = 
     let 
+        val _ = if (stringAlgo < 0 orelse stringAlgo > 1) then OS.Process.exit (OS.Process.failure) else ()
+        val _ = (stringAlgorithm := stringAlgo; Semant.stringAlgorithm := stringAlgo)
         val absyn = Parse.parse filename
         (* FindEscape may fail in case there are some errors, in which case it is better to first make sure that we don't have these semantic errors *)
         val frags = Semant.transProg absyn 

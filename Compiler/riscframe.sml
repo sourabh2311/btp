@@ -95,7 +95,8 @@ val temporaries = [(t0, "t0"), (t1, "t1"), (t2, "t2"), (t3, "t3"), (t4, "t4"), (
 
 val calleesaves = savedregs
 val callersaves = temporaries
-
+val calldefs = [(rv, "a0"), (ra, "ra")] @ callersaves
+(* val jalDst = [(ra, "ra")] @ calleesaves *)
 
 val wordSize = 4
 

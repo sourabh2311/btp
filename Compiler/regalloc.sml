@@ -1,4 +1,7 @@
-(* Need to assign color with precolored nodes *)
+(* can uncomment those live lines after checking *)
+(* Seemingly the possible errors could be only with codegen, check tomorrow  *)
+(* Tell them that it took time to figure out that actually there was no fault with your register allocator but had to just include ra in codegen and these things take some time *)
+(* Add in report, static link <> old fp *)
 (* frozenMoves, constrainedMoves was nowhere 'used' in his algorithm, so not keeping it as of now
     Additionally coalescedMoves is also not used anywhere but have included here *)
 structure RegAlloc : REG_ALLOC =
@@ -118,7 +121,7 @@ Main () =
     if TS.isEmpty (!spilledNodes) = false then 
         (RewriteProgram(); Main ())
     else (
-        instrs := List.filter (fn instr => not (isRedundant instr)) (!instrs);
+        (* instrs := List.filter (fn instr => not (isRedundant instr)) (!instrs); *)
         (* Need to return something *)
         (!instrs, !color)
     )
@@ -137,25 +140,25 @@ let
         if ismove then 
         (
             (* Thing to note: Move instructions have only one dst (def) and src (use). *)
-            live := TS.difference (!live, use);
             let 
                 val [d, u] = TS.listItems(def) @ TS.listItems (use)
             in 
             (
+                live := TS.subtract (!live, u);
                 moveList := TM.insert (!moveList, d, TPS.add (getTMPSet (!moveList, d), (d, u)));
                 moveList := TM.insert (!moveList, u, TPS.add (getTMPSet (!moveList, u), (d, u)));
                 worklistMoves := TPS.add (!worklistMoves, (d, u))  
             )
             end
         ) else ();
-        live := TS.union (!live, def);
+        (* live := TS.union (!live, def); *)
         TS.app (
             fn d => 
                 TS.app (
                     fn l => AddEdge (l, d)
                 ) (!live)
-        ) def;
-        live := TS.union (use, TS.difference (!live, def)) (* This line is not needed as my blocks are simply instructions *)
+        ) def
+        (* live := TS.union (use, TS.difference (!live, def)) This line is not needed as my blocks are simply instructions *)
     end
 in 
     app forEachInstr (!fgraph)

@@ -281,7 +281,7 @@ struct
                 assem = "jal " ^ S.name(label) ^ "\n",
                 src = argTemps,	
                 (* All these dst registers are named, i.e. they are not arbitrary temporaries but are already mapped to actual machine regs, thus if the function being called wants to use them, our register allocation will handle it. Also see highlighted portion of page 237. *)
-                dst = F.getFirstL F.callersaves,	
+                dst = F.getFirstL (F.calldefs),	
                 jump = NONE});
             F.rv)
         end
