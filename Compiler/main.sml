@@ -1,11 +1,15 @@
 structure Main = struct
-
+(* -------------- Compile Time Flags ----------------- *)
+    exception InvalidFlag
+    val stringAlgo = ref 0
+    val ir = ref TextIO.stdOut
+    val bacode = ref TextIO.stdOut 
+(* --------------  ----------------- *)
     structure Tr = Translate
     structure F = RiscFrame
     structure R = RegAlloc
     structure A = Assem
     structure TM = Temp.TempMap
-    val stringAlgorithm = ref ~1
     fun getsome (SOME x) = x
       | getsome (_) = ErrorMsg.impossible "Compiler Bug! Error during getSome in MainGiven..."
 
@@ -26,13 +30,17 @@ structure Main = struct
     fun emitproc out (F.PROC{body, frame}) =
     let 
         val _ = print ("emit " ^ Symbol.name (F.name frame) ^ "\n")
-        (* val _ = Printtree.printtree(out,body); *)
+        val _ = TextIO.output(!ir, "---------- IR Tree ---------\n")
+        val _ = Printtree.printtree(!ir, body);
         val stms = Canon.linearize body
-        (* val _ = app (fn s => Printtree.printtree(out,s)) stms; *)
         val stms' = Canon.traceSchedule(Canon.optimizeBasicBlocks(Canon.basicBlocks stms))
+        val _ = TextIO.output(!ir, "---------- IR Tree (After Canon) ---------\n")
+        val _ = app (fn s => Printtree.printtree(!ir, s)) stms;
         val instrs = List.concat(map (Risc.codegen frame) stms') 
         val instrs2 = F.procEntryExit2 (frame, instrs)
-        (* val format1 = Assem.format(F.getTempString) *)
+        val _ = TextIO.output(!bacode, "---------- Instr before allocation ---------\n")
+        val format1 = Assem.format(F.getTempString)
+        val _ = app (fn i => TextIO.output(!bacode, format1 i)) instrs2
         val (instrs2', allocationTable) = R.alloc(instrs2, frame)
         val {prolog, body, epilog} = F.procEntryExit3(frame, instrs2')
         val body' = indent body
@@ -66,10 +74,21 @@ structure Main = struct
     in 
         loop rin before (TextIO.closeIn rin; TextIO.closeOut out) 
     end
-    fun compile (filename, stringAlgo) = 
+    fun compile (filename, flags) = 
     let 
-        val _ = if (stringAlgo < 0 orelse stringAlgo > 1) then OS.Process.exit (OS.Process.failure) else ()
-        val _ = (stringAlgorithm := stringAlgo; Semant.stringAlgorithm := stringAlgo)
+        
+        fun getFlags (l :: ls) = 
+        (
+          if String.isPrefix "sa=" l then stringAlgo := valOf(Int.fromString(String.extract(l, 3, NONE)))
+          else if String.isPrefix "ir=" l then ir := TextIO.openOut (String.extract(l, 3, NONE)) 
+          else if String.isPrefix "ba=" l then bacode := TextIO.openOut (String.extract(l, 3, NONE))
+          else raise InvalidFlag;
+          getFlags (ls)
+        )
+          | getFlags ([]) = ()
+        val _ = getFlags (flags)
+        val _ = if (!stringAlgo < 0 orelse !stringAlgo > 1) then OS.Process.exit (OS.Process.failure) else ()
+        val _ = (Semant.stringAlgorithm := !stringAlgo)
         val absyn = Parse.parse filename
         (* FindEscape may fail in case there are some errors, in which case it is better to first make sure that we don't have these semantic errors *)
         val frags = Semant.transProg absyn 

@@ -19,6 +19,9 @@ struct
     val curDepth = ref 0
 
     (* Helper functions *)
+    fun isReal(ty) = case ty of 
+    T.REAL => true 
+    | _ => false
     (* Need of the time is to check for string in symbol "sym" in the map "venv" which is mapping integer in symbols to the entry. What is simply required is the strings corresponding to all those ints in our venv. *)
     fun editDistance (a, b) = 
     let 
@@ -178,10 +181,6 @@ struct
       | A.LeOp => trexp(A.IfExp({test = A.CallExp({func = Symbol.symbol "realLess", args = [left, right], pos = pos}), then' = A.IntExp(1), else' = SOME (A.CallExp({func = Symbol.symbol "realEqual", args = [left, right], pos = pos})), pos = pos}))
       | A.GtOp => trexp(A.CallExp({func = Symbol.symbol "realGreat", args = [left, right], pos = pos}))
       | A.GeOp => trexp(A.IfExp({test = A.CallExp({func = Symbol.symbol "realGreat", args = [left, right], pos = pos}), then' = A.IntExp(1), else' = SOME (A.CallExp({func = Symbol.symbol "realEqual", args = [left, right], pos = pos})), pos = pos}))
-      | A.PlusOp => trexp(A.CallExp({func = Symbol.symbol "radd", args = [left, right], pos = pos}))
-      | A.MinusOp => trexp(A.CallExp({func = Symbol.symbol "rsub", args = [left, right], pos = pos}))
-      | A.TimesOp => trexp(A.CallExp({func = Symbol.symbol "rmul", args = [left, right], pos = pos}))
-      | A.DivideOp => trexp(A.CallExp({func = Symbol.symbol "rdiv", args = [left, right], pos = pos}))
     and
         (* trexp recurs over Absyn.exp and trvar recurs over Absyn.var *)
         (* In rare cases when trexp wants to change venv, it must call transExp instead of just trexp *)
@@ -193,10 +192,12 @@ struct
       | trexp (A.CallExp({func, args, pos})) = 
         let
             val argET = map trexp args
+            val argT = map #ty argET
+            val isRealL = map (fn ty' => case ty' of T.REAL => true | _ => false) argT
             fun checkFormals(formals, pos) = if (List.length (formals) <> List.length (argET)) then (Err.error pos "Number of arguments don't match corresponding to type") else (List.app (fn (t, e) => checkType (tenv, augmentR (actual_ty (tenv, t, pos)), e, pos)) (ListPair.zip (formals, argET)))
         in
             case S.look(venv, func) of
-                SOME(E.FunEntry({level = funlevel, label, formals, result})) => (checkFormals(formals, pos); {exp = L.call(level, funlevel, label, map #exp argET), ty = actual_ty (tenv, result, pos)})
+                SOME(E.FunEntry({level = funlevel, label, formals, result})) => (checkFormals(formals, pos); {exp = L.call(level, funlevel, label, map #exp argET, isRealL, (case actual_ty(tenv, result, pos) of T.REAL => true | _ => false)), ty = actual_ty (tenv, result, pos)})
               | SOME(_) => (Err.error pos ("symbol not a function " ^ S.name func); errResult)
               | NONE => (variableOrTypeNotFound(venv, pos, "function", func); errResult)
         end
@@ -208,9 +209,9 @@ struct
             val exptyright = trexp right
           in 
             (case exptyleft of 
-              {exp = _, ty = T.REAL} => (checkType (tenv, exptyleft, exptyright, pos); callRealFunction(left, oper, right, pos))
-            | {exp = _, ty = T.INT} => (checkType (tenv, exptyleft, exptyright, pos); {exp = L.binop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
-            | _ => ((Err.error pos "Arithmetic operations supported only upon ints and reals"); {exp = L.binop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
+              {exp = _, ty = T.REAL} => (checkType (tenv, exptyleft, exptyright, pos); {exp = L.binop(oper, getexp(exptyleft), getexp(exptyright), 1), ty = T.REAL})
+            | {exp = _, ty = T.INT} => (checkType (tenv, exptyleft, exptyright, pos); {exp = L.binop(oper, getexp(exptyleft), getexp(exptyright), 0), ty = T.INT})
+            | _ => ((Err.error pos "Arithmetic operations supported only upon ints and reals"); {exp = L.binop(oper, getexp(exptyleft), getexp(exptyright), 0), ty = T.INT})
             )
           end
           fun checkIArith () = (* for lshift, rshift which require strictly integers *)
@@ -218,7 +219,7 @@ struct
             val exptyleft = trexp left
             val exptyright = trexp right
           in 
-            (checkInt(exptyleft, pos); checkInt (exptyright, pos); {exp = L.binop(oper, getexp(exptyleft), getexp(exptyright)), ty = T.INT})
+            (checkInt(exptyleft, pos); checkInt (exptyright, pos); {exp = L.binop(oper, getexp(exptyleft), getexp(exptyright), 0), ty = T.INT})
           end
           fun checkEq () = 
           let
@@ -294,8 +295,9 @@ struct
         let 
           val exptyvar = trvar var
           val exptyexp = trexp exp
+          val isReal = (case (#ty exptyexp) of T.REAL => true | _ => false)
         in 
-          (checkType (tenv, trvar var, trexp exp, pos); {exp = L.assign(getexp(exptyvar), getexp(exptyexp)), ty = T.UNIT})
+          (checkType (tenv, trvar var, trexp exp, pos); {exp = L.assign(getexp(exptyvar), getexp(exptyexp), isReal), ty = T.UNIT})
         end
       | trexp (A.IfExp({test, then', else', pos})) = 
         let 
@@ -419,7 +421,7 @@ struct
           end
     and trvar (A.SimpleVar(id, pos)) = 
         (case S.look(venv, id) of
-            SOME(E.VarEntry({access, ty})) => {exp = L.simpleVar (access, level), ty = actual_ty (tenv, ty, pos)}
+            SOME(E.VarEntry({access, ty})) => {exp = L.simpleVar (access, level, isReal(ty)), ty = actual_ty (tenv, ty, pos)}
           | SOME(_) => (Err.error pos ("variable was expected but instead function is given"); errResult)
           | NONE => (variableOrTypeNotFound(venv, pos, "variable", id); errResult)
         )
@@ -454,16 +456,16 @@ struct
     and transDec(venv, tenv, A.VarDec {name, escape, typ = NONE, init, pos}, level, break) =
     let
       val {exp, ty} = transExp (venv, tenv, init, level, break)
-      val access' = L.allocLocal (level) (!escape)
-      val varexp = L.simpleVar (access', level)
+      val access' = L.allocLocal (level) (!escape) (if isReal (ty) then true else false)
+      val varexp = L.simpleVar (access', level, isReal(ty))
     in
-      {tenv = tenv, venv = S.enter (venv, name, E.VarEntry {access = access', ty = ty}), expList = [L.assign (varexp, exp)]}
+      {tenv = tenv, venv = S.enter (venv, name, E.VarEntry {access = access', ty = ty}), expList = [L.assign (varexp, exp, isReal(ty))]}
     end
     | transDec(venv, tenv, A.VarDec {name, escape, typ = SOME (tname, tpos), init, pos}, level, break) =
     let
       val {exp, ty} = transExp (venv, tenv, init, level, break)
-      val access' = L.allocLocal level (!escape)
-      val varexp = L.simpleVar (access', level)
+      val access' = L.allocLocal level (!escape) (if isReal(ty) then true else false)
+      val varexp = L.simpleVar (access', level, isReal(ty))
     in
       case S.look (tenv, tname) of 
         NONE => (variableOrTypeNotFound(tenv, pos, "type", tname); {tenv = tenv, venv = S.enter(venv, name, E.VarEntry{access = access', ty = ty}), expList = []})
@@ -472,7 +474,7 @@ struct
             val at = actual_ty(tenv, dty, pos) 
           in
             (checkType(tenv, augmentR(at), augmentR(ty), pos);
-            {tenv = tenv, venv = S.enter(venv, name, E.VarEntry{access = access', ty = at}), expList = [L.assign (varexp, exp)]})
+            {tenv = tenv, venv = S.enter(venv, name, E.VarEntry{access = access', ty = at}), expList = [L.assign (varexp, exp, isReal(at))]})
           end
     end
     (*
@@ -558,9 +560,10 @@ struct
                     T.UNIT)
                 ) params
           val escapeL = map (fn {escape, ...} => !escape) params
+          val isRealL = map (fn ty' => case ty' of T.REAL => true | _ => false) formalsTy
         in
           checkDup(map #name params, map #pos params);
-          S.enter(env, name, E.FunEntry{level = L.newLevel {parent = level, name = name, formals = escapeL}, label = name, formals = formalsTy, result = rt})
+          S.enter(env, name, E.FunEntry{level = L.newLevel {parent = level, name = name, formals = escapeL, isRealL = isRealL}, label = name, formals = formalsTy, result = rt})
         end
         val venv' = foldl transfun venv fundecs
         (* First Part Done! *)
@@ -585,7 +588,7 @@ struct
           val {exp, ty} = transExp(venv'', tenv, body, newlevel, break)
         in 
           checkType(tenv, augmentR(result), augmentR(ty), pos);
-          L.procEntryExit (newlevel, exp);
+          L.procEntryExit (newlevel, exp, result);
           ()
         end
       in
@@ -615,11 +618,11 @@ struct
       val _ = L.reset ()  
       (* With every call to newLevel, Semant must pass the enclosing level value. When creating the level for the "main" Tiger program (one not within any Tiger function), Semant should pass a special level value: Translate.outermost. This is not the level of the Tiger main program, it is the level within which that program is nested. All "library" functions are declared (as described at the end of Section 5.2) at this outermost level, which does not contain a frame or formal parameter list. *)
       val mainLabel = Temp.namedlabel "main"
-      val mainLevel = L.newLevel {parent = L.outermost, name = mainLabel, formals = []}
+      val mainLevel = L.newLevel {parent = L.outermost, name = mainLabel, formals = [] : bool list, isRealL = [] : bool list}
       val {exp, ty} = transExp (E.base_venv, E.base_tenv, my_exp, mainLevel, mainLabel)
     in
       (* The semantic analysis phase calls upon Translate.newLevel in  processing a function header. Later it calls other interface fields of Translate to translate the body of the Tiger function; this has the side effect of remembering string fragments for any string literals encountered, Finally the semantic analyzer calls procEntryExit, which has the side effect of remembering a PROC fragment.  *)
-      L.procEntryExit (mainLevel, exp);
+      L.procEntryExit (mainLevel, exp, ty);
       L.getResult()
     end
 end

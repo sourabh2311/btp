@@ -10,5 +10,5 @@ let
   var i := "B" <= "B"
   var j := "B" <= "A"
 in 
-  (printI (a); printI(b); printI(c); printI(d); printI(e); printI(f); printI(g); printI(h); printI(i); printI(j); exit(0))
+  (printI (a); printI(b); printI(c); printI(d); printI(e); printI(f); printI(g); printI(h); printI(i); printI(j); print("\n"); exit(0))
 end

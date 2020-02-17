@@ -1,15 +1,16 @@
 (* temp -> register, label -> label *)
 structure Temp : TEMP =
 struct
-    type temp = int
+    type temp = int * int
     type ptemp = temp * temp
     val temps = ref 100
     (* Defining a way to compare temp pairs *)
-    fun pcompare ((t1a, t1b), (t2a, t2b)) = if (t1a < t2a orelse (t1a = t2a andalso t1b < t2b)) then LESS else if (t1a = t2a andalso t1b = t2b) then EQUAL else GREATER
+    fun tcompare (t1 as (t1a, t1b), t2 as (t2a, t2b)) = if Int.compare(t1a, t2a) = EQUAL then Int.compare(t1b, t2b) else Int.compare(t1a, t2a)
+    fun pcompare ((t1a, t1b), (t2a, t2b)) = if tcompare(t1a, t2a) = EQUAL then tcompare(t1b, t2b) else tcompare(t1a, t2a)
     structure TempKey : ORD_KEY =
     struct
         type ord_key = temp
-        fun compare (t1, t2) = Int.compare(t1, t2)
+        fun compare (t1, t2) = tcompare (t1, t2)
     end
     structure TempPKey : ORD_KEY =
     struct
@@ -19,12 +20,9 @@ struct
     structure TempSet = RedBlackSetFn (TempKey)
     structure TempPSet = RedBlackSetFn (TempPKey)
     structure TempMap = RedBlackMapFn (TempKey)
-    fun newtemp() = let val t = !temps in temps := t + 1; t end
-
-    structure Table = IntMapTable(type key = int fun getInt n = n)
-
-    fun makestring t = "t" ^ Int.toString t
-
+    fun newtemp(flag') = let val t = !temps in temps := t + 1; (t, flag') end
+    fun isReal (temp as (a, b)) = if b = 1 then true else false
+    fun printTemp (t as (a, b)) = "(" ^ Int.toString(a) ^ ", " ^ Int.toString(b) ^ ")"
     type label = Symbol.symbol
 
     local 

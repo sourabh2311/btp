@@ -53,7 +53,7 @@ struct
             let 
                 val label = Temp.namedlabel name 
             in
-                S.enter (env, S.symbol(name), FunEntry{level = Translate.newLevel {parent = Translate.outermost, name = label, formals = map (fn _ => false) formals}, label = label, formals = formals, result = result})
+                S.enter (env, S.symbol(name), FunEntry{level = Translate.newLevel {parent = Translate.outermost, name = label, formals = map (fn _ => false) formals, isRealL = map (fn f => case f of T.REAL => true | _ => false) formals}, label = label, formals = formals, result = result})
             end)
             S.empty base_funs
 

@@ -58,12 +58,20 @@ struct
     val nop = T.EXP(T.CONST 0)
 
     (* The reorder function takes a list of expressions and returns a pair of (statement, expression-list). The statement contains all the things that must be executed before the expression-list. As shown in these examples, this includes all the statement-parts of the ESEQs, as well as any expressions to their left with which they did not commute. When there are no ESEQs at all we will use EXP(CONST 0), which does nothing, as the statement. *)
-    fun reorder ((e as T.CALL _ ) :: rest) =
-    let 
-      val t = Temp.newtemp()
-    in 
-      reorder(T.ESEQ(T.MOVE(T.TEMP t, e), T.TEMP t) :: rest)
-    end
+    fun reorder ((e as T.CALL (a', b', c', d', e') ) :: rest) =
+    if e' then (
+      let 
+        val t = Temp.newtemp(1)
+      in 
+        reorder(T.ESEQ(T.RMOVE(T.TEMP t, e), T.TEMP t) :: rest)
+      end
+    ) else (
+      let 
+        val t = Temp.newtemp(0)
+      in 
+        reorder(T.ESEQ(T.MOVE(T.TEMP t, e), T.TEMP t) :: rest)
+      end
+    )
       | reorder (a :: rest) =
     let 
       val (stms, e) = do_exp a
@@ -71,11 +79,19 @@ struct
     in 
       if commute(stms', e) then (stms % stms', e :: el)
       else 
-        let 
-          val t = Temp.newtemp()
-        in 
-          (stms % T.MOVE(T.TEMP t, e) % stms', T.TEMP t :: el)
-        end
+        if Tree.isExpReal (e) then (
+          let 
+            val t = Temp.newtemp(1)
+          in 
+            (stms % T.RMOVE(T.TEMP t, e) % stms', T.TEMP t :: el)
+          end
+        ) else (
+          let 
+            val t = Temp.newtemp(0)
+          in 
+            (stms % T.MOVE(T.TEMP t, e) % stms', T.TEMP t :: el)
+          end
+        )
     end
       | reorder nil = (nop, nil)
 
@@ -99,23 +115,28 @@ struct
       | do_stm(T.JUMP(e, labs)) = reorder_stm([e], fn [e] => T.JUMP(e, labs))
       | do_stm(T.CJUMP(p, a, b, t, f)) = reorder_stm([a, b], fn [a, b] => T.CJUMP(p, a, b, t, f))
       (* Here do_stm has recognised the pattern which is the desired one, hence, there is no need to call reorder on this CALL node. *)
-      | do_stm(T.MOVE(T.TEMP t, T.CALL(e, el, fl))) = reorder_stm(e :: el, fn e :: el => T.MOVE(T.TEMP t, T.CALL(e, el, fl)))
+      | do_stm(T.MOVE(T.TEMP t, T.CALL(e, el, fl, rl, rty))) = reorder_stm(e :: el, fn e :: el => T.MOVE(T.TEMP t, T.CALL(e, el, fl, rl, rty)))
+      | do_stm(T.RMOVE(T.TEMP t, T.CALL(e, el, fl, rl, rty))) = reorder_stm(e :: el, fn e :: el => T.RMOVE(T.TEMP t, T.CALL(e, el, fl, rl, rty)))
       | do_stm(T.MOVE(T.TEMP t, b)) = reorder_stm([b], fn [b] => T.MOVE(T.TEMP t, b))
       | do_stm(T.MOVE(T.MEM e, b)) = reorder_stm([e, b], fn [e, b] => T.MOVE (T.MEM e, b))
       | do_stm(T.MOVE(T.ESEQ(s, e), b)) = do_stm(T.SEQ(s, T.MOVE(e, b)))
-      | do_stm(T.EXP(T.CALL(e, el, fl))) = reorder_stm(e :: el, fn e :: el => T.EXP(T.CALL(e, el, fl)))
+      | do_stm(T.RMOVE(T.TEMP t, b)) = reorder_stm([b], fn [b] => T.RMOVE(T.TEMP t, b))
+      | do_stm(T.RMOVE(T.MEM e, b)) = reorder_stm([e, b], fn [e, b] => T.RMOVE (T.MEM e, b))
+      | do_stm(T.RMOVE(T.ESEQ(s, e), b)) = do_stm(T.SEQ(s, T.RMOVE(e, b)))
+      | do_stm(T.EXP(T.CALL(e, el, fl, rl, rty))) = reorder_stm(e :: el, fn e :: el => T.EXP(T.CALL(e, el, fl, rl, rty)))
       | do_stm(T.EXP e) = reorder_stm([e], fn [e] => T.EXP e)
       | do_stm s = reorder_stm([], fn[] => s)
 
     and do_exp(T.BINOP(p, a, b)) = reorder_exp([a, b], fn [a, b] => T.BINOP(p, a, b))
       | do_exp(T.MEM(a)) = reorder_exp([a], fn [a] => T.MEM(a))
+      | do_exp(T.RMEM(a)) = reorder_exp([a], fn [a] => T.RMEM(a))
       | do_exp(T.ESEQ(s, e)) = 
         let 
           val stms = do_stm s
           val (stms', e) = do_exp e
         in (stms % stms', e)
         end
-      | do_exp(T.CALL(e, el, fl)) = reorder_exp(e :: el, fn e :: el => T.CALL(e, el, fl))
+      | do_exp(T.CALL(e, el, fl, rl, rty)) = reorder_exp(e :: el, fn e :: el => T.CALL(e, el, fl, rl, rty))
       | do_exp e = reorder_exp([], fn [] => e)
 
     (* linear gets rid of the top-level SEQ's, producing a list *)

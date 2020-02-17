@@ -2,6 +2,7 @@ structure Translate : TRANSLATE =
 struct
 
 structure Tr = Tree
+structure T = Temp
 structure F = RiscFrame
 structure A = Absyn
 
@@ -32,9 +33,9 @@ fun reset () = fragments := nil
 fun memPlus (e1, e2) = Tr.MEM(Tr.BINOP(Tr.PLUS, e1, e2))
 
 (* Remember that we should pass the static link for which we have added its escape *)
-fun newLevel {parent, name, formals} = Lev({parent = parent, frame = F.newFrame {name = name, formals = true :: formals}}, ref ())
+fun newLevel {parent, name, formals, isRealL} = Lev({parent = parent, frame = F.newFrame {name = name, formals = true :: formals, isRealL = false :: isRealL}}, ref ())
 
-fun allocLocal (lev as Lev({parent, frame}, _)) escape = (lev, F.allocLocal frame escape)
+fun allocLocal (lev as Lev({parent, frame}, _)) escape isReal = (lev, F.allocLocal frame escape isReal)
 
 fun getBinOper(oper) = 
 case oper of 
@@ -45,12 +46,12 @@ case oper of
 	| A.LShift => Tr.LSHIFT
 	| A.RShift => Tr.RSHIFT
 
-(* fun getRBinOper(oper) = 
+fun getRBinOper(oper) = 
 case oper of 
 		A.PlusOp => Tr.RPLUS
 	| A.MinusOp => Tr.RMINUS
 	| A.TimesOp => Tr.RMUL
-	| A.DivideOp => Tr.RDIV *)
+	| A.DivideOp => Tr.RDIV
 
 fun getRelOper(oper) = 
 case oper of 
@@ -74,7 +75,7 @@ fun seq stmlist =
 fun unEx (Ex e) = e 
 	| unEx (Cx genstm) = 
 let 
-	val r = Temp.newtemp() 
+	val r = Temp.newtemp(0) 
 	val t = Temp.newlabel() and f = Temp.newlabel() 
 in
 	Tr.ESEQ(seq[Tr.MOVE(Tr.TEMP r, Tr.CONST 1), 
@@ -113,9 +114,9 @@ in
 			let 
 				val l = Temp.newlabel() 
 			in
-				(fragments := F.REAL(l, r) :: !fragments; Ex(Tr.NAME(l))) 
+				(fragments := F.REAL(l, r) :: !fragments; Ex(Tr.RMEM (Tr.NAME(l))))
 			end
-		| SOME(F.REAL(lab, _)) => Ex(Tr.NAME(lab))
+		| SOME(F.REAL(lab, _)) => Ex(Tr.RMEM (Tr.NAME(lab)))
 end
 fun strlit (s: string) : exp =
 let 
@@ -140,15 +141,15 @@ fun getLevelsFPUsingStaticLink (Top, _, frameAddress) = ErrorMsg.impossible "You
   | getLevelsFPUsingStaticLink (_, Top, frameAddress) = ErrorMsg.impossible "You have issue with Static Links"
 	| getLevelsFPUsingStaticLink (Lev (ignore, targetLevelRef), Lev ({parent, frame}, curLevelRef), frameAddress) = 
 		if (curLevelRef = targetLevelRef) then frameAddress
-		else getLevelsFPUsingStaticLink (Lev (ignore, targetLevelRef), parent, (F.exp (List.hd(F.formals frame)) frameAddress))
+		else getLevelsFPUsingStaticLink (Lev (ignore, targetLevelRef), parent, (F.exp (List.hd(F.formals frame)) frameAddress false))
 
-fun simpleVar (targetLevelAccess, curLevel) =
+fun simpleVar (targetLevelAccess, curLevel, isReal) =
 let 
 	val (targetLevel, frameAccess) = targetLevelAccess  (* This is our target to reach *)
 	(* The passed level need not be our target level *)
 	val targetLevelsFP = getLevelsFPUsingStaticLink (targetLevel, curLevel, Tr.TEMP (F.fp))
 in 
-	Ex(F.exp frameAccess targetLevelsFP)
+	Ex(F.exp frameAccess targetLevelsFP isReal)
 end
 
 (* Just the way given in text. *)
@@ -164,11 +165,11 @@ in
 	Ex(memPlus(unEx(base), Tr.BINOP(Tr.MUL, Tr.CONST(findindex(0, id, SL)), Tr.CONST(F.wordSize))))
 end
 
-fun binop (oper, e1, e2) =
+fun binop (oper, e1, e2, flag') =
 let
 	val left = unEx(e1)
 	val right = unEx(e2)
-	val treeop = getBinOper(oper)
+	val treeop = if flag' = 1 then getRBinOper(oper) else getBinOper(oper)
 in 
 	Ex(Tr.BINOP(treeop, left, right))
 end
@@ -188,7 +189,7 @@ let
 	val neotest  = unCx(testexp) 
 	val neothen = unEx (thenexp)
 	val neoelseexp = unEx (elseexp)
-	val result = Temp.newtemp() 
+	val result = Temp.newtemp(0) 
 	val tlabel = Temp.newlabel()
 	val flabel = Temp.newlabel()
 	val finish = Temp.newlabel()
@@ -204,12 +205,12 @@ end
 
 fun record (fields) =
 let
-	val r = Temp.newtemp()
+	val r = Temp.newtemp(0)
 	val init =
 			Tr.MOVE(
-			Tr.TEMP r,
-			F.externalCall(
-			"allocRecord", [Tr.CONST(length(fields) * F.wordSize)]))
+			  Tr.TEMP r, 
+				Tr.CALL(Tr.NAME (T.namedlabel "allocRecord"), [Tr.CONST(length(fields) * F.wordSize)], AccessConv.frameToTree(F.dummyFormals(1, [])), [false], false)
+			)
 
 	fun loop ([], index) = nil 
 		|	loop (field :: fields, index) = Tr.MOVE(memPlus(Tr.TEMP r, Tr.CONST(index * F.wordSize)), unEx(field)) :: loop(fields, index + 1)
@@ -217,9 +218,9 @@ in
 	Ex(Tr.ESEQ(seq(init :: loop(fields, 0)), Tr.TEMP r))
 end
 
-fun array (size, init) = Ex(F.externalCall("initArray", [unEx(size), unEx(init)]))
+fun array (size, init) = Ex(Tr.CALL(Tr.NAME (T.namedlabel "initArray"), [unEx(size), unEx(init)], AccessConv.frameToTree(F.dummyFormals(2, [])), [false, false], false)) 
 
-fun assign (left, right) = Nx(Tr.MOVE(unEx(left), unEx(right)))
+fun assign (left, right, isReal) = if isReal then Nx(Tr.RMOVE(unEx(left), unEx(right))) else Nx(Tr.MOVE(unEx(left), unEx(right)))
 
 fun letexp (decs, body) =
 let 
@@ -254,13 +255,13 @@ end
 fun break (label) = Nx(Tr.JUMP(Tr.NAME label, [label]))
 
 (* first argument is our level and second one is function level *)
-fun call (_, Lev({parent = Top, ...}, _), label, exps) = Ex(F.externalCall(Symbol.name label, map unEx exps))
-  | call (callLevel, funLevel as Lev({parent, frame = frame'}, _), label, exps) =
+fun call (_, Lev({parent = Top, ...}, _), label, exps, isRealL, isRtyReal) = Ex(Tr.CALL(Tr.NAME label, map unEx exps, AccessConv.frameToTree(F.dummyFormals(List.length(isRealL), [])), isRealL, isRtyReal)) (*(F.externalCall(Symbol.name label, map unEx exps))*)
+  | call (callLevel, funLevel as Lev({parent, frame = frame'}, _), label, exps, isRealL, isRtyReal) =
     let
 			val Lev({parent, frame}, _) = funLevel
 			val traceLevel = getLevelsFPUsingStaticLink (parent, callLevel, Tr.TEMP (F.fp))
 		in 
-			Ex (Tr.CALL (Tr.NAME label, traceLevel :: (map unEx exps), AccessConv.frameToTree(F.formals frame')))
+			Ex (Tr.CALL (Tr.NAME label, traceLevel :: (map unEx exps), AccessConv.frameToTree(F.formals frame'), false :: isRealL, isRtyReal))
     end
 
 fun sequence (exps: exp list) =
@@ -274,15 +275,9 @@ in
 end
 
 
-fun procEntryExit (Lev({frame, ...}, _), body) =
-let 
-	val body' = F.procEntryExit1(frame, Tr.MOVE(Tr.TEMP F.rv, unEx(body)))
-	val _ = fragments := F.PROC{frame = frame, body = body'} :: !fragments
-in 
-	()
-end
-
-
-
+fun procEntryExit (Lev({frame, ...}, _), body, rty) =
+case rty of 
+		Types.REAL => fragments := F.PROC{frame = frame, body = F.procEntryExit1(frame, Tr.RMOVE(Tr.TEMP F.rrv, unEx(body)))} :: (!fragments) 
+	| _ => fragments := F.PROC{frame = frame, body = F.procEntryExit1(frame, Tr.MOVE(Tr.TEMP F.rv, unEx(body)))} :: (!fragments)
 
 end

@@ -21,17 +21,20 @@ fun printtree (outstream, s0) =
 				say ","; say (Symbol.name f); say ")")
     | stm(T.MOVE(a,b),d) = (indent d; sayln "MOVE("; exp(a,d+1); sayln ",";
 			    exp(b,d+1); say ")")
+    | stm(T.RMOVE(a,b),d) = (indent d; sayln "RMOVE("; exp(a,d+1); sayln ",";
+			    exp(b,d+1); say ")")
     | stm(T.EXP e, d) = (indent d; sayln "EXP("; exp(e,d+1); say ")")
 
   and exp(T.BINOP(p,a,b),d) = (indent d; say "BINOP("; binop p; sayln ",";
 			       exp(a,d+1); sayln ","; exp(b,d+1); say ")")
     | exp(T.MEM(e),d) = (indent d; sayln "MEM("; exp(e,d+1); say ")")
-    | exp(T.TEMP t, d) = (indent d; say "TEMP t"; say(Int.toString t))
+    | exp(T.RMEM(e),d) = (indent d; sayln "RMEM("; exp(e,d+1); say ")")
+    | exp(T.TEMP t, d) = (indent d; say "TEMP t"; let val (u, v) = t in say(Int.toString u) end)
     | exp(T.ESEQ(s,e),d) = (indent d; sayln "ESEQ("; stm(s,d+1); sayln ",";
 			  exp(e,d+1); say ")")
     | exp(T.NAME lab, d) = (indent d; say "NAME "; say (Symbol.name lab))
     | exp(T.CONST i, d) = (indent d; say "CONST "; say(Int.toString i))
-    | exp(T.CALL(e,el, leave),d) = (indent d; sayln "CALL("; exp(e,d+1);
+    | exp(T.CALL(e,el, leave, ho, hi),d) = (indent d; sayln "CALL("; exp(e,d+1);
 			   app (fn a => (sayln ","; exp(a,d+2))) el;
 			   say ")")
 
@@ -45,6 +48,10 @@ fun printtree (outstream, s0) =
     | binop T.RSHIFT = say "RSHIFT"
     | binop T.ARSHIFT = say "ARSHIFT"
     | binop T.XOR = say "XOR"
+    | binop T.RPLUS = say "PLUS"
+    | binop T.RMINUS = say "MINUS"
+    | binop T.RMUL = say "MUL"
+    | binop T.RDIV = say "DIV"
 
   and relop T.EQ = say "EQ"
     | relop T.NE = say "NE"

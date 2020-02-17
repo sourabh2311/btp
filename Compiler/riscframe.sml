@@ -5,6 +5,7 @@ structure Tr = Tree
 
 (* in register or frame? *)
 datatype access = InFrame of int | InReg of T.temp
+fun getTempString (t as (a, b)) = "(" ^ Int.toString(a) ^ ", " ^ Int.toString(b) ^ ")"
 
 fun inReg (acc) = 
 case acc of 
@@ -23,8 +24,9 @@ fun getAccessTemp (InReg t) = t
 
 fun getAccessOffset (InFrame x) = x
 
+fun dummyFormals (amnt, ls) = if amnt = 0 then ls else dummyFormals(amnt - 1, ls @ [InReg (T.newtemp(0))])   (* remember that here newtemp doesn't matter as in codegen, isRealL will be used to determine stuff, and we don't use InFrame as in this case we have to put in register only *)
 (* numLocals: How many variables got called by allocLocal which were put in our stack (i.e. not in register but in Frame) *)
-type frame = {name : T.label, formals : access list, numLocals : int ref, shiftInstr : Tr.stm list, escapeCount : int}
+type frame = {name : T.label, formals : access list, numLocals : int ref, shiftInstr : Tr.stm list, escapeCount : int, isRealL : bool list}
 
 type register = string  (* so type of our register list will be "string list", register list is useful to tell available registers *)
 
@@ -42,44 +44,82 @@ datatype frag = PROC of {body: Tree.stm, frame: frame}
 
 (* -----------------CPU Registers----------------------- *)
 
-val zero = T.newtemp() (* constant 0 *)
-val ra = T.newtemp() (* return address *)
-val sp = T.newtemp() (* stack pointer *)
+val zero = T.newtemp(0) (* constant 0 *)
+val ra = T.newtemp(0) (* return address *)
+val sp = T.newtemp(0) (* stack pointer *)
 
 (* arguments *)
-val a0 = T.newtemp()
-val a1 = T.newtemp()
-val a2 = T.newtemp()
-val a3 = T.newtemp()
-val a4 = T.newtemp()
-val a5 = T.newtemp()
-val a6 = T.newtemp()
-val a7 = T.newtemp()
+val a0 = T.newtemp(0)
+val a1 = T.newtemp(0)
+val a2 = T.newtemp(0)
+val a3 = T.newtemp(0)
+val a4 = T.newtemp(0)
+val a5 = T.newtemp(0)
+val a6 = T.newtemp(0)
+val a7 = T.newtemp(0)
+
+val fa0 = T.newtemp(1)
+val fa1 = T.newtemp(1)
+val fa2 = T.newtemp(1)
+val fa3 = T.newtemp(1)
+val fa4 = T.newtemp(1)
+val fa5 = T.newtemp(1)
+val fa6 = T.newtemp(1)
+val fa7 = T.newtemp(1)
 
 val rv = a0
+val rrv = fa0
 
 (* temporary *)
-val t0 = T.newtemp()
-val t1 = T.newtemp()
-val t2 = T.newtemp()
-val t3 = T.newtemp()
-val t4 = T.newtemp()
-val t5 = T.newtemp()
-val t6 = T.newtemp()
+val t0 = T.newtemp(0)
+val t1 = T.newtemp(0)
+val t2 = T.newtemp(0)
+val t3 = T.newtemp(0)
+val t4 = T.newtemp(0)
+val t5 = T.newtemp(0)
+val t6 = T.newtemp(0)
+
+
+val ft0 = T.newtemp(1)
+val ft1 = T.newtemp(1)
+val ft2 = T.newtemp(1)
+val ft3 = T.newtemp(1)
+val ft4 = T.newtemp(1)
+val ft5 = T.newtemp(1)
+val ft6 = T.newtemp(1)
+val ft7 = T.newtemp(1)
+val ft8 = T.newtemp(1)
+val ft9 = T.newtemp(1)
+val ft10 = T.newtemp(1)
+val ft11 = T.newtemp(1)
 
 (* saved temporary *)
-val s0 = T.newtemp() (* s0 = fp *)
-val s1 = T.newtemp()
-val s2 = T.newtemp()
-val s3 = T.newtemp()
-val s4 = T.newtemp()
-val s5 = T.newtemp()
-val s6 = T.newtemp()
-val s7 = T.newtemp()
-val s8 = T.newtemp()
-val s9 = T.newtemp()
-val s10 = T.newtemp()
-val s11 = T.newtemp()
+val s0 = T.newtemp(0) (* s0 = fp *)
+val s1 = T.newtemp(0)
+val s2 = T.newtemp(0)
+val s3 = T.newtemp(0)
+val s4 = T.newtemp(0)
+val s5 = T.newtemp(0)
+val s6 = T.newtemp(0)
+val s7 = T.newtemp(0)
+val s8 = T.newtemp(0)
+val s9 = T.newtemp(0)
+val s10 = T.newtemp(0)
+val s11 = T.newtemp(0)
+
+
+val fs0 = T.newtemp(1) (* s0 = fp *)
+val fs1 = T.newtemp(1)
+val fs2 = T.newtemp(1)
+val fs3 = T.newtemp(1)
+val fs4 = T.newtemp(1)
+val fs5 = T.newtemp(1)
+val fs6 = T.newtemp(1)
+val fs7 = T.newtemp(1)
+val fs8 = T.newtemp(1)
+val fs9 = T.newtemp(1)
+val fs10 = T.newtemp(1)
+val fs11 = T.newtemp(1)
 
 val fp = s0 
 
@@ -88,43 +128,32 @@ val fp = s0
 val specialregs = [(zero, "zero"), (sp, "sp"), (ra, "ra"), (fp, "s0")]
 
 val argregs = [(a0, "a0"), (a1, "a1"), (a2, "a2"), (a3, "a3"), (a4, "a4"), (a5, "a5"), (a6, "a6"), (a7, "a7")]
+val rargregs = [(fa0, "fa0"), (fa1, "fa1"), (fa2, "fa2"), (fa3, "fa3"), (fa4, "fa4"), (fa5, "fa5"), (fa6, "fa6"), (fa7, "fa7")]
 
 val savedregs = [(s1, "s1"), (s2, "s2"), (s3, "s3"), (s4, "s4"), (s5, "s5"), (s6, "s6"), (s7, "s7"), (s8, "s8"), (s9, "s9"), (s10, "s10"), (s11, "s11")]
+val rsavedregs = [(fs0, "fs0"), (fs1, "fs1"), (fs2, "fs2"), (fs3, "fs3"), (fs4, "fs4"), (fs5, "fs5"), (fs6, "fs6"), (fs7, "fs7"), (fs8, "fs8"), (fs9, "fs9"), (fs10, "fs10"), (fs11, "fs11")]
 
 val temporaries = [(t0, "t0"), (t1, "t1"), (t2, "t2"), (t3, "t3"), (t4, "t4"), (t5, "t5"), (t6, "t6")] 
+val rtemporaries = [(ft0, "ft0"), (ft1, "ft1"), (ft2, "ft2"), (ft3, "ft3"), (ft4, "ft4"), (ft5, "ft5"), (ft6, "ft6"), (ft7, "ft7"), (ft8, "ft8"), (ft9, "ft9"), (ft10, "ft10"), (ft11, "ft11")] 
 
-val calleesaves = savedregs
-val callersaves = temporaries
-val calldefs = [(rv, "a0"), (ra, "ra")] @ callersaves
-(* val jalDst = [(ra, "ra")] @ calleesaves *)
+val calleesaves = savedregs @ rsavedregs
+val callersaves = temporaries @ rtemporaries
+val calldefs = [(rv, "a0"), (ra, "ra"), (rrv, "fa0")] @ callersaves
 
 val wordSize = 4
 
 (* registers allocated for arguments in risc *)
 val argregsCount = List.length argregs
+val rargregsCount = List.length rargregs
 
 fun getFirstL (ls) = (map (fn (x, y) => x) ls)
 fun getSecondL (ls) = (map (fn (x, y) => y) ls)
 
 (* Getting all the registers available for coloring *)
 val registers = getSecondL(savedregs @ temporaries) 
-val allRegisters = (specialregs @ argregs @ savedregs @ temporaries)
-
-(* tempMap is a table from registers (not all registers but some) to their name *)
-(* basically its use is for new temporaries, so that we can assign register to them as well *)
-val tempMap = 
-let
-  fun addToTable ((t, s), table) = T.Table.enter(table, t, s)
-  val toAdd = specialregs @ argregs @ savedregs @ temporaries
-in
-  foldl addToTable T.Table.empty toAdd
-end
-
-(* This was useful before register allocation, now it is absolete *)
-fun getTempString t = 
-  case T.Table.look(tempMap, t) of
-      SOME (r) => r
-    | NONE => T.makestring t
+val rregisters = getSecondL (rsavedregs @ rtemporaries)
+(* when removing sp, it will have to be adjusted *)
+val allRegisters = (specialregs @ argregs @ savedregs @ temporaries @ rargregs @ rsavedregs @ rtemporaries)
 
 (* Helper Functions *)
 
@@ -140,49 +169,53 @@ fun genString (lab, s) = Symbol.name lab ^ ": .string \"" ^ s ^ "\"\n"
 fun genReal (lab, r) = Symbol.name lab ^ ": .float " ^ Real.toString (r) ^ "\n"
 
 (* The function Frame.exp is used by Translate to turn a Frame.access into the Tree expression. The Tree.exp argument to Frame.exp is the address of the stack frame that the access lives in. Thus, for an access "a" such as InFrame(k), we have Frame.exp (a) (TEMP(Frame.FP)) = MEM(BINOP(PLUS, TEMP(Frame.FP), CONST(k))). Why bother to pass the tree expression temp (Frame.FP) as an argument? The answer is that the address of the frame is the same as the current frame pointer only when accessing the variable from its own level. When accessing "a" from an inner-nested function, the frame address must be calculated using static links, and the result of this calculation will be the Tree.exp argument to Frame.exp. If "a" is a register access such as InReg(t932) then the frame-address  argument to Frame.exp will be discarded, and the result will be simply TEMP t932. *)
-fun exp frameAccess frameAddress = 
+fun exp frameAccess frameAddress isReal = 
   case frameAccess of
-      InFrame offset => Tr.MEM(Tr.BINOP(Tr.PLUS, frameAddress, Tr.CONST offset))
+      InFrame offset => if isReal then Tr.RMEM(Tr.BINOP(Tr.PLUS, frameAddress, Tr.CONST offset)) else Tr.MEM(Tr.BINOP(Tr.PLUS, frameAddress, Tr.CONST offset))
     | InReg temp => Tr.TEMP(temp)
 
-fun callexp frameAccess frameAddress escapes = 
+fun callexp frameAccess frameAddress escapes isReal = 
   case frameAccess of
-      InFrame offset => Tr.MEM(Tr.BINOP(Tr.PLUS, frameAddress, Tr.CONST (offset - (escapes + 1) * wordSize)))
+      InFrame offset => if isReal then Tr.RMEM(Tr.BINOP(Tr.PLUS, frameAddress, Tr.CONST (offset - (escapes + 1) * wordSize))) else Tr.MEM(Tr.BINOP(Tr.PLUS, frameAddress, Tr.CONST (offset - (escapes + 1) * wordSize)))
     | InReg temp => Tr.TEMP(temp) (* this line is useless, delete it later *)
 
 (* Given the name of the frame and list of variables mentioned in the format of whether they escape or not, function returns the new frame *)
 (* Above comment is sufficient but can look at page 142 *)
-fun newFrame {name : T.label, formals : bool list} : frame = 
+fun newFrame {name : T.label, formals : bool list, isRealL : bool list} : frame = 
 let
-  fun allocFormals(offset, [], allocList, falseCount) = (allocList, falseCount)
-    | allocFormals(offset, curFormal :: l, allocList, falseCount) = 
+  fun allocFormals(offset, [], allocList, falseCount, rfalseCount, _) = (allocList, falseCount, rfalseCount)
+    | allocFormals(offset, curFormal :: l, allocList, falseCount, rfalseCount, isReal :: others) = 
       (
       case curFormal of
-          true => allocFormals(offset + wordSize, l, allocList @ [InFrame offset], falseCount)
-        | false => if (falseCount >= argregsCount) then allocFormals(offset + wordSize, l, allocList @ [InFrame offset], falseCount) else allocFormals(offset, l, allocList @ [InReg(T.newtemp())], falseCount + 1)
+          true => allocFormals(offset + wordSize, l, allocList @ [InFrame offset], falseCount, rfalseCount, others)
+        | false => 
+          if (not isReal) then 
+            if (falseCount >= argregsCount) then allocFormals(offset + wordSize, l, allocList @ [InFrame offset], falseCount, rfalseCount, others) else allocFormals(offset, l, allocList @ [InReg(T.newtemp(0))], falseCount + 1, rfalseCount, others)
+          else 
+            if (rfalseCount >= rargregsCount) then allocFormals(offset + wordSize, l, allocList @ [InFrame offset], falseCount, rfalseCount, others) else 
+            allocFormals (offset, l, allocList @ [InReg(T.newtemp(1))], falseCount, rfalseCount + 1, others)
       )
-  val (aformals, falseCount) = allocFormals (wordSize, formals, [], 0) (* first word is reserved for fp *)
-  val escapeCount = (length formals) - falseCount
-  fun handleShift([], x) = [] 
-    | handleShift (acc :: accRem, []) = []
-    | handleShift(acc :: accRem, arg :: args) = 
+  val (aformals, falseCount, rfalseCount) = allocFormals (wordSize, formals, [], 0, 0, isRealL) (* first word is reserved for fp *)
+  val escapeCount = (length formals) - falseCount - rfalseCount
+  fun handleShift([], ni, ri, _) = [] 
+    | handleShift(acc :: accRem, ni, ri, isReal :: others) = 
       case acc of 
-        InReg _ => [Tr.MOVE (exp acc (Tr.TEMP fp), Tr.TEMP arg)] @ handleShift(accRem, args)
-      | _ => handleShift(accRem, arg :: args)
-  val shiftInstr = handleShift(aformals, getFirstL (argregs))
+        InReg _ => if isReal then [Tr.RMOVE (exp acc (Tr.TEMP fp) isReal, Tr.TEMP (List.nth(getFirstL(rargregs), ri)))] @ handleShift(accRem, ni, ri + 1, others) else [Tr.MOVE (exp acc (Tr.TEMP fp) false, Tr.TEMP (List.nth(getFirstL(argregs), ni)))] @ handleShift(accRem, ni + 1, ri, others)
+      | _ => handleShift(accRem, ni, ri, others)
+  val shiftInstr = handleShift(aformals, 0, 0, isRealL)
 in
-  {name = name, formals = aformals, numLocals = ref 0, shiftInstr = shiftInstr, escapeCount = escapeCount}
+  {name = name, formals = aformals, numLocals = ref 0, shiftInstr = shiftInstr, escapeCount = escapeCount, isRealL = isRealL}
 end
 
-fun allocLocal frame' escape = (
+fun allocLocal frame' escape isReal = (
   case escape of
       true => (incrementNumLocals frame'; InFrame(getOffset frame'))
-    | false => InReg(T.newtemp())
+    | false => InReg(if isReal then T.newtemp(1) else T.newtemp(0))
 )
 
 
 (* Calling runtime-system functions. To call an external function named initArray with arguments a, b, simply generate a CALL such as CALL(NAME(Temp.namedlabel ( "initArray" )), [a, b]) This refers to an external function initArray which is written in a language such as C or assembly language - it cannot be written in Tiger because Tiger has no mechanism for manipulating raw memory. But on some operating systems, the C compiler puts an underscore at the beginning of each label; and the calling conventions for C functions may differ from those of Tiger functions; and C functions don't expect to receive a static link, and so on. All these target-machine-specific details should be encapsulated into a function provided by the Frame structure. where externalCall takes the name of the external procedure and the  arguments to be passed. *)
-fun externalCall (s, args) = Tr.CALL(Tr.NAME(T.namedlabel s), args, [])
+(* fun externalCall (s, args) = Tr.CALL(Tr.NAME(T.namedlabel s), args, [], [], false) *)
 
 (* needed as we are going to add new tree instructions *)
 fun seq nil = Tr.EXP (Tr.CONST 0)
@@ -216,9 +249,9 @@ fun seq nil = Tr.EXP (Tr.CONST 0)
 (* As mentioned in the above comment, it does what is known as "view shift" *)
 fun procEntryExit1(frame' as {shiftInstr, ...} : frame, body) = 
 let
-  val pairs = map (fn reg => (allocLocal frame' false, reg)) ([ra] @ getFirstL (calleesaves))
-  val saves = map (fn (allocLoc, reg) => Tr.MOVE (exp allocLoc (Tr.TEMP fp), Tr.TEMP reg)) pairs
-  val restores = map (fn (allocLoc, reg) => Tr.MOVE (Tr.TEMP reg, exp allocLoc (Tr.TEMP fp))) (List.rev pairs)
+  val pairs = map (fn reg => (allocLocal frame' false (T.isReal(reg)), reg)) ([ra] @ getFirstL (calleesaves))
+  val saves = map (fn (allocLoc, reg) => if (T.isReal(reg)) then Tr.RMOVE (exp allocLoc (Tr.TEMP fp) true, Tr.TEMP reg) else Tr.MOVE (exp allocLoc (Tr.TEMP fp) false, Tr.TEMP reg)) pairs
+  val restores = map (fn (allocLoc, reg) => if (T.isReal(reg)) then Tr.RMOVE (Tr.TEMP reg, exp allocLoc (Tr.TEMP fp) true) else Tr.MOVE (Tr.TEMP reg, exp allocLoc (Tr.TEMP fp) false)) (List.rev pairs)
 in
   seq(shiftInstr @ saves @ [body] @ restores)
 end

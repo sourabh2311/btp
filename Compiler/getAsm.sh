@@ -5,6 +5,6 @@ cp $1 ../$1
 cd ..
 sml <<MY_QUERY
 CM.make ("sources.cm");
-Main.compile ("$1", 0);
+Main.compile ("$1", []);
 MY_QUERY
 rm $1

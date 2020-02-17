@@ -39,66 +39,60 @@ not:
 # ------------------ Function for Real Type Begin ----------------------
 
 printR:
-    flw fa0, (a0)
+#   Having real number in fa0
     li a7, 2
     ecall
     jr ra
 
-radd:
-    flw fa0, (a0)
-    flw fa1, (a1) 
-    li a0, 4
-    li a7, 9
-    ecall
-    fadd.s fa0, fa0, fa1
-    fsw fa0, (a0)
-    jr ra
+# radd:
+#     flw fa0, (a0)
+#     flw fa1, (a1) 
+#     li a0, 4
+#     li a7, 9
+#     ecall
+#     fadd.s fa0, fa0, fa1
+#     fsw fa0, (a0)
+#     jr ra
 
-rsub:
-    flw fa0, (a0)
-    flw fa1, (a1) 
-    li a0, 4
-    li a7, 9
-    ecall
-    fsub.s fa0, fa0, fa1
-    fsw fa0, (a0)
-    jr ra
+# rsub:
+#     flw fa0, (a0)
+#     flw fa1, (a1) 
+#     li a0, 4
+#     li a7, 9
+#     ecall
+#     fsub.s fa0, fa0, fa1
+#     fsw fa0, (a0)
+#     jr ra
 
-rmul:
-    flw fa0, (a0)
-    flw fa1, (a1) 
-    li a0, 4
-    li a7, 9
-    ecall
-    fmul.s fa0, fa0, fa1
-    fsw fa0, (a0)
-    jr ra
+# rmul:
+#     flw fa0, (a0)
+#     flw fa1, (a1) 
+#     li a0, 4
+#     li a7, 9
+#     ecall
+#     fmul.s fa0, fa0, fa1
+#     fsw fa0, (a0)
+#     jr ra
 
-rdiv:
-    flw fa0, (a0)
-    flw fa1, (a1) 
-    li a0, 4
-    li a7, 9
-    ecall
-    fdiv.s fa0, fa0, fa1
-    fsw fa0, (a0)
-    jr ra
+# rdiv:
+#     flw fa0, (a0)
+#     flw fa1, (a1) 
+#     li a0, 4
+#     li a7, 9
+#     ecall
+#     fdiv.s fa0, fa0, fa1
+#     fsw fa0, (a0)
+#     jr ra
 
 realGreat:
-    flw fa0, (a0)
-    flw fa1, (a1) 
     flt.s a0, fa1, fa0
     jr ra
 
 realLess:
-    flw fa0, (a0)
-    flw fa1, (a1) 
     flt.s a0, fa0, fa1
     jr ra
 
 realEqual:
-    flw fa0, (a0)
-    flw fa1, (a1) 
     feq.s a0, fa0, fa1
     jr ra
 

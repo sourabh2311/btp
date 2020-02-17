@@ -15,23 +15,24 @@ datatype stm = SEQ of stm * stm
              | JUMP of exp * label list
              | CJUMP of relop * exp * exp * label * label
 	           | MOVE of exp * exp
+             | RMOVE of exp * exp
              | EXP of exp
 
      and exp = BINOP of binop * exp * exp
              | MEM of exp
+             | RMEM of exp
              | TEMP of Temp.temp
              | ESEQ of stm * exp
              | NAME of label
              | CONST of int
-             | REAL of real
              (* exp = f, exp list = args. *)
-	           | CALL of exp * exp list * access list 
+	           | CALL of exp * exp list * access list * bool list * bool
 
-     and binop = PLUS | MINUS | MUL | DIV | AND | OR | LSHIFT | RSHIFT | ARSHIFT | XOR
+     and binop = PLUS | MINUS | MUL | DIV | AND | OR | LSHIFT | RSHIFT | ARSHIFT | XOR | RPLUS | RMINUS | RMUL | RDIV
     (* Arithmetic shift preserve sign bit, whereas Logical shift can not preserve sign bit. *)
     (* ARSHIFT -> Arithmetic Right Shift *)
      and relop = EQ | NE | LT | GT | LE | GE | ULT | ULE | UGT | UGE
-
+  val isExpReal : exp -> bool
 end
 
 structure Tree : TREE = 
@@ -60,20 +61,24 @@ datatype stm = SEQ of stm * stm (* The statement s2 followed by s2. *)
                 MOVE(TEMP t, e): Evaluate e and move it into temporary t. 
                 MOVE(MEM(e1), e2) Evaluate e1 yielding address a. Then evaluate e2 and store the result into wordSize bytes of memory starting at a.
              *)
+             | RMOVE of exp * exp
              | EXP of exp (* Evaluate exp and discard the result. *)
 
      and exp = BINOP of binop * exp * exp (* The application of binary operators to operands exp1, exp2. *)
              | MEM of exp (* The contents of wordSize bytes of memory starting at address exp (where wordSize is defined in the Frame module). Note that when MEM is used as the left child of a move, it means "store," but anywhere else it means "fetch." *)
+             | RMEM of exp
              | TEMP of Temp.temp (* Temporary t. A temporary in the abstract machine is similar to a register in a real machine. However, the abstract machine has an infinite number of temporaries. *)
              | ESEQ of stm * exp (* The statement s is evaluated for side effects, then e is evaluated for result *)
              | NAME of label (* The value NAME(n) may be the target of jumps, calls, etc. *)
              | CONST of int (* The integer constant int. *)
-             | REAL of real
-	           | CALL of exp * exp list * access list (* A procedure call: the application of function exp1 to argument list exp2 list. The subexpression exp1 is evaluated before the arguments which are evaluated left to right. *)
+	           | CALL of exp * exp list * access list * bool list * bool (* A procedure call: the application of function exp1 to argument list exp2 list. The subexpression exp1 is evaluated before the arguments which are evaluated left to right. *)
 
-     and binop = PLUS | MINUS | MUL | DIV | AND | OR | LSHIFT | RSHIFT | ARSHIFT | XOR
+     and binop = PLUS | MINUS | MUL | DIV | AND | OR | LSHIFT | RSHIFT | ARSHIFT | XOR | RPLUS | RMINUS | RMUL | RDIV
 
      and relop = EQ | NE | LT | GT | LE | GE | ULT | ULE | UGT | UGE
-
+  fun isExpReal exp = 
+  case exp of 
+    RMEM _ => true 
+  | _ => false
 end
 
