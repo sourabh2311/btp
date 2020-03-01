@@ -1,0 +1,6 @@
+let 
+  type rec = {ci : int, cf : real}
+  var c := rec{ci = 2, cf = 2.0}
+in 
+  printR(c.cf); print("\n"); exit(0)
+end

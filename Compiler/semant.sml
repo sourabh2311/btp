@@ -19,9 +19,6 @@ struct
     val curDepth = ref 0
 
     (* Helper functions *)
-    fun isReal(ty) = case ty of 
-    T.REAL => true 
-    | _ => false
     (* Need of the time is to check for string in symbol "sym" in the map "venv" which is mapping integer in symbols to the entry. What is simply required is the strings corresponding to all those ints in our venv. *)
     fun editDistance (a, b) = 
     let 
@@ -133,6 +130,7 @@ struct
     (* augment ty to auxiliary record *)
     fun augmentR (t : T.ty) = {exp = L.errExp, ty = t}
     fun getexp (ety : expty) = (#exp ety)
+    fun getty (ety : expty) = (#ty ety)
     fun incDepth () = curDepth := !curDepth + 1
     fun decDepth () = curDepth := !curDepth - 1
     fun setDepth (newDepth) = curDepth := newDepth
@@ -278,9 +276,10 @@ struct
                 let
                     val fieldsET = map (fn (_, e, pos) => (trexp e, pos)) fields
                     val fieldsE = map (fn ({exp, ty}, _) => exp) fieldsET 
+                    val fieldsT = map (fn ({exp, ty}, _) => ty) fieldsET
                     fun checkRecord () = if (List.length (StyL) <> List.length (fieldsET)) then (Err.error pos "Number of fields in a record doesn't match with its corresponding type declaration fields") else (List.app (fn (Sty, (t, pos)) => checkType (tenv, augmentR(#2Sty), t, pos)) (ListPair.zip (StyL, fieldsET)))
                 in
-                    (checkRecord (); {exp = L.record(fieldsE), ty = T.RECORD (StyL, u)})
+                    (checkRecord (); {exp = L.record(fieldsE, fieldsT), ty = T.RECORD (StyL, u)})
                 end
               | t => (Err.error pos "Type Mismatch"; errResult))
             
@@ -421,7 +420,7 @@ struct
           end
     and trvar (A.SimpleVar(id, pos)) = 
         (case S.look(venv, id) of
-            SOME(E.VarEntry({access, ty})) => {exp = L.simpleVar (access, level, isReal(ty)), ty = actual_ty (tenv, ty, pos)}
+            SOME(E.VarEntry({access, ty})) => {exp = L.simpleVar (access, level, T.isReal(ty)), ty = actual_ty (tenv, ty, pos)}
           | SOME(_) => (Err.error pos ("variable was expected but instead function is given"); errResult)
           | NONE => (variableOrTypeNotFound(venv, pos, "variable", id); errResult)
         )
@@ -433,7 +432,7 @@ struct
             {exp = _, ty = T.RECORD(StyL, uniq)} => 
             (case List.find (fn elem => (#1elem) = id) StyL of
                 NONE => (variableOrTypeNotFound(tenv, pos, "record symbol", id); errResult)
-              | SOME (elem) => {exp = L.fieldVar(getexp (exptylval), id, map #1 StyL), ty = actual_ty (tenv, #2elem, pos)}) 
+              | SOME (elem) => {exp = L.fieldVar(getexp (exptylval), id, StyL), ty = actual_ty (tenv, #2elem, pos)}) 
           | _ => (Err.error pos ("record was expected but something else is given"); errResult)
           )
         end
@@ -456,16 +455,16 @@ struct
     and transDec(venv, tenv, A.VarDec {name, escape, typ = NONE, init, pos}, level, break) =
     let
       val {exp, ty} = transExp (venv, tenv, init, level, break)
-      val access' = L.allocLocal (level) (!escape) (if isReal (ty) then true else false)
-      val varexp = L.simpleVar (access', level, isReal(ty))
+      val access' = L.allocLocal (level) (!escape) (if T.isReal (ty) then true else false)
+      val varexp = L.simpleVar (access', level, T.isReal(ty))
     in
-      {tenv = tenv, venv = S.enter (venv, name, E.VarEntry {access = access', ty = ty}), expList = [L.assign (varexp, exp, isReal(ty))]}
+      {tenv = tenv, venv = S.enter (venv, name, E.VarEntry {access = access', ty = ty}), expList = [L.assign (varexp, exp, T.isReal(ty))]}
     end
     | transDec(venv, tenv, A.VarDec {name, escape, typ = SOME (tname, tpos), init, pos}, level, break) =
     let
       val {exp, ty} = transExp (venv, tenv, init, level, break)
-      val access' = L.allocLocal level (!escape) (if isReal(ty) then true else false)
-      val varexp = L.simpleVar (access', level, isReal(ty))
+      val access' = L.allocLocal level (!escape) (if T.isReal(ty) then true else false)
+      val varexp = L.simpleVar (access', level, T.isReal(ty))
     in
       case S.look (tenv, tname) of 
         NONE => (variableOrTypeNotFound(tenv, pos, "type", tname); {tenv = tenv, venv = S.enter(venv, name, E.VarEntry{access = access', ty = ty}), expList = []})
@@ -474,7 +473,7 @@ struct
             val at = actual_ty(tenv, dty, pos) 
           in
             (checkType(tenv, augmentR(at), augmentR(ty), pos);
-            {tenv = tenv, venv = S.enter(venv, name, E.VarEntry{access = access', ty = at}), expList = [L.assign (varexp, exp, isReal(at))]})
+            {tenv = tenv, venv = S.enter(venv, name, E.VarEntry{access = access', ty = at}), expList = [L.assign (varexp, exp, T.isReal(at))]})
           end
     end
     (*

@@ -14,6 +14,8 @@ datatype exp =  Ex of Tr.exp
 							| Nx of Tr.stm
 							| Cx of Temp.label * Temp.label -> Tr.stm
 
+type expty = {exp : exp, ty : Types.ty}
+
 type access = level * F.access
 
 type frag = F.frag
@@ -31,6 +33,8 @@ fun getResult () = !fragments
 fun reset () = fragments := nil
 
 fun memPlus (e1, e2) = Tr.MEM(Tr.BINOP(Tr.PLUS, e1, e2))
+
+fun rmemPlus (e1, e2) = Tr.RMEM(Tr.BINOP(Tr.PLUS, e1, e2))
 
 (* Remember that we should pass the static link for which we have added its escape *)
 fun newLevel {parent, name, formals, isRealL} = Lev({parent = parent, frame = F.newFrame {name = name, formals = true :: formals, isRealL = false :: isRealL}}, ref ())
@@ -158,11 +162,15 @@ fun subscriptVar (base, offset) = Ex(memPlus(unEx(base), Tr.BINOP(Tr.MUL, unEx(o
 (* Just the way given in text. *)
 fun fieldVar (base, id, SL) =
 let 
-	fun findindex (index, elem, l :: ls) =
-		if elem = l then index
-		else findindex(index + 1, elem, ls) 
+	fun findElem (index : int, elem : Symbol.symbol, l :: ls : ((Symbol.symbol * Types.ty) list)) =
+		if elem = (#1 l) then (index, (#2 l))
+		else findElem(index + 1, elem, ls) 
+	val (index, ty) = findElem (0, id, SL)
 in
-	Ex(memPlus(unEx(base), Tr.BINOP(Tr.MUL, Tr.CONST(findindex(0, id, SL)), Tr.CONST(F.wordSize))))
+	if Types.isReal(ty) then 
+		Ex(rmemPlus(unEx(base), Tr.BINOP(Tr.MUL, Tr.CONST(index), Tr.CONST(F.wordSize))))
+	else 
+		Ex(memPlus(unEx(base), Tr.BINOP(Tr.MUL, Tr.CONST(index), Tr.CONST(F.wordSize))))
 end
 
 fun binop (oper, e1, e2, flag') =
@@ -203,19 +211,22 @@ in
 	Tr.TEMP result))
 end
 
-fun record (fields) =
+fun record (fieldsE, fieldsT) =
 let
 	val r = Temp.newtemp(0)
 	val init =
 			Tr.MOVE(
 			  Tr.TEMP r, 
-				Tr.CALL(Tr.NAME (T.namedlabel "allocRecord"), [Tr.CONST(length(fields) * F.wordSize)], AccessConv.frameToTree(F.dummyFormals(1, [])), [false], false)
+				Tr.CALL(Tr.NAME (T.namedlabel "allocRecord"), [Tr.CONST(length(fieldsE) * F.wordSize)], AccessConv.frameToTree(F.dummyFormals(1, [])), [false], false)
 			)
-
-	fun loop ([], index) = nil 
-		|	loop (field :: fields, index) = Tr.MOVE(memPlus(Tr.TEMP r, Tr.CONST(index * F.wordSize)), unEx(field)) :: loop(fields, index + 1)
+	fun loop ([], [], index) = nil 
+		|	loop (fieldE :: fieldsE, fieldT :: fieldsT, index) = 
+				if Types.isReal(fieldT) then 
+					Tr.RMOVE(memPlus(Tr.TEMP r, Tr.CONST(index * F.wordSize)), unEx(fieldE)) :: loop(fieldsE, fieldsT, index + 1)
+				else 	
+					Tr.MOVE(memPlus(Tr.TEMP r, Tr.CONST(index * F.wordSize)), unEx(fieldE)) :: loop(fieldsE, fieldsT, index + 1)
 in 
-	Ex(Tr.ESEQ(seq(init :: loop(fields, 0)), Tr.TEMP r))
+	Ex(Tr.ESEQ(seq(init :: loop(fieldsE, fieldsT, 0)), Tr.TEMP r))
 end
 
 fun array (size, init) = Ex(Tr.CALL(Tr.NAME (T.namedlabel "initArray"), [unEx(size), unEx(init)], AccessConv.frameToTree(F.dummyFormals(2, [])), [false, false], false)) 

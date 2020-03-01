@@ -32,6 +32,7 @@ struct
           | ARRAY of ty * unique
           | NAME of Symbol.symbol * ty option ref
           | UNIT
+  fun isReal (t) = case t of REAL => true | _ => false
 
 end
 
