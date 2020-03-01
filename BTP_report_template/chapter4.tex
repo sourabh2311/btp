@@ -36,10 +36,12 @@ The files \texttt{tree.sml, tree.sig} consists of datatype representing our Inte
      MOVE(TEMP t, e): Evaluate e and move it into temporary t. 
      MOVE(MEM(e1), e2) Evaluate e1 yielding address a. Then evaluate e2 and store the result into wordSize bytes of memory starting at a.
   *)
+  | RMOVE of exp * exp (* same as above but for reals *)
   | EXP of exp (* Evaluate exp and discard the result. *)
 
 and exp = BINOP of binop * exp * exp (* The application of binary operators to operands exp1, exp2. *)
   | MEM of exp (* The contents of wordSize bytes of memory starting at address exp (where wordSize is defined in the Frame module). Note that when MEM is used as the left child of a move, it means "store," but anywhere else it means "fetch." *)
+  | RMEM of exp (* same as above but for reals *)
   | TEMP of Temp.temp (* Temporary t. A temporary in the abstract machine is similar to a register in a real machine. However, the abstract machine has an infinite number of temporaries. *)
   | ESEQ of stm * exp (* The statement s is evaluated for side effects, then e is evaluated for result *)
   | NAME of label (* The value NAME(n) may be the target of jumps, calls, etc. *)
@@ -57,8 +59,15 @@ and relop = EQ | NE | LT | GT | LE | GE | ULT | ULE | UGT | UGE
   Note that some of this material will become clear after reading Phase III.
 \end{tcolorbox}
 
+\begin{figure}
+\centering
+\iph{0.60}{assets/myFrame.png}
+\caption{Illustration of Frame}
+\label{fig:myframe}
+\end{figure}
+
 Below is explained in chronological sequence of what happens and for
-what reason when function call is executed in this compiler.
+what reason when function call is executed in this compiler. Also see \ref{fig:myframe}.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -81,13 +90,13 @@ what reason when function call is executed in this compiler.
     (\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{argTemps}
     are chosen argument registers, this is done as these argument
     registers are used in this time) and
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{dst = F.getFirstL F.callersaves};
+    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{dst = [ra] @ F.getFirstL F.callersaves};
     as we know that caller is supposed to save some registers if it was
     using them and thus setting
     \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{dst = F.getFirstL F.callersaves}
     would enable the garbage collection to know that if function being
     called \textbf{uses} these registers then it would clearly
-    interfere.
+    interfere. For all but those functions which are at top most, we as well pass the static link for the function enclosing the called function. Please see the example code in the text. 
   \item
     Let
     \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{fp},
@@ -97,7 +106,7 @@ what reason when function call is executed in this compiler.
     To extend the current frame, we must subtract it by the amount
     \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{escaped-arguments * word-size}.
     But since we should as well store the old frame pointer (as we will
-    update it with the current stack pointer); we must subtract
+    update it with the current stack pointer, this frame pointer is not same as static link); we must subtract
     \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{sp}
     by
     \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{(escaped-arguments + 1) * word-size}.
@@ -203,6 +212,9 @@ File \texttt{riscframe.sml} contains an interface for RISC V, which finds some u
 \tfbox{\ghref{translate.sml}}
 
 Done by \texttt{translate.sml} and is used by \texttt{semant.sml} to generate IR tree code. 
+
+\texttt{semant.sml} will generate an \texttt{exp} of translate type for a frame and then in the end, it will call translate's \texttt{procEntryExit} which will \texttt{unEx} that expression.
+
 
 Its not reasonable to translate expression of our AST to an expression of IR as this is true only for certain kinds of expressions, the ones that  compute a value. Expressions that return no value (such as some procedure calls, or while expressions in the Tiger language) are more naturally represented by \texttt{Tree.stm}. And expressions with Boolean values, such as $a > b$, might best be represented as a conditional jump - a combination of \texttt{Tree.stm} and a pair of destinations represented by \texttt{Temp.labels}. Therefore, we will make a datatype exp in the Translate module to model these three kinds of expressions:
 

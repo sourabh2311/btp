@@ -1,0 +1,222 @@
+\chapter{Introduction}
+\pagenumbering{arabic}\hspace{3mm}
+
+\section{What Has Been Achieved This Semester}
+
+\subsection{Miscellaneous Improvements}
+
+\subsubsection{More Graceful Error Termination}
+
+Earlier in lexical phase, as soon as an error was found, I was raising an exception but it could be better presented as simply an exit failure, or even better an exit success with just my simple lexer error. Which reduces the error output received by the user. Figure \ref{fig:gr1} and \ref{fig:gr2} shows the reduction in those "uncaught..." lines.
+
+\begin{figure}
+\centering
+\iph{0.80}{assets/lexError-min.png}
+\caption{Graceful error termination - before}
+\label{fig:gr1}
+\end{figure}
+\begin{figure}
+\centering
+\iph{0.80}{assets/lexError3-min.png}
+\caption{Graceful error termination - after}
+\label{fig:gr2}
+\end{figure}
+
+\subsubsection{Simplified "Make" Process}
+
+Earlier, the bash script to compile the given file required to concatenate the output with the \texttt{runtime.s}. Now it has been significantly simplified and the compilation process is reduced to just \texttt{Main.compile filename (optional flags)}. This concatenation business is now handled in the \texttt{Main} file itself. See \ref{fig:sm}.
+
+\begin{figure}
+\centering
+\iph{0.80}{assets/makeS-min.png}
+\caption{Simplified Make}
+\label{fig:sm}
+\end{figure}
+
+\subsubsection{Drew My Own Tiger}
+
+Just for fun, I drew my own Tiger logo. See \ref{fig:tig}.
+
+\begin{figure}
+\centering
+\iph{0.80}{assets/tiger-min.png}
+\caption{Tiger Logo}
+\label{fig:tig}
+\end{figure}
+
+\subsubsection{Printing IR Tree As Well As Generated Code Before Register Allocation}
+
+The author of the book gives the program to achieve this. But due to changes commited by me in IR Tree, etc. hindered myself from using that code as now it would demand modifications to use but I didn't find much use of it later. Now as I was getting stuck time and again in various phases of these new improvements I was targeting. It became necessary to study IR tree and the code before register allocation to pin point where exactly the error is. See \ref{fig:ir} and \ref{fig:ba}.
+
+\begin{figure}
+\centering
+\iph{0.80}{assets/ir-min.png}
+\caption{IR Tree}
+\label{fig:ir}
+\end{figure}
+
+
+\begin{figure}
+\centering
+\iph{0.80}{assets/ba-min.png}
+\caption{Code before register allocation}
+\label{fig:ba}
+\end{figure}
+
+\subsubsection{Others}
+
+\begin{itemize}
+  \item Added more details in the project’s documentation (with more diagrams) to make it more useful for lucid revision. Along with general improvements in code.
+  \item Removed External Calls (this lead to simplification in code generator, semantic, translate and risc frame files).
+  \item \texttt{FP} is indispensable, thus I decided not to remove it by calculating it using \texttt{SP}.
+\end{itemize}
+
+\subsection{Compile Time Arguments}
+
+Since there are so many choices offered to a user when using this compiler. For instance:-
+
+\begin{enumerate}
+  \item Option to give filename to print IR Tree at. Flag = \texttt{ir}. Default = \texttt{TextIO.stdOut}.
+  \item Option to give filename to print instructions before register allocation at. Flag = \texttt{ba}. Default = \texttt{TextIO.stdOut}.
+  \item Option to choose which string algorithm to be used for displaying suggestions in case of mistyped word. Flag = \texttt{sa}. Default = \texttt{0} (i.e. Levenshtein algorithm).
+\end{enumerate}
+
+I have implemented feature for users to give compile time flags. Note: I mention "flags", thus user has an option to not define it, in which case default flag will be taken. See \ref{fig:flags} for an example usage.
+
+
+\begin{figure}
+\centering
+\iph{1}{assets/flags-min.png}
+\caption{Compile time arguments}
+\label{fig:flags}
+\end{figure}
+
+\subsection{Simplified String Comparisons}
+
+Comparing strings in  a program is indispensable. Therefore, it is inconvinient to have user type a function each time there is a need to call a string function. Thus, I have added this funcionality where string comparisons can be done naturally. 
+
+\textbf{Idea} behind its implementation is that whenever lexer sees \texttt{str1 > str2}. Then in semantic analysis phase, we should determine whether both sides of an operator are of type strings or not. If that is the case then we can delete this node and replace it with a function call as inequalities are like conditions. So one should have supporting functions defined in \texttt{runtime.s} along at other places. See \ref{fig:sc} for an example usage.
+
+\begin{figure}
+\centering
+\iph{0.80}{assets/stringC-min.png}
+\caption{String Comparisons}
+\label{fig:sc}
+\end{figure}
+
+\subsection{Suggestions for Mistyped Words}
+
+Tiger's target has always been to continue in case there are any mistakes and show maximum possible mistakes to the user at once. 
+
+Keeping this aim in mind, it is as well desired to print suggestions for a mistyped word which could be either a variable/function or a type name. 
+
+Earlier I abstracted out \texttt{Not Found} errors in semantic phase but failed to proceed from that point in that semester. This semester, I began on continuing from where I left. I did \textbf{huge} amount of changes where I completely removed \texttt{symbol.sml}, \texttt{table.sig} and \texttt{table.sml}. I replaced their used everywhere with \texttt{atom}. And as this was a huge change, I expected many errors. Ultimately I lost to the errors and as I got the new insights, this was anyway not needed. \textbf{Idea} is that, anytime if somebody calls this symbol function, we are storing this new symbol. So if one is anyway storing a symbol, better I can just query this \texttt{symbol.sml} to ask whether a string is present in symbol table or not. If it is present I can get a corresponding symbol which I can use to check whether that symbol is present in a given environment. I can even map an integer (denoting string's length) to a set of symbols. Keeping these things in mind, I have implemented two algorithms:-
+
+\subsubsection{Algorithm I}
+
+In this algorithm, I am using a map, which maps an integer (denoting string's length) to a set of symbols. Now each time, I encounter a "Not Found" error, I get from this map, sets having strings of length 0 or unit distance away from the given string. Now we can use \textbf{Levenshtein's} algorithm to check for minimum edit distance of the given string from this set. Time complexity will work out to be: $\mathcal{O}(m * l^2 * log^2(s))$. Where $m$ equals strings in this set, $l = max(|strings|)$ and $s$ equals total symbols in the environment, we have this log factor for this look up and as well as lookup to get sets corresponding to that length, and quadratic factor for minimum edit distance DP algorithm.
+
+\subsubsection{Algorithm II}
+
+This is comparatively quick algorithm which successfully attempts to find string which are unit distance apart. The idea is that we can easily find a symbol corresponding to a string (if such a symbol exists) from our \texttt{symbols.sml} in $log$ factor, then, we can simply check whether this symbol exists in our environment in another $log$ factor. Now a string can be unit distance apart by a character deletion, or insertion or replacement (I as well implemented swap check function which is very common form of error). Trying all these possibilites, time complexity works out to be: $\mathcal{O}(log(s) * l * |\Sigma|)$ where $s$ is as defined before, $l$ equals length of the given string and $\Sigma$ equals set of characters which are to be tried for replacement (this although can be treated as a constant and removed from this asymptotics).
+
+Both the algorithms can have their advantage for certain test cases, it is left to the user which algorithm to use with the help of the flag \texttt{sa} as mentioned before. Algorithm 1 is better when there are less number of symbols and user is interested in just the minimum possible edit distance away string which needn't be just one character away.
+
+Implementation of these algorithms can be found in \texttt{symbol.sml}.
+
+\subsection{Real (Float) Implementation - Phase I}
+
+Implementing real number support is a huge challenge as it requires A-Z modifications and in this 4000+ lines of code, even one bug could be fatal and difficult to detect thus making it important to identify at which phase is the error coming. Is it coming in IR generation phase or Code generation phase. Keeping this in view, I augmented \texttt{printtree.sml} file given by the author to streamline it with the modifications in my IR tree. There were lots of changes required which I will mention in the phase II of this.
+
+Reals have dual behavior. They behave partly as strings and partly as integers. One cannot simply load a floating point register as in case of integers like \texttt{li a1, someInteger}. They need to be first declared at top in \texttt{.data} field just like strings, then their address loaded again just like strings, then finally they have to be loaded to a floating point register in a different manner like \texttt{flw fa1, address}. 
+
+In Tiger specification, each time a function returns a value, it is expected to return an integer value. Similarly, everywhere it is assumed that \texttt{temp} will be assigned an integer value. Changing nature of \texttt{temps} and full fledged support of reals would imply change at almost all files, which is cumbersome. One can get away from this by treating floats like strings, ofcourse one would require to make changes in all the phases before code generation with dedicated type for floats but treating floats just like strings, would mean that we would always have to play with just address which is an integer and not with any real value as such. One can levy the pain to pre defined functions for performing arithmetic and comparison operations with the drawback that they will return result, just like in case of strings, an address of a newly allocated memory. This is the only drawback of this as one mainly tries to avoid memory accesses. This phase however implements this as it forms a basis for phase II in which I provide complete support for floats.
+
+This phase in itself as well demanded lots of modifications which was not easy. All the extra functions written in \texttt{runtime.s} were removed in phase II.
+
+Example of changes required in this phase are given in figure \ref{fig:rphi1} and \ref{fig:rphi2}.
+
+\begin{figure}
+\centering
+\iph{0.80}{assets/rphi1-min.png}
+\caption{Real I Implementation Glimpse (a)}
+\label{fig:rphi1}
+\end{figure}
+
+\begin{figure}
+\centering
+\iph{0.80}{assets/rphi2-min.png}
+\caption{Real I Implementation Glimpse (b)}
+\label{fig:rphi2}
+\end{figure}
+
+\subsection{Register Allocator}
+
+My last sem's compiler's register allocator was incomplete and a crude implementation of the algorithm given in the text. It was without coalescing which is essential to minimize the spills and different register's use (in move instruction). The book has a whole chapter dedicated to this subject. It takes time to read and understand this algorithm, so it took me some days to finally appreciate this algorithm. While implementing this algorithm, for purpose of optimizations, I did modifications among other files as well list using set everywhere from which one can easily add / delete an entry. 
+
+The algorithm given in the book is huge and requires careful implementation. After the algorithm's implementation there were major issues I was facing due to some errors. Each morning, I could get an insight on a potential bug. 
+
+To identify bugs, one require critical scrutiny of the generated assembly code. One need's to generate small examples which break the code, i.e. deviate from expected behavior. After careful examination of one such program, I realised that \texttt{ra} register isn't getting backed up. And after \textbf{circling} through many places, I found the error was at incorrectly setting up \texttt{dst} registers when calling a function, here I missed to include \texttt{ra} register due to which it wasn't causing an interference with its use. See \ref{fig:eb}.
+
+\begin{figure}
+\centering
+\iph{0.80}{assets/mistake1-min.png}
+\caption{Bug in Register Allocator}
+\label{fig:eb}
+\end{figure}
+
+I have taken this example to highlight, how a little bit of mistake could be the cause of stress and so much of time.
+
+Juggling through these errors (like one of my major error was that I had been inserting in stack in reverse direction), I came to a point where I felt stuck, I was loosing hope each passing moment and felt that I finally have to give up on this, on so much of changes that I have done. The issue was with the algorithm presented by the author where he missed very important line. Refer \ref{fig:culprit} where you can see that checking whether \texttt{v} is in the precolored nodes or not was critical as precolored nodes should not be touched. 
+
+\begin{figure}
+\centering
+\iph{0.80}{assets/culprit-min.png}
+\caption{Critical Error in Book's Algorithm}
+\label{fig:culprit}
+\end{figure}
+
+This was a real relief and a mark of something really innovative done in this project. Final generated code was significantly lower than earlier, demonstrating the power of coalescing. 
+
+\subsection{Real (Float) Implementation - Phase II}
+
+As remarked, this phase attempted to provide full fledged real numbers support. I did huge number of modifications as:- 
+
+\begin{enumerate}
+  \item Everywhere when doing \texttt{T.newtemp} one need to \textbf{specify} whether, real or an integer register is needed. 
+  \item To provide this information, in places one needs to know that whether called function arguments are real or not. And also whether a function returns a real value or not. 
+    \begin{enumerate}
+      \item This sparked changes in \texttt{riscframe.sml}, \texttt{semant.sml}, \texttt{translate.sml}, \texttt{tree.sml} and many other files.
+      \item Even in canonisation phase, one needs to generate a new temporary for shifting function's return value, thus for this reason as well one need IR tree to contain information about functions return value.
+    \end{enumerate}
+  \item Assign statement needed to know whether parameters are real or not as then only one can do \texttt{RMOVE} or an integer move, \texttt{MOVE}. This is needed as floating points are moved differently.
+  \item Similarly floating points are loaded and stored using different instructions than integer, this demanded for addition of \texttt{RMEM}.
+  \item Code generation was thus heavily modified as it needed to generate correct code for all these changes. This requires a great amount of thinking as same things can be obtained using different means and one should try to do least changes in IR tree. 
+  \item The way code was generated when calling a function was as well heavily modified as one needs to differentiate a real and non real value as their moves, memory access is different. In that case also one needs to identify whether an access is in register or memory.
+  \item New frame generation in \texttt{riscframe.sml} was heavily modified as now shift instructions needed to take care for both ints and real temporaries and also access had to specifically generated according to argument type.
+  \item All in all there were heavy changes in almost all the files including the changes which were done previously as now reals can not be treated simply like strings, thus their basic expression had to be changed and this change has to be thoughtful as it seemingly could be done in many ways, so one has to really go through required files to determine what should be the most suitable instruction. This one line (line 117), as seen in \ref{fig:ft1} might seem trivial once it is written but there is a big background behind it.
+  \item Clearly \texttt{temp.sml}, \texttt{temp.sig} required changes to support for new temporaries. Which is a tuple now, where first parameter is what was originally the temporary and second parameter is simply an integer, denoting whether the temporary is real or not. 1 for real and 0 for normal integer. Some other functions were added such as whether temporary is real or not, etc.
+  \item There was a constant shuffle between compiler and assembly code, to determine where exactly were the bugs coming from.
+  \item Register allocator too had to be cleverly modified. Every day, from my morning insight, I tried something like making \texttt{K} which is number of available colours a tuple as for different registers, this \texttt{K} is different. Similarly degree map should be change to give a tuple, telling which are non real, real neighbours respectively. These helped in passing of few test cases but it eventually stumbled. Again I was feeling stressed and hopeless. Then suddenly an idea once struck that why am I even adding an edge to a non real and a real temporary as they infact don't interfere. This solved my issue, and floating point implementation was complete. See \ref{fig:ft2} for an example.
+\end{enumerate}
+
+\begin{figure}
+\centering
+\iph{0.80}{assets/ft1-min.png}
+\caption{Change for floating point}
+\label{fig:ft1}
+\end{figure}
+
+
+\begin{figure}
+\centering
+\iph{0.80}{assets/ft2-min.png}
+\caption{Floating Point Example}
+\label{fig:ft2}
+\end{figure}
+
+
+\section{Organization of The Report}
+
+The code written for this compiler is enormous and this report gives documentation on each of these files in an understandable order. But before proceeding it is important to read about Tiger language from \href{https://www.cs.princeton.edu/~appel/modern/ml/}{this book} (read Tiger Reference Manual in Appendix). Chapter 2 deals with the work done in previous semester. 
+

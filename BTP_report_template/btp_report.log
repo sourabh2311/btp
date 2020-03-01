@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2019.10.30)  10 NOV 2019 10:46
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2019.10.30)  21 FEB 2020 16:49
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -599,7 +599,7 @@ runsystem(which pygmentize && touch btp_report.aex)...executed.
 
 runsystem(rm btp_report.aex)...executed.
 
- (./btp_report.aux (./title.aux) (./certificate.aux) (./acknowledgement.aux) (./chapter1.aux) (./chapter2.aux) (./chapter3.aux) (./chapter4.aux) (./chapter5.aux))
+ (./btp_report.aux (./title.aux) (./certificate.aux) (./acknowledgement.aux) (./chapter0.aux) (./chapter1.aux) (./chapter2.aux) (./chapter3.aux) (./chapter4.aux) (./chapter5.aux))
 \openout1 = `btp_report.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 53.
@@ -665,7 +665,7 @@ LaTeX Info: Redefining \nameref on input line 53.
 \openout2 = `title.aux'.
 
  (./title.tex
-<IITPkdFullLogoColor.pdf, id=175, 270.00874pt x 264.99pt>
+<IITPkdFullLogoColor.pdf, id=212, 270.00874pt x 264.99pt>
 File: IITPkdFullLogoColor.pdf Graphic file (type pdf)
 <use IITPkdFullLogoColor.pdf>
 Package pdftex.def Info: IITPkdFullLogoColor.pdf  used on input line 19.
@@ -696,11 +696,15 @@ Package pdftex.def Info: IITPkdFullLogoColor.pdf  used on input line 19.
  (./_minted-btp_report/default-pyg-prefix.pygstyle) (./_minted-btp_report/default.pygstyle) (./_minted-btp_report/72AB237210D032602BDA88DCB4B845CAC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
 \openout7 = `btp_report.pyg'.
 
- (./_minted-btp_report/A3C79C18AA3B76035AA401F9278A009DC10BE7C546AB936BC0B71780EEC7C66C.pygtex))
+ (./_minted-btp_report/A3C79C18AA3B76035AA401F9278A009DC10BE7C546AB936BC0B71780EEC7C66C.pygtex) [4])
 \tf@toc=\write9
 \openout9 = `btp_report.toc'.
 
- [4] (./btp_report.lof)
+ [5] [6
+
+] (./btp_report.lof [7
+
+])
 \tf@lof=\write10
 \openout10 = `btp_report.lof'.
 
@@ -709,16 +713,113 @@ Package pdftex.def Info: IITPkdFullLogoColor.pdf  used on input line 19.
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.78 \include{chapter1}
-                        [1
+l.78 \include{chapter0}
+                        [1]
+\openout2 = `chapter0.aux'.
+
+ (./chapter0.tex
+Chapter 1.
+<assets/lexError-min.png, id=379, 1278.7775pt x 760.8425pt>
+File: assets/lexError-min.png Graphic file (type png)
+<use assets/lexError-min.png>
+Package pdftex.def Info: assets/lexError-min.png  used on input line 14.
+(pdftex.def)             Requested size: 370.01645pt x 220.15108pt.
+<assets/lexError3-min.png, id=380, 1589.94pt x 104.39pt>
+File: assets/lexError3-min.png Graphic file (type png)
+<use assets/lexError3-min.png>
+Package pdftex.def Info: assets/lexError3-min.png  used on input line 20.
+(pdftex.def)             Requested size: 370.02113pt x 24.29431pt.
+<assets/makeS-min.png, id=382, 620.3175pt x 233.87375pt>
+File: assets/makeS-min.png Graphic file (type png)
+<use assets/makeS-min.png>
+Package pdftex.def Info: assets/makeS-min.png  used on input line 31.
+(pdftex.def)             Requested size: 370.01636pt x 139.50453pt.
+<assets/tiger-min.png, id=384, 430.60875pt x 397.485pt>
+File: assets/tiger-min.png Graphic file (type png)
+<use assets/tiger-min.png>
+Package pdftex.def Info: assets/tiger-min.png  used on input line 42.
+(pdftex.def)             Requested size: 370.03375pt x 341.56963pt.
+pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.45 \end{figure}
+                  [1
 
 
-]
+] [2 <./assets/lexError-min.png> <./assets/lexError3-min.png> <./assets/makeS-min.png>]
+<assets/ir-min.png, id=399, 712.6625pt x 811.03pt>
+File: assets/ir-min.png Graphic file (type png)
+<use assets/ir-min.png>
+Package pdftex.def Info: assets/ir-min.png  used on input line 53.
+(pdftex.def)             Requested size: 370.02116pt x 421.09451pt.
+<assets/ba-min.png, id=400, 475.7775pt x 756.8275pt>
+File: assets/ba-min.png Graphic file (type png)
+<use assets/ba-min.png>
+Package pdftex.def Info: assets/ba-min.png  used on input line 61.
+(pdftex.def)             Requested size: 326.13066pt x 518.78171pt.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 69.
+ (/usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
+File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 69.
+ [3 <./assets/tiger-min.png>] [4 <./assets/ir-min.png>] [5 <./assets/ba-min.png>]
+<assets/flags-min.png, id=420, 1499.6025pt x 32.12pt>
+File: assets/flags-min.png Graphic file (type png)
+<use assets/flags-min.png>
+Package pdftex.def Info: assets/flags-min.png  used on input line 89.
+(pdftex.def)             Requested size: 462.51512pt x 9.9066pt.
+ [6 <./assets/flags-min.png>]
+<assets/stringC-min.png, id=432, 1834.855pt x 878.28125pt>
+File: assets/stringC-min.png Graphic file (type png)
+<use assets/stringC-min.png>
+Package pdftex.def Info: assets/stringC-min.png  used on input line 102.
+(pdftex.def)             Requested size: 370.01624pt x 177.11389pt.
+ [7 <./assets/stringC-min.png>] [8] [9]
+<assets/rphi1-min.png, id=452, 293.095pt x 871.255pt>
+File: assets/rphi1-min.png Graphic file (type png)
+<use assets/rphi1-min.png>
+Package pdftex.def Info: assets/rphi1-min.png  used on input line 141.
+(pdftex.def)             Requested size: 174.51666pt x 518.76877pt.
+<assets/rphi2-min.png, id=453, 1180.41pt x 547.04375pt>
+File: assets/rphi2-min.png Graphic file (type png)
+<use assets/rphi2-min.png>
+Package pdftex.def Info: assets/rphi2-min.png  used on input line 148.
+(pdftex.def)             Requested size: 370.01195pt x 171.47662pt.
+<assets/mistake1-min.png, id=455, 1619.04875pt x 294.09875pt>
+File: assets/mistake1-min.png Graphic file (type png)
+<use assets/mistake1-min.png>
+Package pdftex.def Info: assets/mistake1-min.png  used on input line 163.
+(pdftex.def)             Requested size: 370.02644pt x 67.21497pt.
+ [10] [11 <./assets/rphi1-min.png>]
+<assets/culprit-min.png, id=467, 1846.9pt x 717.68124pt>
+File: assets/culprit-min.png Graphic file (type png)
+<use assets/culprit-min.png>
+Package pdftex.def Info: assets/culprit-min.png  used on input line 174.
+(pdftex.def)             Requested size: 370.02164pt x 143.78557pt.
+ [12 <./assets/rphi2-min.png> <./assets/mistake1-min.png> <./assets/culprit-min.png>]
+Overfull \hbox (4.7427pt too wide) in paragraph at lines 189--190
+[]\OT1/cmr/m/n/12 This sparked changes in \OT1/cmtt/m/n/12 riscframe.sml\OT1/cmr/m/n/12 , \OT1/cmtt/m/n/12 semant.sml\OT1/cmr/m/n/12 , \OT1/cmtt/m/n/12 translate.sml\OT1/cmr/m/n/12 , \OT1/cmtt/m/n/12 tree.sml
+ []
+
+[13] [14]
+<assets/ft1-min.png, id=499, 1203.49625pt x 579.16376pt>
+File: assets/ft1-min.png Graphic file (type png)
+<use assets/ft1-min.png>
+Package pdftex.def Info: assets/ft1-min.png  used on input line 205.
+(pdftex.def)             Requested size: 370.01321pt x 178.06306pt.
+<assets/ft2-min.png, id=500, 1832.8475pt x 925.4575pt>
+File: assets/ft2-min.png Graphic file (type png)
+<use assets/ft2-min.png>
+Package pdftex.def Info: assets/ft2-min.png  used on input line 213.
+(pdftex.def)             Requested size: 370.00294pt x 186.82513pt.
+) [15 <./assets/ft1-min.png> <./assets/ft2-min.png>] [16]
+
 \openout2 = `chapter1.aux'.
 
- (./chapter1.tex
-Chapter 1.
-<assets/lexError.png, id=291, 1278.7775pt x 760.8425pt>
+(./chapter1.tex
+Chapter 2.
+<assets/lexError.png, id=516, 1278.7775pt x 760.8425pt>
 File: assets/lexError.png Graphic file (type png)
 <use assets/lexError.png>
 Package pdftex.def Info: assets/lexError.png  used on input line 18.
@@ -730,51 +831,74 @@ l.22   \item W
               rote complete documentation of my compiler at \href{https://ti... [1
 
 
+
+
 ]
-<assets/tigercompiler.png, id=305, 1822.81pt x 675.52374pt>
+<assets/tigercompiler.png, id=529, 1822.81pt x 675.52374pt>
 File: assets/tigercompiler.png Graphic file (type png)
 <use assets/tigercompiler.png>
 Package pdftex.def Info: assets/tigercompiler.png  used on input line 25.
 (pdftex.def)             Requested size: 370.00705pt x 137.12265pt.
-<assets/travis.png, id=310, 1422.31375pt x 908.39375pt>
+<assets/travis.png, id=534, 1422.31375pt x 908.39375pt>
 File: assets/travis.png Graphic file (type png)
 <use assets/travis.png>
 Package pdftex.def Info: assets/travis.png  used on input line 32.
 (pdftex.def)             Requested size: 370.00989pt x 236.31541pt.
-<assets/funargs.png, id=315, 1770.615pt x 504.88625pt>
+<assets/funargs.png, id=539, 1770.615pt x 504.88625pt>
 File: assets/funargs.png Graphic file (type png)
 <use assets/funargs.png>
 Package pdftex.def Info: assets/funargs.png  used on input line 39.
 (pdftex.def)             Requested size: 370.00294pt x 105.50536pt.
-<assets/gitfunargs.png, id=316, 1737.49126pt x 609.27625pt>
+<assets/gitfunargs.png, id=540, 1737.49126pt x 609.27625pt>
 File: assets/gitfunargs.png Graphic file (type png)
 <use assets/gitfunargs.png>
 Package pdftex.def Info: assets/gitfunargs.png  used on input line 45.
 (pdftex.def)             Requested size: 370.02725pt x 129.75536pt.
- [2 <./assets/lexError.png> <./assets/tigercompiler.png>]
-<assets/shiftoperations.png, id=326, 1243.64626pt x 529.98pt>
+pdfTeX warning (ext4): destination with the same identifier (name{page.2}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.49   \item A
+              dded 2 more arithmetic operations, viz. \texttt{left shift} an... [2 <./assets/lexError.png> <./assets/tigercompiler.png>]
+<assets/shiftoperations.png, id=549, 1243.64626pt x 529.98pt>
 File: assets/shiftoperations.png Graphic file (type png)
 <use assets/shiftoperations.png>
 Package pdftex.def Info: assets/shiftoperations.png  used on input line 52.
 (pdftex.def)             Requested size: 370.02257pt x 157.68515pt.
-<assets/mulopt1.png, id=329, 1200.485pt x 480.79625pt>
+<assets/mulopt1.png, id=552, 1200.485pt x 480.79625pt>
 File: assets/mulopt1.png Graphic file (type png)
 <use assets/mulopt1.png>
 Package pdftex.def Info: assets/mulopt1.png  used on input line 62.
 (pdftex.def)             Requested size: 370.02164pt x 148.19427pt.
-<assets/mulopt2.png, id=330, 498.86375pt x 309.155pt>
+<assets/mulopt2.png, id=553, 498.86375pt x 309.155pt>
 File: assets/mulopt2.png Graphic file (type png)
 <use assets/mulopt2.png>
 Package pdftex.def Info: assets/mulopt2.png  used on input line 69.
 (pdftex.def)             Requested size: 259.02243pt x 160.52094pt.
- [3 <./assets/travis.png> <./assets/funargs.png>] [4 <./assets/gitfunargs.png> <./assets/shiftoperations.png>]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 77.
- (/usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
-File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
-)
-LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 77.
- [5 <./assets/mulopt1.png> <./assets/mulopt2.png>] [6]) [7] [8
+pdfTeX warning (ext4): destination with the same identifier (name{page.3}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.75   \item S
+              tarted work on giving a guess of literal in case of small typo. [3 <./assets/travis.png> <./assets/funargs.png>]pdfTeX warning (ext4): destination with the same identifier (name{page.4}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.75   \item S
+              tarted work on giving a guess of literal in case of small typo. [4 <./assets/gitfunargs.png> <./assets/shiftoperations.png>]pdfTeX warning (ext4): destination with the same identifier (name{page.5}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.79     \item B
+                ut to efficiently get those strings of nearby length there s... [5 <./assets/mulopt1.png> <./assets/mulopt2.png>]pdfTeX warning (ext4): destination with the same identifier (name{page.6}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.96   \item T
+              o implement dataflow analyses such as reaching definitions and... [6])pdfTeX warning (ext4): destination with the same identifier (name{page.7}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.81 \include{chapter1}
+                        [7]pdfTeX warning (ext4): destination with the same identifier (name{page.8}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.82 \cleardoublepage
+                      [8
 
 
 ]
@@ -782,28 +906,56 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
 \openout2 = `chapter2.aux'.
 
 (./chapter2.tex
-Chapter 2.
+Chapter 3.
 \openout6 = `btp_report.pyg'.
 
-(./_minted-btp_report/F61682FE093585806A83CE5DB3D8397F014A7D30D01DDB64A90DC94FEB868415.pygtex [9
+(./_minted-btp_report/F61682FE093585806A83CE5DB3D8397F014A7D30D01DDB64A90DC94FEB868415.pygtexpdfTeX warning (ext4): destination with the same identifier (name{page.9}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.4   \PYGZgt{}\PYGZgt{} spike pk filename
+                                           [9
 
 
 ])
 \openout6 = `btp_report.pyg'.
 
- (./_minted-btp_report/B4EE3A6A28D3EB4C247B3B0B9BEE59A7451D2C37E6E6572707A63A6EB4EF9017.pygtex [10])
+ (./_minted-btp_report/B4EE3A6A28D3EB4C247B3B0B9BEE59A7451D2C37E6E6572707A63A6EB4EF9017.pygtexpdfTeX warning (ext4): destination with the same identifier (name{page.10}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.11 ...ar to li, but works for loading addresses}
+                                                   [10])
 \openout6 = `btp_report.pyg'.
 
- (./_minted-btp_report/FE1A1C8BA52DE7D928E0FEAD30F487F9451D2C37E6E6572707A63A6EB4EF9017.pygtex [11])
+ (./_minted-btp_report/FE1A1C8BA52DE7D928E0FEAD30F487F9451D2C37E6E6572707A63A6EB4EF9017.pygtexpdfTeX warning (ext4): destination with the same identifier (name{page.11}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.19 \end{Verbatim}
+                    [11])
 \openout6 = `btp_report.pyg'.
 
- (./_minted-btp_report/12279EE33678E256D8E7B9B301CDC959451D2C37E6E6572707A63A6EB4EF9017.pygtex [12]) [13]) [14]
+ (./_minted-btp_report/12279EE33678E256D8E7B9B301CDC959451D2C37E6E6572707A63A6EB4EF9017.pygtexpdfTeX warning (ext4): destination with the same identifier (name{page.12}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.26 ...} \PYG{n+no}{a7}\PYG{p}{,} \PYG{l+m+mi}{1}
+                                                   [12])pdfTeX warning (ext4): destination with the same identifier (name{page.13}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.136 
+       [13])pdfTeX warning (ext4): destination with the same identifier (name{page.14}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.84 \include{chapter2}
+                        [14]
 
 \openout2 = `chapter3.aux'.
 
 (./chapter3.tex
-Chapter 3.
-[15
+Chapter 4.
+pdfTeX warning (ext4): destination with the same identifier (name{page.15}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.14 
+      [15
 
 
 
@@ -818,7 +970,11 @@ Overfull \hbox (9.82597pt too wide) in paragraph at lines 15--16
 (./_minted-btp_report/8153C08BA82A1B3DB57BB7409ACA8F9BA508512970308FA877B480F3970C5615.pygtex
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <12> not available
 (Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 4.
- [16]) [17]
+pdfTeX warning (ext4): destination with the same identifier (name{page.16}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.11     \PYG{k+kr}{exception} \PYG{n+nc}{Error}
+                                                 [16]) [17]
 \openout6 = `btp_report.pyg'.
 
  (./_minted-btp_report/74C6093B0306348971593F5BFBB76B4785202E5909C17349CA034DE043C030B0.pygtex)
@@ -841,14 +997,20 @@ LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <12> not available
 \openout2 = `chapter4.aux'.
 
 (./chapter4.tex
-Chapter 4.
+Chapter 5.
 [23
 
 
 ] [24]
 \openout6 = `btp_report.pyg'.
 
- (./_minted-btp_report/B1F33505AF240BD5598329A784D62D19A508512970308FA877B480F3970C5615.pygtex [25]) [26]
+ (./_minted-btp_report/E428858C148A82E7CAD7EA66524A8EBBA508512970308FA877B480F3970C5615.pygtex [25] [26])
+<assets/myFrame.png, id=689, 402.50375pt x 567.62062pt>
+File: assets/myFrame.png Graphic file (type png)
+<use assets/myFrame.png>
+Package pdftex.def Info: assets/myFrame.png  used on input line 64.
+(pdftex.def)             Requested size: 275.91608pt x 389.10359pt.
+ [27 <./assets/myFrame.png>]
 \openout7 = `btp_report.pyg'.
 
  (./_minted-btp_report/B2EAAD0E09F4865C728E2030F0BE515DC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
@@ -860,7 +1022,7 @@ Chapter 4.
  (./_minted-btp_report/DE2C2E2436F969A155C863173DC66EECC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
 \openout7 = `btp_report.pyg'.
 
- (./_minted-btp_report/5F3FFFA11EDC4B9FAC73B2597CCA64FAC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
+ (./_minted-btp_report/6F2170798604007AA9F132ED19502EFEC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
 \openout7 = `btp_report.pyg'.
 
  (./_minted-btp_report/5F3FFFA11EDC4B9FAC73B2597CCA64FAC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
@@ -879,7 +1041,7 @@ Chapter 4.
 \openout7 = `btp_report.pyg'.
 
  (./_minted-btp_report/A37EAF374A4F4E2836C12AD82ADDA13BC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-Overfull \hbox (18.90047pt too wide) in paragraph at lines 97--105
+Overfull \hbox (18.90047pt too wide) in paragraph at lines 106--114
 []\OT1/cmr/m/n/12 To ex-tend the cur-rent frame, we must sub-tract it by the amount \OT1/cmtt/m/n/12 escaped-arguments
  []
 
@@ -897,13 +1059,13 @@ Overfull \hbox (18.90047pt too wide) in paragraph at lines 97--105
  (./_minted-btp_report/120D7F3E68408BB9C5002B3A528AF783C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
 \openout7 = `btp_report.pyg'.
 
- (./_minted-btp_report/120D7F3E68408BB9C5002B3A528AF783C10BE7C546AB936BC0B71780EEC7C66C.pygtex) [27]
+ (./_minted-btp_report/120D7F3E68408BB9C5002B3A528AF783C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
 \openout7 = `btp_report.pyg'.
 
  (./_minted-btp_report/91BAFE9A72D7632EC626810EC27A3A4DC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
 \openout7 = `btp_report.pyg'.
 
- (./_minted-btp_report/91BAFE9A72D7632EC626810EC27A3A4DC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
+ (./_minted-btp_report/91BAFE9A72D7632EC626810EC27A3A4DC10BE7C546AB936BC0B71780EEC7C66C.pygtex) [28]
 \openout7 = `btp_report.pyg'.
 
  (./_minted-btp_report/DE39BF7187934C031336876CBEFA257DC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
@@ -967,14 +1129,14 @@ Overfull \hbox (18.90047pt too wide) in paragraph at lines 97--105
 \openout7 = `btp_report.pyg'.
 
  (./_minted-btp_report/B0C945BAE2AF9931D1087CB452524DBAC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-Overfull \hbox (18.20879pt too wide) in paragraph at lines 187--193
+Overfull \hbox (18.20879pt too wide) in paragraph at lines 196--202
 []\OT1/cmr/m/n/12 Called func-tion must save callee-save reg-is-ters in-clude \OT1/cmtt/m/n/12 ra\OT1/cmr/m/n/12 , this is done in \OT1/cmtt/m/n/12 procEntryExit1\OT1/cmr/m/n/12 ,
  []
 
-[28] [29]
+[29]
 \openout6 = `btp_report.pyg'.
 
- (./_minted-btp_report/20B5CAF48FCB8D279D4EA3FED1B84169A508512970308FA877B480F3970C5615.pygtex)
+ (./_minted-btp_report/20B5CAF48FCB8D279D4EA3FED1B84169A508512970308FA877B480F3970C5615.pygtex [30])
 \openout6 = `btp_report.pyg'.
 
  (./_minted-btp_report/DB28B0389A80558BF0297DC8EC532AC4A508512970308FA877B480F3970C5615.pygtex)
@@ -986,15 +1148,12 @@ Overfull \hbox (18.20879pt too wide) in paragraph at lines 187--193
  (./_minted-btp_report/DE389EAEF659E5DEA9BA13252F303087A508512970308FA877B480F3970C5615.pygtex)
 \openout6 = `btp_report.pyg'.
 
- (./_minted-btp_report/161B4D836F68565728AAD472BB0470C4A508512970308FA877B480F3970C5615.pygtex) [30]) [31] [32
-
-
-]
+ (./_minted-btp_report/161B4D836F68565728AAD472BB0470C4A508512970308FA877B480F3970C5615.pygtex) [31]) [32]
 
 \openout2 = `chapter5.aux'.
 
 (./chapter5.tex
-Chapter 5.
+Chapter 6.
 \openout7 = `btp_report.pyg'.
 
 (./_minted-btp_report/A3C79C18AA3B76035AA401F9278A009DC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
@@ -1021,6 +1180,8 @@ Chapter 5.
  (./_minted-btp_report/EFE46905E91367D4A22B17CC5702AD90C10BE7C546AB936BC0B71780EEC7C66C.pygtex) [33
 
 
+
+
 ]
 \openout7 = `btp_report.pyg'.
 
@@ -1044,7 +1205,7 @@ Overfull \hbox (23.30289pt too wide) in paragraph at lines 40--42
 \openout7 = `btp_report.pyg'.
 
  (./_minted-btp_report/B8F2EB1DB866935E5100B7BD0FDA7414C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-<assets/canon1.png, id=533, 757.83125pt x 985.6825pt>
+<assets/canon1.png, id=741, 757.83125pt x 985.6825pt>
 File: assets/canon1.png Graphic file (type png)
 <use assets/canon1.png>
 Package pdftex.def Info: assets/canon1.png  used on input line 63.
@@ -1130,7 +1291,7 @@ Package pdftex.def Info: assets/canon1.png  used on input line 63.
 \openout7 = `btp_report.pyg'.
 
  (./_minted-btp_report/BD54F33B86A980BCA586E037D49F4CF6C10BE7C546AB936BC0B71780EEC7C66C.pygtex) [36]
-<assets/is1.png, id=557, 1103.12125pt x 929.4725pt>
+<assets/is1.png, id=765, 1103.12125pt x 929.4725pt>
 File: assets/is1.png Graphic file (type png)
 <use assets/is1.png>
 Package pdftex.def Info: assets/is1.png  used on input line 164.
@@ -1162,7 +1323,7 @@ Package pdftex.def Info: assets/is1.png  used on input line 164.
 \openout7 = `btp_report.pyg'.
 
  (./_minted-btp_report/60B725F10C9C85C70D97880DFE8191B3C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-<assets/is2.png, id=566, 1085.05376pt x 698.61pt>
+<assets/is2.png, id=773, 1085.05376pt x 698.61pt>
 File: assets/is2.png Graphic file (type png)
 <use assets/is2.png>
 Package pdftex.def Info: assets/is2.png  used on input line 200.
@@ -1223,73 +1384,7 @@ Package pdftex.def Info: assets/is2.png  used on input line 200.
  (./_minted-btp_report/60B725F10C9C85C70D97880DFE8191B3C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
 \openout7 = `btp_report.pyg'.
 
- (./_minted-btp_report/3B5D5C3712955042212316173CCF37BEC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/84FF7F038FBFA0AA9D02CCD3AB3DE52FC10BE7C546AB936BC0B71780EEC7C66C.pygtex) [40]
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/46028609922581AFCFC377A820AB5684C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/B8790D9B008C933223F086295B43D5E1C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/2A541BE6FC936665B6F6AB2D5CB34E4AC10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/46028609922581AFCFC377A820AB5684C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/7E90C093039493C8DE83F657D91772F5C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/1EDC0E46BAC009FE5E9080D033D2BC25C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/7E90C093039493C8DE83F657D91772F5C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/E06CD975D0D1B511F71DE80CCC2C7DE6C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/1EDC0E46BAC009FE5E9080D033D2BC25C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/7E90C093039493C8DE83F657D91772F5C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/7E90C093039493C8DE83F657D91772F5C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/E06CD975D0D1B511F71DE80CCC2C7DE6C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/E06CD975D0D1B511F71DE80CCC2C7DE6C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/E06CD975D0D1B511F71DE80CCC2C7DE6C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/46028609922581AFCFC377A820AB5684C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/7E90C093039493C8DE83F657D91772F5C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/1EDC0E46BAC009FE5E9080D033D2BC25C10BE7C546AB936BC0B71780EEC7C66C.pygtex) [41]
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/1EDC0E46BAC009FE5E9080D033D2BC25C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/7E90C093039493C8DE83F657D91772F5C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/1EDC0E46BAC009FE5E9080D033D2BC25C10BE7C546AB936BC0B71780EEC7C66C.pygtex)
-\openout7 = `btp_report.pyg'.
-
- (./_minted-btp_report/E06CD975D0D1B511F71DE80CCC2C7DE6C10BE7C546AB936BC0B71780EEC7C66C.pygtex)) [42]
+ (./_minted-btp_report/3B5D5C3712955042212316173CCF37BEC10BE7C546AB936BC0B71780EEC7C66C.pygtex) [40] [41]) [42]
 
 (./btp_report.bbl) [43
 
@@ -1297,30 +1392,30 @@ Package pdftex.def Info: assets/is2.png  used on input line 200.
 
 
 ]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 97.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 97.
- (./btp_report.aux (./title.aux) (./certificate.aux) (./acknowledgement.aux) (./chapter1.aux) (./chapter2.aux) (./chapter3.aux) (./chapter4.aux) (./chapter5.aux))
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 97.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 97.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 100.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 100.
+ (./btp_report.aux (./title.aux) (./certificate.aux) (./acknowledgement.aux) (./chapter0.aux) (./chapter1.aux) (./chapter2.aux) (./chapter3.aux) (./chapter4.aux) (./chapter5.aux))
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 100.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 100.
 Package rerunfilecheck Info: File `btp_report.out' has not changed.
-(rerunfilecheck)             Checksum: 62D47357617376500E3E6C7A88489BC2;2841.
+(rerunfilecheck)             Checksum: EDA76D75945E08495D685B90B38E86C8;3558.
 runsystem(rm btp_report.pyg)...executed.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 97.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 100.
  ) 
 Here is how much of TeX's memory you used:
- 20470 strings out of 492609
- 418437 string characters out of 6131461
- 532290 words of memory out of 5000000
- 23448 multiletter control sequences out of 15000+600000
+ 20569 strings out of 492609
+ 416203 string characters out of 6131461
+ 527740 words of memory out of 5000000
+ 23527 multiletter control sequences out of 15000+600000
  15416 words of font info for 55 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 54i,10n,73p,996b,659s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 54i,10n,73p,1170b,659s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbxsl10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbxti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmitt10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on btp_report.pdf (49 pages, 1210207 bytes).
+Output written on btp_report.pdf (68 pages, 1810220 bytes).
 PDF statistics:
- 720 PDF objects out of 1000 (max. 8388607)
- 617 compressed objects within 7 object streams
- 155 named destinations out of 1000 (max. 500000)
- 409 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 931 PDF objects out of 1000 (max. 8388607)
+ 778 compressed objects within 8 object streams
+ 203 named destinations out of 1000 (max. 500000)
+ 556 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -90,7 +90,7 @@ Each of the variable, function declaration etc. will be stored as "symbols" (a p
 
 \tfbox{\ghref{tiger.grm} \\ \ghref{absyn.sml}}
 
-\texttt{tiger.grm} is the parser for our language, it will read the tokens from lexer and build AST using \texttt{absyn.sml}. Grammar directly follows the rules given in the book. 
+\texttt{tiger.grm} is the parser for our language, it will read the tokens from lexer and build AST using \texttt{absyn.sml}. Grammar directly follows the rules given in the book.
 
 \subsubsection{Guidelines}
 
@@ -108,4 +108,4 @@ Each of the variable, function declaration etc. will be stored as "symbols" (a p
   \item Precedence declaration should be written in the order of increasing precedence. 
 \end{itemize}
 
-For more description, please see the comments in the file \texttt{tiger.grm}.
+For more description, please see the comments in the file \texttt{tiger.grm}. Also we need not bother by errors generated during parsing, i.e. abstract syntax tree generation phase as ML-YACC will handle it.
