@@ -51,6 +51,9 @@ end
 
 <INITIAL, COMMENT>\n	=>                     (colNo := 1; lineNo := !lineNo + 1; linePos := yypos :: (!linePos); continue());
 <INITIAL, COMMENT>[\ \t]+ =>                 (colNo := !colNo + size yytext; continue());
+<INITIAL>"class" =>                           (colNo := !colNo + size yytext; Tokens.CLASS(yypos, yypos + size yytext));
+<INITIAL>"extends" =>                           (colNo := !colNo + size yytext; Tokens.EXTENDS(yypos, yypos + size yytext));
+<INITIAL>"new" =>                           (colNo := !colNo + size yytext; Tokens.NEW(yypos, yypos + size yytext));
 <INITIAL>"type" =>                           (colNo := !colNo + size yytext; Tokens.TYPE(yypos, yypos + size yytext));
 <INITIAL>"var" =>                            (colNo := !colNo + size yytext; Tokens.VAR(yypos, yypos + size yytext));
 <INITIAL>"function" =>                       (colNo := !colNo + size yytext; Tokens.FUNCTION(yypos, yypos + size yytext));

@@ -6,7 +6,6 @@ __newLine: .string "\n"
 .text
 
 # Many of the below written functions assume that the given input is correct. May augment with more information later.  
-# Will need to modify env.sml (Take care)
 
 # Given the exit code (in a0 ofc), terminate with that exit code.
 exit:
@@ -343,3 +342,10 @@ allocRecord:
     ecall
     jr ra
 
+# Need to allocate memory for class object, similar to above
+allocClass:
+    li t0, 4
+    mul a0, a0, t0
+    li a7, 9
+    ecall
+    jr ra

@@ -18,7 +18,24 @@ struct
     val errResult = {exp = L.errExp, ty = T.NIL}
     val curDepth = ref 0
 
+    (* Table for mapping class to all its vars/funs *)
+    val classVars = ref (S.enter(S.empty, S.symbol "Object", [] : A.dec list))
+    val classFuns = ref (S.enter(S.empty, S.symbol "Object", [] : A.fundec list))
+    val classVarsSETy = ref (S.enter(S.empty, S.symbol "Object", [] : (S.symbol * expty) list))
     (* Helper functions *)
+    (* When we have declared a new class "C", idea is to have its function name from "M" to "Class__C__M" *)
+
+    fun getClassName(T.CLASS(c)) = S.name(c)
+    fun appendClassName(name, [], modFunList : A.fundec list) = modFunList
+      | appendClassName(name, {name = nm, params, result, body, pos} :: fs, mfl) = appendClassName(name, fs, mfl @ [{name = S.symbol ("Class__" ^ name ^ "__" ^ S.name(nm)), params = params, result = result, body = body, pos = pos}])
+
+    fun funLinearize ([], funs) = funs
+      | funLinearize ((A.FunctionDec(fundecs)) :: fs, funs) = funs @ fundecs  
+    fun partitionClassFields ([], a, b) = (a, b)
+      | partitionClassFields (cf :: cfs, a, b) = 
+        case cf of 
+          A.VarDec (_) => partitionClassFields (cfs, a @ [cf], b)
+        | _ => partitionClassFields (cfs, a, b @ [cf])
     (* Need of the time is to check for string in symbol "sym" in the map "venv" which is mapping integer in symbols to the entry. What is simply required is the strings corresponding to all those ints in our venv. *)
     fun editDistance (a, b) = 
     let 
@@ -145,6 +162,7 @@ struct
     fun checkType (tenv, {exp = _, ty = T.INT}, {exp = _, ty = T.INT}, pos) = ()
       | checkType (tenv, {exp = _, ty = T.STRING}, {exp = _, ty = T.STRING}, pos) = ()
       | checkType (tenv, {exp = _, ty = T.REAL}, {exp = _, ty = T.REAL}, pos) = ()
+      | checkType (tenv, {exp = _, ty = T.CLASS (c)}, {exp = _, ty = T.CLASS (m)}, pos) = if m = c then () else Err.error pos "type mismatch"
       (* Just need to match unit ref as said before *)
       | checkType (tenv, {exp = _, ty = T.RECORD(_, ref1)}, {exp = _, ty = T.RECORD(_, ref2)}, pos) = if ref1 = ref2 then () else Err.error pos "can't compare different record types"
       (* As said before nil belongs to every record *)
@@ -187,6 +205,22 @@ struct
       | trexp (A.IntExp(intvalue)) = {exp = L.intlit(intvalue), ty = T.INT}
       | trexp (A.StringExp(stringvalue, pos)) = {exp = L.strlit(stringvalue), ty = T.STRING}
       | trexp (A.RealExp(realvalue)) = {exp = L.reallit(realvalue), ty = T.REAL}
+      | trexp (A.ClassCallExp({lvalue, func, args, pos})) = 
+        let 
+          val exptylval = trvar lvalue
+          val className = getClassName(#ty exptylval)
+          val func = S.symbol ("Class__" ^ className ^ "__" ^ (S.name (func)))
+          (* val _ = case #ty exptylval of T.CLASS(c) => print(S.name(c)) | _ => print("error\n") *)
+          val argET = [exptylval] @ (map trexp args)
+          val argT = map #ty argET
+          val isRealL = map (fn ty' => case ty' of T.REAL => true | _ => false) argT
+          fun checkFormals(formals, pos) = if (List.length (formals) <> List.length (argET)) then (Err.error pos "Number of arguments don't match corresponding to type") else (List.app (fn (t, e) => checkType (tenv, augmentR (actual_ty (tenv, t, pos)), e, pos)) (ListPair.zip (formals, argET)))
+        in
+          case S.look(venv, func) of
+              SOME(E.FunEntry({level = funlevel, label, formals, result})) => (checkFormals(formals, pos); {exp = L.call(level, funlevel, label, map #exp argET, isRealL, (case actual_ty(tenv, result, pos) of T.REAL => true | _ => false)), ty = actual_ty (tenv, result, pos)})
+            | SOME(_) => (Err.error pos ("symbol not a function " ^ S.name func); errResult)
+            | NONE => (variableOrTypeNotFound(venv, pos, "function", func); errResult)
+        end
       | trexp (A.CallExp({func, args, pos})) = 
         let
             val argET = map trexp args
@@ -265,7 +299,18 @@ struct
             | A.GeOp => (checkComp ())
           ) 
         end
-        
+      | trexp (A.ClassObject({class, pos})) = 
+        (case S.look(tenv, class) of 
+            NONE => (variableOrTypeNotFound(tenv, pos, "class", class); errResult)
+          | SOME (T.CLASS(c)) => 
+            let
+              val fieldsET = (map (fn (a, b) => b) (S.lookup(!classVarsSETy, c)))
+              val fieldsE = map (fn ({exp, ty}) => exp) fieldsET 
+              val fieldsT = map (fn ({exp, ty}) => ty) fieldsET
+            in
+              ({exp = L.classObject(fieldsE, fieldsT), ty = T.CLASS (c)})
+            end
+        )  
       | trexp (A.RecordExp({fields, typ, pos})) = 
         (case S.look(tenv, typ) of
             NONE => (variableOrTypeNotFound(tenv, pos, "record", typ); errResult)
@@ -430,10 +475,22 @@ struct
         in
           (case exptylval of
             {exp = _, ty = T.RECORD(StyL, uniq)} => 
-            (case List.find (fn elem => (#1elem) = id) StyL of
-                NONE => (variableOrTypeNotFound(tenv, pos, "record symbol", id); errResult)
+            (case List.find (fn elem => (#1 elem) = id) StyL of
+                NONE => (variableOrTypeNotFound(tenv, pos, "record field", id); errResult)
               | SOME (elem) => {exp = L.fieldVar(getexp (exptylval), id, StyL), ty = actual_ty (tenv, #2elem, pos)}) 
-          | _ => (Err.error pos ("record was expected but something else is given"); errResult)
+          | {exp, ty = T.CLASS(c)} =>
+            (
+            let 
+              val SETy = S.lookup(!classVarsSETy, c) (* is it possible here for class 'c' to not exist in this environment? *)
+              val StyL = map (fn (s, {exp, ty}) => (s, ty)) SETy
+            in 
+              (case List.find (fn elem => (#1 elem) = id) StyL of
+                NONE => (variableOrTypeNotFound(tenv, pos, "class variable", id); errResult)
+              | SOME (elem) => {exp = L.fieldVar(getexp (exptylval), id, StyL), ty = actual_ty (tenv, #2elem, pos)}
+              )
+            end
+            )
+          | _ => (Err.error pos ("record/class was expected but something else is given"); errResult)
           )
         end
       | trvar (A.SubscriptVar(avar, index, pos)) = 
@@ -475,6 +532,52 @@ struct
             (checkType(tenv, augmentR(at), augmentR(ty), pos);
             {tenv = tenv, venv = S.enter(venv, name, E.VarEntry{access = access', ty = at}), expList = [L.assign (varexp, exp, T.isReal(at))]})
           end
+    end
+    | transDec(venv, tenv, A.ClassDec {name, extends, classFields, pos}, level, break) = 
+    let 
+      (* First need to check whether extends is even there! *)
+      (* Need to put the class first in tenv and then parse all the funcs as self is of type CLASS *)
+      (* Book define few more checks that for a overridden function, parameters and result type should be identical *)
+      val (oldVars, oldFuns) = if (S.inDomain(tenv, extends)) then (S.lookup (!classVars, extends), S.lookup (!classFuns, extends)) else ((variableOrTypeNotFound(tenv, pos, "class", extends)); ([], []))
+      val (newVars, newFuns) = partitionClassFields(classFields, [], [])
+      val seenMap = ref S.empty
+      val completeVars = newVars @ oldVars
+      val completeVars = List.filter (fn (A.VarDec{name, ...}) => if (S.inDomain((!seenMap), name)) then false else (seenMap := S.enter((!seenMap), name, true); true)) completeVars
+      (* Convert the list of vars to their corresponding inits *)
+      fun varToSInit (tenv, [], inits) = inits
+        | varToSInit (tenv, A.VarDec {name, escape, typ = NONE, init, pos} :: ls, inits) = 
+            varToSInit(tenv, ls, inits @ [(name, init)])
+        | varToSInit (tenv, A.VarDec {name, escape, typ = SOME (tname, tpos), init, pos} :: ls, inits) = 
+          (case S.look (tenv, tname) of 
+            NONE => (variableOrTypeNotFound(tenv, pos, "type", tname); varToSInit(tenv, ls, inits))
+          | SOME(dty) =>
+              let
+                val {exp, ty} = transExp(venv, tenv, init, level, break)
+                val at = actual_ty(tenv, dty, pos) 
+              in
+              (
+                checkType(tenv, augmentR(at), augmentR(ty), pos);
+                varToSInit(tenv, ls, inits @ [(name, init)])
+              )
+              end
+          )
+      val SInit = varToSInit(tenv, completeVars, [])
+      val SETy = map (fn (s, i) => (s, transExp (venv, tenv, i, level, break))) SInit
+      val newFuns = funLinearize (newFuns, [])
+      val completeFuns = newFuns @ oldFuns
+      val seenMap = ref S.empty
+      val completeFuns = List.filter (fn ({name, ...} : A.fundec) => if S.inDomain(!seenMap, name) then false else (seenMap := S.enter(!seenMap, name, true); true)) completeFuns
+      val completeFuns = appendClassName(S.name (name), completeFuns, [])
+      val tenv = S.enter(tenv, name, Types.CLASS(name))
+      val _ = classVarsSETy := S.enter (!classVarsSETy, name, SETy); (* Need to do this before as inside the functions we may do self.var *)
+      val {venv, tenv, expList} = transDec(venv, tenv, A.FunctionDec(completeFuns), level, break)
+      val _ = print("ok till here\n")
+    in 
+    (
+      classVars := S.enter(!classVars, name, completeVars);
+      classFuns := S.enter(!classFuns, name, completeFuns);
+      {tenv = tenv, venv = venv, expList = []}
+    )
     end
     (*
       The solution for a set of mutually recursive things (types or functions) t1,...,tn is to put all the "headers" in the environment first, resulting in an environment e1. Then process all the "bodies" in the environment e1. During processing of the bodies it will be necessary to look up some of the newly defined names, but they will in fact be there - though some of them may be empty headers without bodies. 
@@ -585,6 +688,7 @@ struct
                       )
                     venv' params')
           val {exp, ty} = transExp(venv'', tenv, body, newlevel, break)
+          val _ = print("fun ok\n");
         in 
           checkType(tenv, augmentR(result), augmentR(ty), pos);
           L.procEntryExit (newlevel, exp, result);
@@ -620,7 +724,7 @@ struct
       val mainLevel = L.newLevel {parent = L.outermost, name = mainLabel, formals = [] : bool list, isRealL = [] : bool list}
       val {exp, ty} = transExp (E.base_venv, E.base_tenv, my_exp, mainLevel, mainLabel)
     in
-      (* The semantic analysis phase calls upon Translate.newLevel in  processing a function header. Later it calls other interface fields of Translate to translate the body of the Tiger function; this has the side effect of remembering string fragments for any string literals encountered, Finally the semantic analyzer calls procEntryExit, which has the side effect of remembering a PROC fragment.  *)
+      (* The semantic analysis phase calls upon Translate.newLevel in  processing a function header. Later it calls other interface fields of Translate to translate the body of the Tiger function; this has the side effect of remembering string fragments for any string literals encountered, Finally the semantic analyzer calls procEntryExit, which has the side effect of remembering a PROC fragment. *)
       L.procEntryExit (mainLevel, exp, ty);
       L.getResult()
     end

@@ -9,6 +9,7 @@ sig
   val look  : 'a table * symbol -> 'a option
   val lengthSymbols : int -> symbol list
   val inDomain : 'a table * symbol -> bool
+  val lookup : 'a table * symbol -> 'a
   val symPresent : string -> bool
   val getSym : string -> symbol
 end
@@ -86,4 +87,5 @@ struct
   val look = Table.look
   val inDomain = Table.inDomain
   val listItemsi = Table.listItemsi
+  val lookup = Table.lookup
 end

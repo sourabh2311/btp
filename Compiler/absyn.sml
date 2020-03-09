@@ -13,6 +13,7 @@ and exp = VarExp of var
         | RealExp of real
         | StringExp of string * pos
         | CallExp of {func: symbol, args: exp list, pos: pos}
+        | ClassCallExp of {lvalue: var, func: symbol, args: exp list, pos: pos}
         | OpExp of {left: exp, oper: oper, right: exp, pos: pos}
         | RecordExp of {fields: (symbol * exp * pos) list,
 			typ: symbol, pos: pos}
@@ -24,6 +25,7 @@ and exp = VarExp of var
         | BreakExp of pos
         | LetExp of {decs: dec list, body: exp, pos: pos}
         | ArrayExp of {typ: symbol, size: exp, init: exp, pos: pos}
+        | ClassObject of {class: symbol, pos: pos}
 
 and dec = FunctionDec of fundec list
         | VarDec of {name: symbol,
@@ -32,6 +34,7 @@ and dec = FunctionDec of fundec list
 		      init: exp,
 		      pos: pos}
         | TypeDec of {name: symbol, ty: ty, pos: pos} list
+        | ClassDec of {name: symbol, extends: symbol, classFields: dec list, pos: pos}
 
 and ty = NameTy of symbol * pos
        | RecordTy of field list

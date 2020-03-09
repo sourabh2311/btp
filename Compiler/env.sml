@@ -12,7 +12,7 @@ struct
     val base_tenv = 
     let
         fun addtotable ((s, t), table) = S.enter(table, S.symbol s, t)
-        val toadd = [("int", T.INT), ("real", T.REAL), ("string", T.STRING)]
+        val toadd = [("int", T.INT), ("real", T.REAL), ("string", T.STRING), ("Object", T.CLASS (S.symbol "Object"))]
     in
         foldr addtotable S.empty toadd
     end
@@ -42,7 +42,7 @@ struct
         ("realEqual", [T.REAL, T.REAL], T.INT),
         ("realLess", [T.REAL, T.REAL], T.INT),
         ("realGreat", [T.REAL, T.REAL], T.INT)
-        (* initArray, allocRecord are external calls *)
+        (* initArray, allocRecord & allocClass are external calls *)
     ]
 
     (* predefined functions *)

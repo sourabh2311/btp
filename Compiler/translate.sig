@@ -20,6 +20,7 @@ sig
   val binop : Absyn.oper * exp * exp * int -> exp
   val ifelse : exp * exp * exp -> exp
   val record : exp list * Types.ty list -> exp
+  val classObject : exp list * Types.ty list -> exp
   val array : exp * exp -> exp
   val loop : exp * exp * Temp.label -> exp
   val break : Temp.label -> exp

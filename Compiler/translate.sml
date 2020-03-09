@@ -211,6 +211,24 @@ in
 	Tr.TEMP result))
 end
 
+fun classObject (fieldsE, fieldsT) =
+let
+	val r = Temp.newtemp(0)
+	val init =
+			Tr.MOVE(
+			  Tr.TEMP r, 
+				Tr.CALL(Tr.NAME (T.namedlabel "allocClass"), [Tr.CONST(length(fieldsE) * F.wordSize)], AccessConv.frameToTree(F.dummyFormals(1, [])), [false], false)
+			)
+	fun loop ([], [], index) = nil 
+		|	loop (fieldE :: fieldsE, fieldT :: fieldsT, index) = 
+				if Types.isReal(fieldT) then 
+					Tr.RMOVE(memPlus(Tr.TEMP r, Tr.CONST(index * F.wordSize)), unEx(fieldE)) :: loop(fieldsE, fieldsT, index + 1)
+				else 	
+					Tr.MOVE(memPlus(Tr.TEMP r, Tr.CONST(index * F.wordSize)), unEx(fieldE)) :: loop(fieldsE, fieldsT, index + 1)
+in 
+	Ex(Tr.ESEQ(seq(init :: loop(fieldsE, fieldsT, 0)), Tr.TEMP r))
+end
+
 fun record (fieldsE, fieldsT) =
 let
 	val r = Temp.newtemp(0)

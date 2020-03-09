@@ -1,3 +1,4 @@
+(* IMP: Need to fix findescape for classes! *)
 (* A FindEscape function can look for escaping variables and record this information in the escape fields of the abstract syntax. The simplest way is to traverse the entire abstract syntax tree, looking for escaping uses of every variable. This phase must occur before semantic analysis begins, since Semant needs to know whether a variable escapes immediately upon seeing that variable for the first time. *)
 
 (* Idea of finding escapes is straight forward: Just see if this thing was defined in outer scope *)
@@ -25,6 +26,8 @@ case s of
     | A.IntExp(_) => ()
     | A.RealExp(_) => ()
     | A.StringExp(_, _) => ()
+    | A.ClassObject(_) => ()
+    | A.ClassCallExp(_) => ()
     | A.CallExp({args, ...}) => foldl (fn (arg, _) => traverseExp(env, d, arg)) () args
     | A.ArrayExp({size, init, ...}) => (traverseExp(env, d, size); traverseExp(env, d, init))
     | A.RecordExp({fields, ...}) => foldl (fn ((_, exp, _), _) => traverseExp(env, d, exp)) () fields
@@ -72,6 +75,7 @@ let
             ) env fundecs
         | A.VarDec({name, escape, init, ...}) => (escape := false; traverseExp(env, d, init); S.enter(env, name, (d, escape)))
         | A.TypeDec(_) => env
+        | A.ClassDec(_) => env
 in 
     foldl parseDec env s 
 end
