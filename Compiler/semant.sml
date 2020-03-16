@@ -22,6 +22,7 @@ struct
     val classVars = ref (S.enter(S.empty, S.symbol "Object", [] : A.dec list))
     val classFuns = ref (S.enter(S.empty, S.symbol "Object", [] : A.fundec list))
     val classVarsSETy = ref (S.enter(S.empty, S.symbol "Object", [] : (S.symbol * expty) list))
+    val classExtends = ref (S.enter (S.empty, S.symbol "Object", S.symbol "Object"))
     (* Helper functions *)
     (* When we have declared a new class "C", idea is to have its function name from "M" to "Class__C__M" *)
 
@@ -158,11 +159,11 @@ struct
         else (Err.error pos ("Duplicate definition " ^ (S.name name)))
     fun checkInt ({exp = _, ty = T.INT}, pos) = ()
       | checkInt ({exp = _, ty = _ }, pos) = Err.error pos "error : integer required"
-    
+    fun traceTill (subclass, superclass) = if subclass = superclass then true else if S.lookup(!classExtends, subclass) = subclass (* Reached object = object, thus we should now stop recursion *) then false else traceTill (S.lookup(!classExtends, subclass), superclass)
     fun checkType (tenv, {exp = _, ty = T.INT}, {exp = _, ty = T.INT}, pos) = ()
       | checkType (tenv, {exp = _, ty = T.STRING}, {exp = _, ty = T.STRING}, pos) = ()
       | checkType (tenv, {exp = _, ty = T.REAL}, {exp = _, ty = T.REAL}, pos) = ()
-      | checkType (tenv, {exp = _, ty = T.CLASS (c)}, {exp = _, ty = T.CLASS (m)}, pos) = if m = c then () else Err.error pos "type mismatch"
+      | checkType (tenv, {exp = _, ty = T.CLASS (functionExpects)}, {exp = _, ty = T.CLASS (functionGiven)}, pos) = if traceTill(functionGiven, functionExpects) then () else Err.error pos "type mismatch"
       (* Just need to match unit ref as said before *)
       | checkType (tenv, {exp = _, ty = T.RECORD(_, ref1)}, {exp = _, ty = T.RECORD(_, ref2)}, pos) = if ref1 = ref2 then () else Err.error pos "can't compare different record types"
       (* As said before nil belongs to every record *)
@@ -214,7 +215,8 @@ struct
           val argET = [exptylval] @ (map trexp args)
           val argT = map #ty argET
           val isRealL = map (fn ty' => case ty' of T.REAL => true | _ => false) argT
-          fun checkFormals(formals, pos) = if (List.length (formals) <> List.length (argET)) then (Err.error pos "Number of arguments don't match corresponding to type") else (List.app (fn (t, e) => checkType (tenv, augmentR (actual_ty (tenv, t, pos)), e, pos)) (ListPair.zip (formals, argET)))
+          (* One need not worry about the first parameter as it is guaranteed by me to be of the class dec type and thus won't be a superclass *)
+          fun checkFormals(formals, pos) = if (List.length (formals) <> List.length (argET)) then (Err.error pos "Number of arguments don't match corresponding to type") else (List.app (fn (formalType, givenArgEty) => checkType (tenv, augmentR (actual_ty (tenv, formalType, pos)), givenArgEty, pos)) (ListPair.zip (formals, argET)))
         in
           case S.look(venv, func) of
               SOME(E.FunEntry({level = funlevel, label, formals, result})) => (checkFormals(formals, pos); {exp = L.call(level, funlevel, label, map #exp argET, isRealL, (case actual_ty(tenv, result, pos) of T.REAL => true | _ => false)), ty = actual_ty (tenv, result, pos)})
@@ -227,11 +229,25 @@ struct
             val argT = map #ty argET
             val isRealL = map (fn ty' => case ty' of T.REAL => true | _ => false) argT
             fun checkFormals(formals, pos) = if (List.length (formals) <> List.length (argET)) then (Err.error pos "Number of arguments don't match corresponding to type") else (List.app (fn (t, e) => checkType (tenv, augmentR (actual_ty (tenv, t, pos)), e, pos)) (ListPair.zip (formals, argET)))
+            fun getString(A.StringExp(string, pos)) = string
         in
-            case S.look(venv, func) of
-                SOME(E.FunEntry({level = funlevel, label, formals, result})) => (checkFormals(formals, pos); {exp = L.call(level, funlevel, label, map #exp argET, isRealL, (case actual_ty(tenv, result, pos) of T.REAL => true | _ => false)), ty = actual_ty (tenv, result, pos)})
-              | SOME(_) => (Err.error pos ("symbol not a function " ^ S.name func); errResult)
-              | NONE => (variableOrTypeNotFound(venv, pos, "function", func); errResult)
+            if func = S.symbol("ISTYPE") then 
+              if List.length(args) = 2 then (
+                case argT of 
+                [T.CLASS(c), T.STRING] =>  if traceTill(c, S.symbol(getString(List.nth(args, 1)))) then trexp (A.IntExp(1)) else trexp (A.IntExp (0))
+                | _ => (Err.error pos ("Arguments aren't as expected"); errResult)
+              )
+              else (
+                (Err.error pos ("ISTYPE expects only two arguments"); errResult)
+              )
+
+            else (
+
+              case S.look(venv, func) of
+                  SOME(E.FunEntry({level = funlevel, label, formals, result})) => (checkFormals(formals, pos); {exp = L.call(level, funlevel, label, map #exp argET, isRealL, (case actual_ty(tenv, result, pos) of T.REAL => true | _ => false)), ty = actual_ty (tenv, result, pos)})
+                | SOME(_) => (Err.error pos ("symbol not a function " ^ S.name func); errResult)
+                | NONE => (variableOrTypeNotFound(venv, pos, "function", func); errResult)
+            )
         end
       | trexp (A.OpExp{left, oper, right, pos}) = 
         let 
@@ -538,11 +554,16 @@ struct
       (* First need to check whether extends is even there! *)
       (* Need to put the class first in tenv and then parse all the funcs as self is of type CLASS *)
       (* Book define few more checks that for a overridden function, parameters and result type should be identical *)
+      (* Order needs to be preserved, so concatenation of vars should be done cautiously *)
       val (oldVars, oldFuns) = if (S.inDomain(tenv, extends)) then (S.lookup (!classVars, extends), S.lookup (!classFuns, extends)) else ((variableOrTypeNotFound(tenv, pos, "class", extends)); ([], []))
+      val _ = classExtends := S.enter(!classExtends, name, extends)
       val (newVars, newFuns) = partitionClassFields(classFields, [], [])
       val seenMap = ref S.empty
-      val completeVars = newVars @ oldVars
-      val completeVars = List.filter (fn (A.VarDec{name, ...}) => if (S.inDomain((!seenMap), name)) then false else (seenMap := S.enter((!seenMap), name, true); true)) completeVars
+      fun traverseOld ([], news) = news
+        | traverseOld ((ol as A.VarDec{name = oldV, ...}) :: ols, news) = case (List.find (fn (A.VarDec{name = newV, ...}) => if (oldV = newV) then true else false) newVars) of SOME (l as A.VarDec{name = newV, ...}) => (seenMap := S.enter(!seenMap, newV, true); traverseOld (ols, news @ [l])) | NONE => traverseOld (ols, news @ [ol])
+      val oldVars = traverseOld (oldVars, [])
+      val newVars = List.filter (fn (A.VarDec{name, ...}) => if (S.inDomain(!seenMap, name)) then false else true) newVars
+      val completeVars = oldVars @ newVars
       (* Convert the list of vars to their corresponding inits *)
       fun varToSInit (tenv, [], inits) = inits
         | varToSInit (tenv, A.VarDec {name, escape, typ = NONE, init, pos} :: ls, inits) = 
@@ -567,10 +588,10 @@ struct
       val completeFuns = newFuns @ oldFuns
       val seenMap = ref S.empty
       val completeFuns = List.filter (fn ({name, ...} : A.fundec) => if S.inDomain(!seenMap, name) then false else (seenMap := S.enter(!seenMap, name, true); true)) completeFuns
-      val completeFuns = appendClassName(S.name (name), completeFuns, [])
+      val appendedFuns = appendClassName(S.name (name), completeFuns, [])
       val tenv = S.enter(tenv, name, Types.CLASS(name))
       val _ = classVarsSETy := S.enter (!classVarsSETy, name, SETy); (* Need to do this before as inside the functions we may do self.var *)
-      val {venv, tenv, expList} = transDec(venv, tenv, A.FunctionDec(completeFuns), level, break)
+      val {venv, tenv, expList} = transDec(venv, tenv, A.FunctionDec(appendedFuns), level, break)
       val _ = print("ok till here\n")
     in 
     (
