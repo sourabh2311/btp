@@ -22,7 +22,8 @@ struct
     val classVars = ref (S.enter(S.empty, S.symbol "Object", [] : A.dec list))
     val classFuns = ref (S.enter(S.empty, S.symbol "Object", [] : A.fundec list))
     val classVarsSETy = ref (S.enter(S.empty, S.symbol "Object", [] : (S.symbol * expty) list))
-    val classExtends = ref (S.enter (S.empty, S.symbol "Object", S.symbol "Object"))
+    val classOffsets = ref (S.enter (S.empty, S.symbol "Object", [] : int list))
+    val classExtends = ref (S.enter (S.empty, S.symbol "Object", [S.symbol "Object"]))
     (* Helper functions *)
     (* When we have declared a new class "C", idea is to have its function name from "M" to "Class__C__M" *)
 
@@ -159,7 +160,13 @@ struct
         else (Err.error pos ("Duplicate definition " ^ (S.name name)))
     fun checkInt ({exp = _, ty = T.INT}, pos) = ()
       | checkInt ({exp = _, ty = _ }, pos) = Err.error pos "error : integer required"
-    fun traceTill (subclass, superclass) = if subclass = superclass then true else if S.lookup(!classExtends, subclass) = subclass (* Reached object = object, thus we should now stop recursion *) then false else traceTill (S.lookup(!classExtends, subclass), superclass)
+    fun traceTill (subclass, superclass) = 
+    if subclass = superclass then 
+      true 
+    else if List.hd(S.lookup(!classExtends, subclass)) = subclass (* Reached object = object, thus we should now stop recursion *) then 
+        false 
+    else 
+      List.exists (fn e => traceTill(e, superclass)) (S.lookup(!classExtends, subclass))
     fun checkType (tenv, {exp = _, ty = T.INT}, {exp = _, ty = T.INT}, pos) = ()
       | checkType (tenv, {exp = _, ty = T.STRING}, {exp = _, ty = T.STRING}, pos) = ()
       | checkType (tenv, {exp = _, ty = T.REAL}, {exp = _, ty = T.REAL}, pos) = ()
@@ -324,7 +331,7 @@ struct
               val fieldsE = map (fn ({exp, ty}) => exp) fieldsET 
               val fieldsT = map (fn ({exp, ty}) => ty) fieldsET
             in
-              ({exp = L.classObject(fieldsE, fieldsT), ty = T.CLASS (c)})
+              ({exp = L.classObject(fieldsE, fieldsT, S.lookup(!classOffsets, c)), ty = T.CLASS (c)})
             end
         )  
       | trexp (A.RecordExp({fields, typ, pos})) = 
@@ -499,11 +506,10 @@ struct
             let 
               val SETy = S.lookup(!classVarsSETy, c) (* is it possible here for class 'c' to not exist in this environment? *)
               val StyL = map (fn (s, {exp, ty}) => (s, ty)) SETy
+              fun findVar([] : (Symbol.symbol * Types.ty) list, [] : int list) = (variableOrTypeNotFound(tenv, pos, "class variable", id); errResult)
+                | findVar(sty :: stys, offset :: offsets) = if (#1 sty) = id then ({exp = L.classObjectVar(getexp (exptylval), #2 sty, offset), ty = actual_ty (tenv, #2 sty, pos)}) else findVar(stys, offsets)
             in 
-              (case List.find (fn elem => (#1 elem) = id) StyL of
-                NONE => (variableOrTypeNotFound(tenv, pos, "class variable", id); errResult)
-              | SOME (elem) => {exp = L.fieldVar(getexp (exptylval), id, StyL), ty = actual_ty (tenv, #2elem, pos)}
-              )
+              findVar(StyL, S.lookup(!classOffsets, c))
             end
             )
           | _ => (Err.error pos ("record/class was expected but something else is given"); errResult)
@@ -549,13 +555,24 @@ struct
             {tenv = tenv, venv = S.enter(venv, name, E.VarEntry{access = access', ty = at}), expList = [L.assign (varexp, exp, T.isReal(at))]})
           end
     end
-    | transDec(venv, tenv, A.ClassDec {name, extends, classFields, pos}, level, break) = 
+    | transDec(venv, tenv, A.ClassDec {name, extends, classFields, varOffsets, pos}, level, break) = 
     let 
+      (* Every important thing is checked except function duplications so now just get it done *)
       (* First need to check whether extends is even there! *)
+      (* it's already checked in classVars.sml that this class is NOT declared before *)
       (* Need to put the class first in tenv and then parse all the funcs as self is of type CLASS *)
       (* Book define few more checks that for a overridden function, parameters and result type should be identical *)
       (* Order needs to be preserved, so concatenation of vars should be done cautiously *)
-      val (oldVars, oldFuns) = if (S.inDomain(tenv, extends)) then (S.lookup (!classVars, extends), S.lookup (!classFuns, extends)) else ((variableOrTypeNotFound(tenv, pos, "class", extends)); ([], []))
+      fun ExtendVF([], vars, funs) = (vars, funs) 
+        | ExtendVF(l :: ls, vars, funs) = 
+          if (S.inDomain(tenv, l)) then 
+            ExtendVF(ls, vars @ S.lookup (!classVars, l), funs @ S.lookup (!classFuns, l)) 
+          else 
+          (
+            variableOrTypeNotFound(tenv, pos, "class", l); 
+            ExtendVF(ls, vars, funs)
+          )
+      val (oldVars, oldFuns) = ExtendVF(extends, [], [])
       val _ = classExtends := S.enter(!classExtends, name, extends)
       val (newVars, newFuns) = partitionClassFields(classFields, [], [])
       val seenMap = ref S.empty
@@ -564,6 +581,7 @@ struct
       val oldVars = traverseOld (oldVars, [])
       val newVars = List.filter (fn (A.VarDec{name, ...}) => if (S.inDomain(!seenMap, name)) then false else true) newVars
       val completeVars = oldVars @ newVars
+      (* Till here everything ok *)
       (* Convert the list of vars to their corresponding inits *)
       fun varToSInit (tenv, [], inits) = inits
         | varToSInit (tenv, A.VarDec {name, escape, typ = NONE, init, pos} :: ls, inits) = 
@@ -590,9 +608,9 @@ struct
       val completeFuns = List.filter (fn ({name, ...} : A.fundec) => if S.inDomain(!seenMap, name) then false else (seenMap := S.enter(!seenMap, name, true); true)) completeFuns
       val appendedFuns = appendClassName(S.name (name), completeFuns, [])
       val tenv = S.enter(tenv, name, Types.CLASS(name))
+      val _ = classOffsets := S.enter(!classOffsets, name, !varOffsets)
       val _ = classVarsSETy := S.enter (!classVarsSETy, name, SETy); (* Need to do this before as inside the functions we may do self.var *)
       val {venv, tenv, expList} = transDec(venv, tenv, A.FunctionDec(appendedFuns), level, break)
-      val _ = print("ok till here\n")
     in 
     (
       classVars := S.enter(!classVars, name, completeVars);
@@ -709,7 +727,6 @@ struct
                       )
                     venv' params')
           val {exp, ty} = transExp(venv'', tenv, body, newlevel, break)
-          val _ = print("fun ok\n");
         in 
           checkType(tenv, augmentR(result), augmentR(ty), pos);
           L.procEntryExit (newlevel, exp, result);

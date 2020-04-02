@@ -34,7 +34,7 @@ and dec = FunctionDec of fundec list
 		      init: exp,
 		      pos: pos}
         | TypeDec of {name: symbol, ty: ty, pos: pos} list
-        | ClassDec of {name: symbol, extends: symbol, classFields: dec list, pos: pos}
+        | ClassDec of {name: symbol, extends: symbol list, classFields: dec list, varOffsets: int list ref, pos: pos}
 
 and ty = NameTy of symbol * pos
        | RecordTy of field list

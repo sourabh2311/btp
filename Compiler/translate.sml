@@ -159,6 +159,13 @@ end
 (* Just the way given in text. *)
 fun subscriptVar (base, offset) = Ex(memPlus(unEx(base), Tr.BINOP(Tr.MUL, unEx(offset), Tr.CONST(F.wordSize))))
 
+
+fun classObjectVar (base, ty, offset) = 
+	if Types.isReal(ty) then 
+		Ex(rmemPlus(unEx(base), Tr.BINOP(Tr.MUL, Tr.CONST(offset), Tr.CONST(F.wordSize))))
+	else 
+		Ex(memPlus(unEx(base), Tr.BINOP(Tr.MUL, Tr.CONST(offset), Tr.CONST(F.wordSize))))
+
 (* Just the way given in text. *)
 fun fieldVar (base, id, SL) =
 let 
@@ -211,22 +218,23 @@ in
 	Tr.TEMP result))
 end
 
-fun classObject (fieldsE, fieldsT) =
+fun classObject (fieldsE, fieldsT, offsets) =
 let
+	val mx = foldl (Int.max) 0 offsets
 	val r = Temp.newtemp(0)
 	val init =
 			Tr.MOVE(
 			  Tr.TEMP r, 
-				Tr.CALL(Tr.NAME (T.namedlabel "allocClass"), [Tr.CONST(length(fieldsE) * F.wordSize)], AccessConv.frameToTree(F.dummyFormals(1, [])), [false], false)
+				Tr.CALL(Tr.NAME (T.namedlabel "allocClass"), [Tr.CONST((if List.length (offsets) = 0 then 0 else mx + 1) * F.wordSize)], AccessConv.frameToTree(F.dummyFormals(1, [])), [false], false)
 			)
-	fun loop ([], [], index) = nil 
-		|	loop (fieldE :: fieldsE, fieldT :: fieldsT, index) = 
+	fun loop ([], [], []) = nil 
+		|	loop (fieldE :: fieldsE, fieldT :: fieldsT, index :: indices) = 
 				if Types.isReal(fieldT) then 
-					Tr.RMOVE(memPlus(Tr.TEMP r, Tr.CONST(index * F.wordSize)), unEx(fieldE)) :: loop(fieldsE, fieldsT, index + 1)
+					Tr.RMOVE(memPlus(Tr.TEMP r, Tr.CONST(index * F.wordSize)), unEx(fieldE)) :: loop(fieldsE, fieldsT, indices)
 				else 	
-					Tr.MOVE(memPlus(Tr.TEMP r, Tr.CONST(index * F.wordSize)), unEx(fieldE)) :: loop(fieldsE, fieldsT, index + 1)
+					Tr.MOVE(memPlus(Tr.TEMP r, Tr.CONST(index * F.wordSize)), unEx(fieldE)) :: loop(fieldsE, fieldsT, indices)
 in 
-	Ex(Tr.ESEQ(seq(init :: loop(fieldsE, fieldsT, 0)), Tr.TEMP r))
+	Ex(Tr.ESEQ(seq(init :: loop(fieldsE, fieldsT, offsets)), Tr.TEMP r))
 end
 
 fun record (fieldsE, fieldsT) =

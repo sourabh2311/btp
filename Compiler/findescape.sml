@@ -12,6 +12,12 @@ structure A = Absyn
 type depth = int
 type escEnv = (depth * bool ref) S.table
 
+fun partitionClassFields ([], a, b) = (a, b)
+  | partitionClassFields (cf :: cfs, a, b) = 
+    case cf of 
+      A.VarDec (_) => partitionClassFields (cfs, a @ [cf], b)
+    | _ => partitionClassFields (cfs, a, b @ [cf])
+
 fun traverseVar(env : escEnv, d : depth, s : A.var): unit =
 case s of
     A.SimpleVar(sym, pos) =>
@@ -27,12 +33,13 @@ case s of
     | A.RealExp(_) => ()
     | A.StringExp(_, _) => ()
     | A.ClassObject(_) => ()
-    | A.ClassCallExp(_) => ()
-    | A.CallExp({args, ...}) => foldl (fn (arg, _) => traverseExp(env, d, arg)) () args
+    (* Since when calling, user won't give class self as compiler is doing it, this is fine! *)
+    | A.ClassCallExp({lvalue, args, ...}) => (traverseVar(env, d, lvalue); app (fn arg => traverseExp(env, d, arg)) args)
+    | A.CallExp({args, ...}) => app (fn arg => traverseExp(env, d, arg)) args
     | A.ArrayExp({size, init, ...}) => (traverseExp(env, d, size); traverseExp(env, d, init))
-    | A.RecordExp({fields, ...}) => foldl (fn ((_, exp, _), _) => traverseExp(env, d, exp)) () fields
-    | A.OpExp({left, right, ...}) => (traverseExp(env, d, left); traverseExp(env, d, right); ())
-    | A.SeqExp(exps) => foldl (fn ((exp, _), _) => traverseExp(env, d, exp)) () exps
+    | A.RecordExp({fields, ...}) => app (fn (_, exp, _) => traverseExp(env, d, exp)) fields
+    | A.OpExp({left, right, ...}) => (traverseExp(env, d, left); traverseExp(env, d, right))
+    | A.SeqExp(exps) => app (fn (exp, _) => traverseExp(env, d, exp)) exps
     | A.IfExp({test, then', else', ...}) =>
         (traverseExp(env, d, test); traverseExp(env, d, then');
         (case else' of
@@ -49,9 +56,11 @@ case s of
         let 
             val env' = (escape := false; S.enter(env, var, (d, escape)) )
         in
-            (traverseExp(env, d, lo);
+        (
+            traverseExp(env, d, lo);
             traverseExp(env, d, hi);
-            traverseExp(env', d, body))
+            traverseExp(env', d, body)
+        )
         end
     | A.BreakExp(_) => ()
     | A.AssignExp({var, exp, ...}) => (traverseVar(env, d, var); traverseExp(env, d, exp))
@@ -59,7 +68,7 @@ case s of
 
 and traverseDecs(env, d, s : A.dec list): escEnv =
 let 
-    fun parseDec (dec, env) =
+    fun traverseDec (dec, env) =
     case dec of
         A.FunctionDec(fundecs) =>
         foldl 
@@ -75,9 +84,20 @@ let
             ) env fundecs
         | A.VarDec({name, escape, init, ...}) => (escape := false; traverseExp(env, d, init); S.enter(env, name, (d, escape)))
         | A.TypeDec(_) => env
-        | A.ClassDec(_) => env
+        | A.ClassDec({classFields, ...}) => (* here for var declaration, it is not getting added into the environment *)
+        ( 
+            let 
+                (* Here VarDecs have no role as "VarDecs" thus their escape is irrelevant, just need to traverseExp of init *)
+                val (varDecs, funDecs) = partitionClassFields(classFields, [], [])
+            in 
+            (
+                app (fn (A.VarDec({init, ...})) => traverseExp(env, d, init)) varDecs;
+                traverseDecs(env, d, funDecs)
+            )
+            end
+        ) 
 in 
-    foldl parseDec env s 
+    foldl traverseDec env s 
 end
 
 fun findEscape(prog : A.exp): unit =

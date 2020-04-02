@@ -90,6 +90,8 @@ structure Main = struct
         val _ = if (!stringAlgo < 0 orelse !stringAlgo > 1) then OS.Process.exit (OS.Process.failure) else ()
         val _ = (Semant.stringAlgorithm := !stringAlgo)
         val absyn = Parse.parse filename
+        val _ = ClassOffsets.classOffsets(absyn)
+        val _ = if (!ErrorMsg.anyErrors) then (print ("Unsuccessful compilation due to above errors\n"); OS.Process.exit (OS.Process.failure)) else ()
         (* FindEscape may fail in case there are some errors, in which case it is better to first make sure that we don't have these semantic errors *)
         val frags = Semant.transProg absyn 
         val _ = if (!ErrorMsg.anyErrors) then (print ("Unsuccessful compilation due to above errors\n"); OS.Process.exit (OS.Process.failure)) else ()

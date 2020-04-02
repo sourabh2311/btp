@@ -1,0 +1,25 @@
+let 
+  class A extends Object {
+    var a := "a"
+  }
+  class B extends Object {
+    var b := "b"
+    var c := "c"
+  }
+  class C extends A {
+    var d := "d"
+  }
+  class D extends C, B {
+    var e := "e"
+  }
+  var OA := new A
+  var OB := new B 
+  var OC := new C 
+  var OD := new D
+in 
+  print("Listing A fields: "); print(OA.a); print("\n");
+  print("Listing B fields: "); print(OB.b); print(OB.c); print("\n");
+  print("Listing C fields: "); print(OC.a); print(OC.d); print("\n");
+  print("Listing D fields: "); print(OD.a); print(OD.b); print(OD.c); print(OD.d); print("\n");
+  exit(0)
+end

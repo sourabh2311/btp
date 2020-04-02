@@ -19,7 +19,7 @@ fun forSyntaxHighlighting () = ()
   | FUNCTION | VAR | TYPE
   | CLASS | EXTENDS | NEW
 
-%nonterm  exp of A.exp | program of A.exp | decs of A.dec list | decsaux of A.dec list | tydecs of A.auxTypeDec list | tydec of A.auxTypeDec | ty of A.ty | record of (A.symbol * A.exp * pos) list | recordaux of (A.symbol * A.exp * pos) list | exps of (A.exp * pos) list | expsaux of (A.exp * pos) list | funas of A.exp list | funasaux of A.exp list | lvalue of A.var | dec of A.dec | tyfields of A.field list | tyfieldsaux of A.field list | vardec of A.dec | fundecs of A.fundec list | fundec of A.fundec list | classdec of A.dec | classfields of A.dec list 
+%nonterm  exp of A.exp | program of A.exp | decs of A.dec list | decsaux of A.dec list | tydecs of A.auxTypeDec list | tydec of A.auxTypeDec | ty of A.ty | record of (A.symbol * A.exp * pos) list | recordaux of (A.symbol * A.exp * pos) list | exps of (A.exp * pos) list | expsaux of (A.exp * pos) list | funas of A.exp list | funasaux of A.exp list | lvalue of A.var | dec of A.dec | tyfields of A.field list | tyfieldsaux of A.field list | vardec of A.dec | fundecs of A.fundec list | fundec of A.fundec list | classdec of A.dec | classfields of A.dec list | ext of Symbol.symbol list
 
 %pos int  (* should be same as what is given in lexer *)
 %start program  (* start state *)
@@ -376,8 +376,14 @@ tyfieldsaux:            ID COLON ID                         (
                         | tyfieldsaux COMMA ID COLON ID     (
                                                             tyfieldsaux @ [{name = Symbol.symbol ID1, escape = (ref true), typ = Symbol.symbol ID2, pos = ID1left}]
                                                             )
-classdec:               CLASS ID EXTENDS ID LBRACE classfields RBRACE (
-                                                            A.ClassDec({name = Symbol.symbol ID1, extends = Symbol.symbol ID2, classFields = classfields, pos = ID1left})
+ext:                    ID                                  (
+                                                            [Symbol.symbol ID]
+                                                            )
+                        | ext COMMA ID                      (
+                                                            ext @ [Symbol.symbol ID]
+                                                            )
+classdec:               CLASS ID EXTENDS ext LBRACE classfields RBRACE (
+                                                            A.ClassDec({name = Symbol.symbol ID1, extends = ext, classFields = classfields, varOffsets = ref [], pos = ID1left})
                                                             )
 
 classfields:            vardec                              (

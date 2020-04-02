@@ -6,18 +6,6 @@ let
     /* var notValid := self.position <- as there is no self. */
     function move(self : Vehicle, x : int) = (self.position := self.position + x)
   }
-  class Car extends Vehicle {
-    var passengers := 0
-    function await (self : Car, v : Vehicle) = 
-      if (v.position < self.position) then v.move (self.position - v.position)
-      else self.move(10)
-  }
-  class Truck extends Vehicle {
-    function move (self : Truck, x : int) = if x <= 55 then self.position := self.position + x
-  }
-  var c := new Car
-  var t := new Truck
-  var v : Vehicle := c
 in 
-  t.move (55); printI(t.position); t.move (56); print("\n"); printI(t.position); c.move(100); print("\n"); printI(c.position); c.await(t); print("\n"); printI(t.position); print("\n"); if ISTYPE(c, "Vehicle") then print("Car is a Vehicle too!\n"); exit(0)
+  exit(0)
 end

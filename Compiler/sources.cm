@@ -23,6 +23,7 @@ types.sml
 translate.sig
 translate.sml
 errormsg.sml
+classVars.sml
 findescape.sml
 temp.sig
 temp.sml
