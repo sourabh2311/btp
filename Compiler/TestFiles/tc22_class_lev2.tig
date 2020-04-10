@@ -11,13 +11,14 @@ let
       else self.move(10)
   }
   class Truck extends Vehicle {
+    var position := start + 5
     function move (self : Truck, x : int) = if x <= 55 then self.position := self.position + x
   }
   var c := new Car
   var t := new Truck
   var v : Vehicle := c
 in 
-  t.move (55); print("Truck after moving 55 units starting from 10: "); printI(t.position); print("\n");
+  t.move (55); print("Truck after moving 55 units starting from 15: "); printI(t.position); print("\n");
   t.move (56); print("Truck after trying to move 56 (not allowed): "); printI(t.position); print("\n"); 
   c.move(100); print ("Car after moving 100 units starting from 10: "); printI(c.position); print("\n"); 
   c.await(t); print ("Car awaiting for truck, now truck's position is: "); printI(t.position); print("\n"); 

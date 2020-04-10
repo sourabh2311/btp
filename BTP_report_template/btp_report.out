@@ -1,51 +1,68 @@
 \BOOKMARK [0][-]{section*.5}{List of Figures}{}% 1
 \BOOKMARK [0][-]{chapter.1}{Introduction}{}% 2
-\BOOKMARK [1][-]{section.1.1}{What Has Been Achieved This Semester}{chapter.1}% 3
-\BOOKMARK [2][-]{subsection.1.1.1}{Miscellaneous Improvements}{section.1.1}% 4
-\BOOKMARK [2][-]{subsection.1.1.2}{Compile Time Arguments}{section.1.1}% 5
-\BOOKMARK [2][-]{subsection.1.1.3}{Simplified String Comparisons}{section.1.1}% 6
-\BOOKMARK [2][-]{subsection.1.1.4}{Suggestions for Mistyped Words}{section.1.1}% 7
-\BOOKMARK [2][-]{subsection.1.1.5}{Real \(Float\) Implementation - Phase I}{section.1.1}% 8
-\BOOKMARK [2][-]{subsection.1.1.6}{Register Allocator}{section.1.1}% 9
-\BOOKMARK [2][-]{subsection.1.1.7}{Real \(Float\) Implementation - Phase II}{section.1.1}% 10
-\BOOKMARK [1][-]{section.1.2}{Organization of The Report}{chapter.1}% 11
-\BOOKMARK [0][-]{chapter.2}{Work of Last Semester}{}% 12
-\BOOKMARK [1][-]{section.2.1}{What Was Achieved This Semester}{chapter.2}% 13
-\BOOKMARK [1][-]{section.2.2}{Road Ahead}{chapter.2}% 14
-\BOOKMARK [0][-]{chapter.3}{Introduction to RISC V and Runtime}{}% 15
-\BOOKMARK [1][-]{section.3.1}{Choosing a Simulator}{chapter.3}% 16
-\BOOKMARK [1][-]{section.3.2}{Basic Examples}{chapter.3}% 17
-\BOOKMARK [2][-]{subsection.3.2.1}{Hello World}{section.3.2}% 18
-\BOOKMARK [2][-]{subsection.3.2.2}{Saving callee save registers}{section.3.2}% 19
-\BOOKMARK [1][-]{section.3.3}{Runtime}{chapter.3}% 20
-\BOOKMARK [0][-]{chapter.4}{Phase I : Constructing Abstract Syntax Tree}{}% 21
-\BOOKMARK [1][-]{section.4.1}{Linking Lexer and Parser}{chapter.4}% 22
-\BOOKMARK [1][-]{section.4.2}{Intermediate Error Handling}{chapter.4}% 23
-\BOOKMARK [1][-]{section.4.3}{Lexer}{chapter.4}% 24
-\BOOKMARK [1][-]{section.4.4}{Key Map}{chapter.4}% 25
-\BOOKMARK [1][-]{section.4.5}{Symbols in Tiger}{chapter.4}% 26
-\BOOKMARK [1][-]{section.4.6}{Parser}{chapter.4}% 27
-\BOOKMARK [0][-]{chapter.5}{Phase II : Constructing Intermediate Representation Tree}{}% 28
-\BOOKMARK [1][-]{section.5.1}{Type Interface}{chapter.5}% 29
-\BOOKMARK [1][-]{section.5.2}{Types/Variables Environment}{chapter.5}% 30
-\BOOKMARK [1][-]{section.5.3}{Finding Escaped Variables}{chapter.5}% 31
-\BOOKMARK [1][-]{section.5.4}{Intermediate Tree Representation}{chapter.5}% 32
-\BOOKMARK [1][-]{section.5.5}{Understanding Functions Calls in Tiger}{chapter.5}% 33
-\BOOKMARK [1][-]{section.5.6}{RISC Frame}{chapter.5}% 34
-\BOOKMARK [1][-]{section.5.7}{Translating to IR}{chapter.5}% 35
-\BOOKMARK [1][-]{section.5.8}{Semantic Analysis}{chapter.5}% 36
-\BOOKMARK [0][-]{chapter.6}{Phase III : Generating Assembly Code}{}% 37
-\BOOKMARK [1][-]{section.6.1}{Canonisation}{chapter.6}% 38
-\BOOKMARK [2][-]{subsection.6.1.1}{Abstract}{section.6.1}% 39
-\BOOKMARK [2][-]{subsection.6.1.2}{Why nodes are an issue?}{section.6.1}% 40
-\BOOKMARK [2][-]{subsection.6.1.3}{Why nodes are an issue?}{section.6.1}% 41
-\BOOKMARK [1][-]{section.6.2}{Instruction Selection}{chapter.6}% 42
-\BOOKMARK [2][-]{subsection.6.2.1}{Instruction Representation}{section.6.2}% 43
-\BOOKMARK [2][-]{subsection.6.2.2}{Code Generation}{section.6.2}% 44
-\BOOKMARK [2][-]{subsection.6.2.3}{Maximal Munch Algorithm}{section.6.2}% 45
-\BOOKMARK [1][-]{section.6.3}{Liveness Analysis and Interference Graph}{chapter.6}% 46
-\BOOKMARK [2][-]{subsection.6.3.1}{Liveness Analysis}{section.6.3}% 47
-\BOOKMARK [2][-]{subsection.6.3.2}{Interference Graph}{section.6.3}% 48
-\BOOKMARK [1][-]{section.6.4}{Register Allocation}{chapter.6}% 49
-\BOOKMARK [2][-]{subsection.6.4.1}{Algorithm}{section.6.4}% 50
-\BOOKMARK [0][-]{Item.50}{References}{}% 51
+\BOOKMARK [1][-]{section.1.1}{Grammar Additions}{chapter.1}% 3
+\BOOKMARK [1][-]{section.1.2}{Specifications For Objective Tiger}{chapter.1}% 4
+\BOOKMARK [1][-]{section.1.3}{Compile Time Arguments}{chapter.1}% 5
+\BOOKMARK [1][-]{section.1.4}{How To Compile?}{chapter.1}% 6
+\BOOKMARK [1][-]{section.1.5}{Organisation of Report}{chapter.1}% 7
+\BOOKMARK [0][-]{chapter.2}{Adding Objective Support in Tiger}{}% 8
+\BOOKMARK [1][-]{section.2.1}{Support for vars}{chapter.2}% 9
+\BOOKMARK [1][-]{section.2.2}{Support for functions/methods}{chapter.2}% 10
+\BOOKMARK [1][-]{section.2.3}{Supporting Single Inheritance}{chapter.2}% 11
+\BOOKMARK [1][-]{section.2.4}{Support for Multiple Inheritance}{chapter.2}% 12
+\BOOKMARK [1][-]{section.2.5}{Support for ISTYPE}{chapter.2}% 13
+\BOOKMARK [0][-]{chapter.3}{What Has Been Achieved This Semester}{}% 14
+\BOOKMARK [1][-]{section.3.1}{Miscellaneous Improvements}{chapter.3}% 15
+\BOOKMARK [2][-]{subsection.3.1.1}{More Graceful Error Termination}{section.3.1}% 16
+\BOOKMARK [2][-]{subsection.3.1.2}{Simplified "Make" Process}{section.3.1}% 17
+\BOOKMARK [2][-]{subsection.3.1.3}{Drew My Own Tiger}{section.3.1}% 18
+\BOOKMARK [2][-]{subsection.3.1.4}{Printing IR Tree As Well As Generated Code Before Register Allocation}{section.3.1}% 19
+\BOOKMARK [2][-]{subsection.3.1.5}{Others}{section.3.1}% 20
+\BOOKMARK [1][-]{section.3.2}{Simplified String Comparisons}{chapter.3}% 21
+\BOOKMARK [1][-]{section.3.3}{Suggestions for Mistyped Words}{chapter.3}% 22
+\BOOKMARK [2][-]{subsection.3.3.1}{Algorithm I}{section.3.3}% 23
+\BOOKMARK [2][-]{subsection.3.3.2}{Algorithm II}{section.3.3}% 24
+\BOOKMARK [1][-]{section.3.4}{Real \(Float\) Implementation - Phase I}{chapter.3}% 25
+\BOOKMARK [1][-]{section.3.5}{Register Allocator}{chapter.3}% 26
+\BOOKMARK [1][-]{section.3.6}{Real \(Float\) Implementation - Phase II}{chapter.3}% 27
+\BOOKMARK [1][-]{section.3.7}{Support for Objective Tiger}{chapter.3}% 28
+\BOOKMARK [0][-]{chapter.4}{Work of Last Semester}{}% 29
+\BOOKMARK [1][-]{section.4.1}{What Was Achieved This Semester}{chapter.4}% 30
+\BOOKMARK [1][-]{section.4.2}{Road Ahead}{chapter.4}% 31
+\BOOKMARK [0][-]{chapter.5}{Introduction to RISC V and Runtime}{}% 32
+\BOOKMARK [1][-]{section.5.1}{Choosing a Simulator}{chapter.5}% 33
+\BOOKMARK [1][-]{section.5.2}{Basic Examples}{chapter.5}% 34
+\BOOKMARK [2][-]{subsection.5.2.1}{Hello World}{section.5.2}% 35
+\BOOKMARK [2][-]{subsection.5.2.2}{Saving callee save registers}{section.5.2}% 36
+\BOOKMARK [1][-]{section.5.3}{Runtime}{chapter.5}% 37
+\BOOKMARK [0][-]{chapter.6}{Phase I : Constructing Abstract Syntax Tree}{}% 38
+\BOOKMARK [1][-]{section.6.1}{Linking Lexer and Parser}{chapter.6}% 39
+\BOOKMARK [1][-]{section.6.2}{Intermediate Error Handling}{chapter.6}% 40
+\BOOKMARK [1][-]{section.6.3}{Lexer}{chapter.6}% 41
+\BOOKMARK [1][-]{section.6.4}{Key Map}{chapter.6}% 42
+\BOOKMARK [1][-]{section.6.5}{Symbols in Tiger}{chapter.6}% 43
+\BOOKMARK [1][-]{section.6.6}{Parser}{chapter.6}% 44
+\BOOKMARK [0][-]{chapter.7}{Phase II : Constructing Intermediate Representation Tree}{}% 45
+\BOOKMARK [1][-]{section.7.1}{Type Interface}{chapter.7}% 46
+\BOOKMARK [1][-]{section.7.2}{Types/Variables Environment}{chapter.7}% 47
+\BOOKMARK [1][-]{section.7.3}{Finding Escaped Variables}{chapter.7}% 48
+\BOOKMARK [1][-]{section.7.4}{Intermediate Tree Representation}{chapter.7}% 49
+\BOOKMARK [1][-]{section.7.5}{Understanding Functions Calls in Tiger}{chapter.7}% 50
+\BOOKMARK [1][-]{section.7.6}{RISC Frame}{chapter.7}% 51
+\BOOKMARK [1][-]{section.7.7}{Translating to IR}{chapter.7}% 52
+\BOOKMARK [1][-]{section.7.8}{Semantic Analysis}{chapter.7}% 53
+\BOOKMARK [0][-]{chapter.8}{Phase III : Generating Assembly Code}{}% 54
+\BOOKMARK [1][-]{section.8.1}{Canonisation}{chapter.8}% 55
+\BOOKMARK [2][-]{subsection.8.1.1}{Abstract}{section.8.1}% 56
+\BOOKMARK [2][-]{subsection.8.1.2}{Why nodes are an issue?}{section.8.1}% 57
+\BOOKMARK [2][-]{subsection.8.1.3}{Why nodes are an issue?}{section.8.1}% 58
+\BOOKMARK [1][-]{section.8.2}{Instruction Selection}{chapter.8}% 59
+\BOOKMARK [2][-]{subsection.8.2.1}{Instruction Representation}{section.8.2}% 60
+\BOOKMARK [2][-]{subsection.8.2.2}{Code Generation}{section.8.2}% 61
+\BOOKMARK [2][-]{subsection.8.2.3}{Maximal Munch Algorithm}{section.8.2}% 62
+\BOOKMARK [1][-]{section.8.3}{Liveness Analysis and Interference Graph}{chapter.8}% 63
+\BOOKMARK [2][-]{subsection.8.3.1}{Liveness Analysis}{section.8.3}% 64
+\BOOKMARK [2][-]{subsection.8.3.2}{Interference Graph}{section.8.3}% 65
+\BOOKMARK [1][-]{section.8.4}{Register Allocation}{chapter.8}% 66
+\BOOKMARK [2][-]{subsection.8.4.1}{Algorithm}{section.8.4}% 67
+\BOOKMARK [0][-]{Item.52}{References}{}% 68

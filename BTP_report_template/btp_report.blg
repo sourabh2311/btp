@@ -4,6 +4,8 @@ The top-level auxiliary file: btp_report.aux
 A level-1 auxiliary file: title.aux
 A level-1 auxiliary file: certificate.aux
 A level-1 auxiliary file: acknowledgement.aux
+A level-1 auxiliary file: chapterTigSpec.aux
+A level-1 auxiliary file: chapterClass.aux
 A level-1 auxiliary file: chapter0.aux
 A level-1 auxiliary file: chapter1.aux
 A level-1 auxiliary file: chapter2.aux
@@ -24,7 +26,7 @@ Database file #1: btp.bib
 Done.
 You've used 3 entries,
             4024 wiz_defined-function locations,
-            830 strings with 7625 characters,
+            832 strings with 7659 characters,
 and the built_in function-call counts, 1102 in all, are:
 = -- 68
 > -- 17

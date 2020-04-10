@@ -1,0 +1,89 @@
+\chapter{Introduction}
+\pagenumbering{arabic}\hspace{3mm}
+
+This project aims to write a compiler to compiler Tiger to RISC V assembly code.
+
+\nbox{Before proceeding it is important to read about Tiger language from \cite{tigerbook} (read Tiger Reference Manual in Appendix).}
+
+Beyond what is already mentioned in the text \cite{tigerbook}, my Tiger specification includes abstractly two more things:-
+
+\begin{enumerate}
+  \item Real number support.
+  \item Objective functionality support.
+\end{enumerate}
+
+Real numbers enjoy first class support just like integers, strings and can be used exactly as integers.
+
+\section{Grammar Additions}
+
+$exp \rightarrow$ \textit{real-literal}
+
+$\rightarrow$ \textit{\textbf{new} class-id}
+
+$\rightarrow$ \textit{lvalue.id()}
+
+$\rightarrow$ \textit{lvalue.id(exp\{, exp\})}
+
+\textit{dec} $\rightarrow$ \textit{classdec}
+
+\textit{classdec} $\rightarrow$ \textit{\textbf{class} class-id \textbf{extends} class-ids \{\{classfield\}\}}
+
+\textit{class-ids} $\rightarrow$ \textit{id\{, id\}}
+
+\textit{classfield} $\rightarrow$ \textit{vardec}
+
+\textit{classfield} $\rightarrow$ \textit{fundecs}
+
+\section{Specifications For Objective Tiger}
+
+For the purpose of understanding the below points, refer \ref{fig:wmi}
+
+\begin{figure}
+\centering
+\iph{0.80}{assets/lastphase/TigerObjectWithoutMI2-min.png}
+\caption{Classes Demo I}
+\label{fig:wmi}
+\end{figure}
+
+\begin{itemize}
+  \item To simplify implementation, all declared \textit{classes} (irrespective of being in different environment) should have unique name.
+  \item \textit{vardec}, \textit{fundecs} could be \textit{overridden} by the subclass but the types should be preserved as it has to be backward compatible.
+  \item \textit{vardec}'s within the class shall not use this subclass fields for its initialisation as there is no self to fetch them.
+  \item As evident from grammar specification, there is no "method" but our usual "functions" and thus mutually recursive methods are supported.
+  \item Type casting of a subclass to its superclass is supported both in variable assignment and as in function argument. This is termed as "SUPERTYPE". We can see in line 19 that though variable \texttt{c} is of type \texttt{Car} yet we have assigned it to a variable of type \texttt{Vehicle}. Similarly in line 24, when executing \texttt{c.await(t)}, we can very well see that the \texttt{await} function expects an object of type \texttt{Vehicle} but we have given an object which is a subclass of it.
+  \item There is also a support to check whether an object 'x' is of its original class 'X' or any of the superclass of 'X' via \textit{ISTYPE(objectName, ClassName)}. \textit{ClassName} is to be given as a \textit{string} whereas the other parameter shall be \textit{var}.
+  \item Multiple inheritance is supported but the classes to be extend should be \textit{disjoint} and thus should have no field in common. 
+  \item Classes to support solely \textit{vars} and \textit{fundecs} which \textit{could} be redefined as evident by redefinition of variable \texttt{position} and function \texttt{move} in line 14, 15 respectively.
+  \item Concept of \textit{self}. When calling a function of an object, one need not pass its own discriptor which is done via compiler but when declaring the function of a class, one needs to mention \textit{self} as an argument.
+\end{itemize}
+
+
+\section{Compile Time Arguments}
+
+Since there are so many choices offered to a user when using this compiler. For instance:-
+
+\begin{enumerate}
+  \item Option to give filename to print IR Tree at. Flag = \texttt{ir}. Default = \texttt{TextIO.stdOut}.
+  \item Option to give filename to print instructions before register allocation at. Flag = \texttt{ba}. Default = \texttt{TextIO.stdOut}.
+  \item Option to choose which string algorithm to be used for displaying suggestions in case of mistyped word. Flag = \texttt{sa}. Default = \texttt{0} (i.e. Levenshtein algorithm).
+\end{enumerate}
+
+I have implemented feature for users to give compile time flags. Note: I mention "flags", thus user has an option to not define it, in which case default flag will be taken. See \ref{fig:flags} for an example usage.
+
+
+\begin{figure}
+\centering
+\iph{1}{assets/flags-min.png}
+\caption{Compile time arguments}
+\label{fig:flags}
+\end{figure}
+
+\section{How To Compile?}
+
+One needs to first \textit{make} the files visible in \textit{sources.cm} as \texttt{CM.make ("sources.cm")} then simply compile the file using the command (in sml), \texttt{Main.compile(FilePath, Arguments)}. For an example please see the above subsection and aswell the file \texttt{fileTest.sh}, contents of which are listed in \ref{fig:sm}.
+
+One can now run the compiled RISC V code using \href{https://github.com/TheThirdOne/rars}{RARS} like \texttt{java -jar rars1\_3\_1.jar sm nc TestFiles/filename.tig.s}
+
+\section{Organisation of Report}
+
+The second chapter explains how to add Objective functionality to Tiger. Third, Fourth chapter briefly explains the work done for this, i.e. $8^{th}$ Semester and $7^{th}$ Semester respectively. These chapter also explains various functionalities provided by my Compiler. The code written for this compiler is enormous and the remaining part of the report gives documentation on each of these files in an understandable order.

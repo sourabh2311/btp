@@ -38,6 +38,13 @@
 \textit{Please see comments in the file(s) for more details.}
 \end{tcolorbox}
 }
+
+\newcommand{\nbox}[1]{
+\begin{tcolorbox}[colframe=purple!75!black,title=Note]
+#1
+
+\end{tcolorbox}
+}
 \newcommand{\ghref}[1]{
    \href{\git #1}{#1}
 }
@@ -74,6 +81,12 @@
 \def\headrulehook{\color{black}}      % Color the header rule
 
 %========== Chapters
+\typeout{}
+\include{chapterTigSpec}
+\cleardoublepage
+\typeout{}
+\include{chapterClass}
+\cleardoublepage
 \typeout{}
 \include{chapter0}
 \cleardoublepage
