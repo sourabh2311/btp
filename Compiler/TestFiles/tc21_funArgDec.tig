@@ -1,0 +1,6 @@
+let 
+  function last (a : int) : int = a
+  var x : int := last(let in 3 end)
+in 
+  printI(x); print("\n"); exit(0)
+end

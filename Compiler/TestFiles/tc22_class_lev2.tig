@@ -1,0 +1,29 @@
+let 
+  var start := 10
+  class Vehicle extends Object {
+    var position := start
+    function move(self : Vehicle, x : int) = (self.position := self.position + x)
+  }
+  class Car extends Vehicle {
+    var passengers := 0
+    function await (self : Car, v : Vehicle) = 
+      if (v.position < self.position) then v.move (self.position - v.position)
+      else self.move(10)
+  }
+  class Truck extends Vehicle {
+    var position := start + 5
+    function move (self : Truck, x : int) = if x <= 55 then self.position := self.position + x
+  }
+  var c := new Car
+  var t := new Truck
+  var v : Vehicle := c
+in 
+  t.move (55); print("Truck after moving 55 units starting from 15: "); printI(t.position); print("\n");
+  t.move (56); print("Truck after trying to move 56 (not allowed): "); printI(t.position); print("\n"); 
+  c.move(100); print ("Car after moving 100 units starting from 10: "); printI(c.position); print("\n"); 
+  c.await(t); print ("Car awaiting for truck, now truck's position is: "); printI(t.position); print("\n"); 
+  print("Car passengers: "); printI(c.passengers); print("\n");
+  c.passengers := 2;
+  print ("Car passengers: "); printI(c.passengers); print("\n");
+  if ISTYPE(c, "Vehicle") then print("Car is a Vehicle too!\n"); exit(0)
+end

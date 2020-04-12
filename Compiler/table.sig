@@ -8,5 +8,6 @@ sig
     val listItems  : 'a table -> 'a list 
     val listItemsi  : 'a table -> (int * 'a) list 
     val inDomain  : 'a table * key -> bool
+    val lookup : 'a table * key -> 'a
 end
 

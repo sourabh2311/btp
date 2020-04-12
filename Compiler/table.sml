@@ -8,4 +8,5 @@ struct
     fun listItems(t) = IntBinaryMap.listItems(t)
     fun listItemsi(t) = IntBinaryMap.listItemsi(t)
     fun inDomain(t, k) = IntBinaryMap.inDomain(t, getInt k)
+    fun lookup(t, k) = IntBinaryMap.lookup(t, getInt k)
 end

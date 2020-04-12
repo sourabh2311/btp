@@ -17,8 +17,9 @@ fun forSyntaxHighlighting () = ()
   | ARRAY | IF | THEN | ELSE | WHILE | FOR | TO | DO | LET | IN | END | OF 
   | BREAK | NIL
   | FUNCTION | VAR | TYPE
+  | CLASS | EXTENDS | NEW
 
-%nonterm  exp of A.exp | program of A.exp | decs of A.dec list | decsaux of A.dec list | tydecs of A.auxTypeDec list | tydec of A.auxTypeDec | ty of A.ty | record of (A.symbol * A.exp * pos) list | recordaux of (A.symbol * A.exp * pos) list | exps of (A.exp * pos) list | expsaux of (A.exp * pos) list | funas of A.exp list | funasaux of A.exp list | lvalue of A.var | dec of A.dec | tyfields of A.field list | tyfieldsaux of A.field list | vardec of A.dec | fundecs of A.fundec list | fundec of A.fundec list
+%nonterm  exp of A.exp | program of A.exp | decs of A.dec list | decsaux of A.dec list | tydecs of A.auxTypeDec list | tydec of A.auxTypeDec | ty of A.ty | record of (A.symbol * A.exp * pos) list | recordaux of (A.symbol * A.exp * pos) list | exps of (A.exp * pos) list | expsaux of (A.exp * pos) list | funas of A.exp list | funasaux of A.exp list | lvalue of A.var | dec of A.dec | tyfields of A.field list | tyfieldsaux of A.field list | vardec of A.dec | fundecs of A.fundec list | fundec of A.fundec list | classdec of A.dec | classfields of A.dec list | ext of Symbol.symbol list
 
 %pos int  (* should be same as what is given in lexer *)
 %start program  (* start state *)
@@ -105,6 +106,14 @@ exp:                    NIL                                 (
                                                             )
                         | REAL                              (
                                                             A.RealExp(REAL)
+                                                            )
+                        (* Creating an instance (object) of the class ID *)
+                        | NEW ID                            (
+                                                            A.ClassObject({class = Symbol.symbol ID, pos = IDleft})
+                                                            )
+                        (* Class function call. *)
+                        | lvalue DOT ID LPAREN funas RPAREN (
+                                                            A.ClassCallExp({lvalue = lvalue, func = Symbol.symbol ID, args = funas, pos = IDleft})
                                                             )
                         (* Function Call *)
                         (* As always funas is evaluated left to right. 
@@ -273,7 +282,7 @@ funasaux:               exp                                 (
 lvalue:                 ID                                  (
                                                             A.SimpleVar(Symbol.symbol ID, IDleft)
                                                             )
-                        (* The dot notation allows the selection of the corresponding named field of a record value *)
+                        (* The dot notation allows the selection of the corresponding named field of a record value OR class *)
                         | lvalue DOT ID                     (
                                                             A.FieldVar(lvalue, Symbol.symbol ID, lvalueleft)
                                                             )
@@ -305,6 +314,11 @@ dec:                    tydecs                              (
                         (* Variable declaration *)
                         | vardec                            (
                                                             vardec
+                                                            )
+                        (* Class declaration *)
+                        | classdec 
+                                                            (
+                                                            classdec
                                                             )
                         (* Function declaration *)
                         | fundecs                           (
@@ -361,6 +375,28 @@ tyfieldsaux:            ID COLON ID                         (
                                                             )
                         | tyfieldsaux COMMA ID COLON ID     (
                                                             tyfieldsaux @ [{name = Symbol.symbol ID1, escape = (ref true), typ = Symbol.symbol ID2, pos = ID1left}]
+                                                            )
+ext:                    ID                                  (
+                                                            [Symbol.symbol ID]
+                                                            )
+                        | ext COMMA ID                      (
+                                                            ext @ [Symbol.symbol ID]
+                                                            )
+classdec:               CLASS ID EXTENDS ext LBRACE classfields RBRACE (
+                                                            A.ClassDec({name = Symbol.symbol ID1, extends = ext, classFields = classfields, varOffsets = ref [], pos = ID1left})
+                                                            )
+
+classfields:            vardec                              (
+                                                            [vardec]
+                                                            )
+                        | fundecs                           (
+                                                            [A.FunctionDec(fundecs)]
+                                                            )
+                        | vardec classfields                (
+                                                            [vardec] @ classfields
+                                                            )
+                        | fundecs classfields               (
+                                                            [A.FunctionDec(fundecs)] @ classfields
                                                             )
                         (* In this case the type of the identifier is determined from the type of the expression and in the other case the expression must have the same type as type-id
                         If the initializing expression is nil, then the long form must be used.

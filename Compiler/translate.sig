@@ -13,6 +13,7 @@ sig
   val simpleVar : access * level * bool -> exp
   val subscriptVar : exp * exp -> exp
   val fieldVar : exp * Symbol.symbol * (Symbol.symbol * Types.ty) list -> exp
+  val classObjectVar : exp * Types.ty * int -> exp
   val intlit : int -> exp
   val strlit : string -> exp
   val reallit : real -> exp
@@ -20,6 +21,7 @@ sig
   val binop : Absyn.oper * exp * exp * int -> exp
   val ifelse : exp * exp * exp -> exp
   val record : exp list * Types.ty list -> exp
+  val classObject : exp list * Types.ty list * int list -> exp
   val array : exp * exp -> exp
   val loop : exp * exp * Temp.label -> exp
   val break : Temp.label -> exp

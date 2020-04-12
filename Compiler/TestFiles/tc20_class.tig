@@ -1,0 +1,11 @@
+let 
+  var start := 10
+  class Vehicle extends Object {
+    var position := start
+    /* var check := position <- this is not fine :( */
+    /* var notValid := self.position <- as there is no self. */
+    function move(self : Vehicle, x : int) = (self.position := self.position + x)
+  }
+in 
+  exit(0)
+end

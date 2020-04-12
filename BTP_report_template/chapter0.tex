@@ -1,11 +1,9 @@
-\chapter{Introduction}
+\chapter{What Has Been Achieved This Semester}
 \pagenumbering{arabic}\hspace{3mm}
 
-\section{What Has Been Achieved This Semester}
+\section{Miscellaneous Improvements}
 
-\subsection{Miscellaneous Improvements}
-
-\subsubsection{More Graceful Error Termination}
+\subsection{More Graceful Error Termination}
 
 Earlier in lexical phase, as soon as an error was found, I was raising an exception but it could be better presented as simply an exit failure, or even better an exit success with just my simple lexer error. Which reduces the error output received by the user. Figure \ref{fig:gr1} and \ref{fig:gr2} shows the reduction in those "uncaught..." lines.
 
@@ -22,7 +20,7 @@ Earlier in lexical phase, as soon as an error was found, I was raising an except
 \label{fig:gr2}
 \end{figure}
 
-\subsubsection{Simplified "Make" Process}
+\subsection{Simplified "Make" Process}
 
 Earlier, the bash script to compile the given file required to concatenate the output with the \texttt{runtime.s}. Now it has been significantly simplified and the compilation process is reduced to just \texttt{Main.compile filename (optional flags)}. This concatenation business is now handled in the \texttt{Main} file itself. See \ref{fig:sm}.
 
@@ -33,7 +31,7 @@ Earlier, the bash script to compile the given file required to concatenate the o
 \label{fig:sm}
 \end{figure}
 
-\subsubsection{Drew My Own Tiger}
+\subsection{Drew My Own Tiger}
 
 Just for fun, I drew my own Tiger logo. See \ref{fig:tig}.
 
@@ -44,7 +42,7 @@ Just for fun, I drew my own Tiger logo. See \ref{fig:tig}.
 \label{fig:tig}
 \end{figure}
 
-\subsubsection{Printing IR Tree As Well As Generated Code Before Register Allocation}
+\subsection{Printing IR Tree As Well As Generated Code Before Register Allocation}
 
 The author of the book gives the program to achieve this. But due to changes commited by me in IR Tree, etc. hindered myself from using that code as now it would demand modifications to use but I didn't find much use of it later. Now as I was getting stuck time and again in various phases of these new improvements I was targeting. It became necessary to study IR tree and the code before register allocation to pin point where exactly the error is. See \ref{fig:ir} and \ref{fig:ba}.
 
@@ -63,7 +61,7 @@ The author of the book gives the program to achieve this. But due to changes com
 \label{fig:ba}
 \end{figure}
 
-\subsubsection{Others}
+\subsection{Others}
 
 \begin{itemize}
   \item Added more details in the project’s documentation (with more diagrams) to make it more useful for lucid revision. Along with general improvements in code.
@@ -71,27 +69,7 @@ The author of the book gives the program to achieve this. But due to changes com
   \item \texttt{FP} is indispensable, thus I decided not to remove it by calculating it using \texttt{SP}.
 \end{itemize}
 
-\subsection{Compile Time Arguments}
-
-Since there are so many choices offered to a user when using this compiler. For instance:-
-
-\begin{enumerate}
-  \item Option to give filename to print IR Tree at. Flag = \texttt{ir}. Default = \texttt{TextIO.stdOut}.
-  \item Option to give filename to print instructions before register allocation at. Flag = \texttt{ba}. Default = \texttt{TextIO.stdOut}.
-  \item Option to choose which string algorithm to be used for displaying suggestions in case of mistyped word. Flag = \texttt{sa}. Default = \texttt{0} (i.e. Levenshtein algorithm).
-\end{enumerate}
-
-I have implemented feature for users to give compile time flags. Note: I mention "flags", thus user has an option to not define it, in which case default flag will be taken. See \ref{fig:flags} for an example usage.
-
-
-\begin{figure}
-\centering
-\iph{1}{assets/flags-min.png}
-\caption{Compile time arguments}
-\label{fig:flags}
-\end{figure}
-
-\subsection{Simplified String Comparisons}
+\section{Simplified String Comparisons}
 
 Comparing strings in  a program is indispensable. Therefore, it is inconvinient to have user type a function each time there is a need to call a string function. Thus, I have added this funcionality where string comparisons can be done naturally. 
 
@@ -104,7 +82,7 @@ Comparing strings in  a program is indispensable. Therefore, it is inconvinient 
 \label{fig:sc}
 \end{figure}
 
-\subsection{Suggestions for Mistyped Words}
+\section{Suggestions for Mistyped Words}
 
 Tiger's target has always been to continue in case there are any mistakes and show maximum possible mistakes to the user at once. 
 
@@ -112,11 +90,11 @@ Keeping this aim in mind, it is as well desired to print suggestions for a misty
 
 Earlier I abstracted out \texttt{Not Found} errors in semantic phase but failed to proceed from that point in that semester. This semester, I began on continuing from where I left. I did \textbf{huge} amount of changes where I completely removed \texttt{symbol.sml}, \texttt{table.sig} and \texttt{table.sml}. I replaced their used everywhere with \texttt{atom}. And as this was a huge change, I expected many errors. Ultimately I lost to the errors and as I got the new insights, this was anyway not needed. \textbf{Idea} is that, anytime if somebody calls this symbol function, we are storing this new symbol. So if one is anyway storing a symbol, better I can just query this \texttt{symbol.sml} to ask whether a string is present in symbol table or not. If it is present I can get a corresponding symbol which I can use to check whether that symbol is present in a given environment. I can even map an integer (denoting string's length) to a set of symbols. Keeping these things in mind, I have implemented two algorithms:-
 
-\subsubsection{Algorithm I}
+\subsection{Algorithm I}
 
 In this algorithm, I am using a map, which maps an integer (denoting string's length) to a set of symbols. Now each time, I encounter a "Not Found" error, I get from this map, sets having strings of length 0 or unit distance away from the given string. Now we can use \textbf{Levenshtein's} algorithm to check for minimum edit distance of the given string from this set. Time complexity will work out to be: $\mathcal{O}(m * l^2 * log^2(s))$. Where $m$ equals strings in this set, $l = max(|strings|)$ and $s$ equals total symbols in the environment, we have this log factor for this look up and as well as lookup to get sets corresponding to that length, and quadratic factor for minimum edit distance DP algorithm.
 
-\subsubsection{Algorithm II}
+\subsection{Algorithm II}
 
 This is comparatively quick algorithm which successfully attempts to find string which are unit distance apart. The idea is that we can easily find a symbol corresponding to a string (if such a symbol exists) from our \texttt{symbols.sml} in $log$ factor, then, we can simply check whether this symbol exists in our environment in another $log$ factor. Now a string can be unit distance apart by a character deletion, or insertion or replacement (I as well implemented swap check function which is very common form of error). Trying all these possibilites, time complexity works out to be: $\mathcal{O}(log(s) * l * |\Sigma|)$ where $s$ is as defined before, $l$ equals length of the given string and $\Sigma$ equals set of characters which are to be tried for replacement (this although can be treated as a constant and removed from this asymptotics).
 
@@ -124,7 +102,7 @@ Both the algorithms can have their advantage for certain test cases, it is left 
 
 Implementation of these algorithms can be found in \texttt{symbol.sml}.
 
-\subsection{Real (Float) Implementation - Phase I}
+\section{Real (Float) Implementation - Phase I}
 
 Implementing real number support is a huge challenge as it requires A-Z modifications and in this 4000+ lines of code, even one bug could be fatal and difficult to detect thus making it important to identify at which phase is the error coming. Is it coming in IR generation phase or Code generation phase. Keeping this in view, I augmented \texttt{printtree.sml} file given by the author to streamline it with the modifications in my IR tree. There were lots of changes required which I will mention in the phase II of this.
 
@@ -150,7 +128,7 @@ Example of changes required in this phase are given in figure \ref{fig:rphi1} an
 \label{fig:rphi2}
 \end{figure}
 
-\subsection{Register Allocator}
+\section{Register Allocator}
 
 My last sem's compiler's register allocator was incomplete and a crude implementation of the algorithm given in the text. It was without coalescing which is essential to minimize the spills and different register's use (in move instruction). The book has a whole chapter dedicated to this subject. It takes time to read and understand this algorithm, so it took me some days to finally appreciate this algorithm. While implementing this algorithm, for purpose of optimizations, I did modifications among other files as well list using set everywhere from which one can easily add / delete an entry. 
 
@@ -178,7 +156,7 @@ Juggling through these errors (like one of my major error was that I had been in
 
 This was a real relief and a mark of something really innovative done in this project. Final generated code was significantly lower than earlier, demonstrating the power of coalescing. 
 
-\subsection{Real (Float) Implementation - Phase II}
+\section{Real (Float) Implementation - Phase II}
 
 As remarked, this phase attempted to provide full fledged real numbers support. I did huge number of modifications as:- 
 
@@ -215,8 +193,6 @@ As remarked, this phase attempted to provide full fledged real numbers support. 
 \label{fig:ft2}
 \end{figure}
 
+\section{Support for Objective Tiger}
 
-\section{Organization of The Report}
-
-The code written for this compiler is enormous and this report gives documentation on each of these files in an understandable order. But before proceeding it is important to read about Tiger language from \href{https://www.cs.princeton.edu/~appel/modern/ml/}{this book} (read Tiger Reference Manual in Appendix). Chapter 2 deals with the work done in previous semester. 
-
+I added Objective support to my compiler, which is as explained in the first two chapters. Kindly look at them to understand the nature of work.
