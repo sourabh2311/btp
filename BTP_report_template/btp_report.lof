@@ -1,39 +1,39 @@
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {1.1}{\ignorespaces Classes Demo I\relax }}{2}{figure.caption.7}% 
-\contentsline {figure}{\numberline {1.2}{\ignorespaces Compile time arguments\relax }}{4}{figure.caption.8}% 
+\contentsline {figure}{\numberline {1.1}{\ignorespaces Classes Demo I\relax }}{3}{figure.caption.7}%
+\contentsline {figure}{\numberline {1.2}{\ignorespaces Compile time arguments\relax }}{5}{figure.caption.8}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {2.1}{\ignorespaces Single Inheritance Program\relax }}{2}{figure.caption.9}% 
-\contentsline {figure}{\numberline {2.2}{\ignorespaces Single Inheritance Fields Allocation\relax }}{2}{figure.caption.10}% 
-\contentsline {figure}{\numberline {2.3}{\ignorespaces Multiple Inheritance Program\relax }}{3}{figure.caption.11}% 
-\contentsline {figure}{\numberline {2.4}{\ignorespaces Multiple Inheritance Fields Allocation\relax }}{4}{figure.caption.12}% 
-\contentsline {figure}{\numberline {2.5}{\ignorespaces UFDS Example\relax }}{4}{figure.caption.13}% 
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Single Inheritance Program\relax }}{8}{figure.caption.9}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Single Inheritance Fields Allocation\relax }}{8}{figure.caption.10}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Multiple Inheritance Program\relax }}{9}{figure.caption.11}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Multiple Inheritance Fields Allocation\relax }}{10}{figure.caption.12}%
+\contentsline {figure}{\numberline {2.5}{\ignorespaces UFDS Example\relax }}{10}{figure.caption.13}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces Graceful error termination - before\relax }}{2}{figure.caption.14}% 
-\contentsline {figure}{\numberline {3.2}{\ignorespaces Graceful error termination - after\relax }}{2}{figure.caption.15}% 
-\contentsline {figure}{\numberline {3.3}{\ignorespaces Simplified Make\relax }}{2}{figure.caption.16}% 
-\contentsline {figure}{\numberline {3.4}{\ignorespaces Tiger Logo\relax }}{3}{figure.caption.17}% 
-\contentsline {figure}{\numberline {3.5}{\ignorespaces IR Tree\relax }}{4}{figure.caption.18}% 
-\contentsline {figure}{\numberline {3.6}{\ignorespaces Code before register allocation\relax }}{5}{figure.caption.19}% 
-\contentsline {figure}{\numberline {3.7}{\ignorespaces String Comparisons\relax }}{6}{figure.caption.20}% 
-\contentsline {figure}{\numberline {3.8}{\ignorespaces Real I Implementation Glimpse (a)\relax }}{10}{figure.caption.21}% 
-\contentsline {figure}{\numberline {3.9}{\ignorespaces Real I Implementation Glimpse (b)\relax }}{11}{figure.caption.22}% 
-\contentsline {figure}{\numberline {3.10}{\ignorespaces Bug in Register Allocator\relax }}{11}{figure.caption.23}% 
-\contentsline {figure}{\numberline {3.11}{\ignorespaces Critical Error in Book's Algorithm\relax }}{12}{figure.caption.24}% 
-\contentsline {figure}{\numberline {3.12}{\ignorespaces Change for floating point\relax }}{14}{figure.caption.25}% 
-\contentsline {figure}{\numberline {3.13}{\ignorespaces Floating Point Example\relax }}{15}{figure.caption.26}% 
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Graceful error termination - before\relax }}{14}{figure.caption.14}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Graceful error termination - after\relax }}{14}{figure.caption.15}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Simplified Make\relax }}{14}{figure.caption.16}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Tiger Logo\relax }}{15}{figure.caption.17}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces IR Tree\relax }}{16}{figure.caption.18}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Code before register allocation\relax }}{17}{figure.caption.19}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces String Comparisons\relax }}{18}{figure.caption.20}%
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Real I Implementation Glimpse (a)\relax }}{22}{figure.caption.21}%
+\contentsline {figure}{\numberline {3.9}{\ignorespaces Real I Implementation Glimpse (b)\relax }}{23}{figure.caption.22}%
+\contentsline {figure}{\numberline {3.10}{\ignorespaces Bug in Register Allocator\relax }}{23}{figure.caption.23}%
+\contentsline {figure}{\numberline {3.11}{\ignorespaces Critical Error in Book's Algorithm\relax }}{24}{figure.caption.24}%
+\contentsline {figure}{\numberline {3.12}{\ignorespaces Change for floating point\relax }}{26}{figure.caption.25}%
+\contentsline {figure}{\numberline {3.13}{\ignorespaces Floating Point Example\relax }}{27}{figure.caption.26}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Lexer detecting error where newline is inserted in a string\relax }}{2}{figure.caption.27}% 
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Website: \href {https://tigercompiler.ml}{tigercompiler.ml}\relax }}{2}{figure.caption.28}% 
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Automated testing using \href {https://travis-ci.org/sourabh2311/btp}{Travis}\relax }}{3}{figure.caption.29}% 
-\contentsline {figure}{\numberline {4.4}{\ignorespaces As many function arguments possible\relax }}{3}{figure.caption.30}% 
-\contentsline {figure}{\numberline {4.5}{\ignorespaces Git commit showing addition of this feature\relax }}{4}{figure.caption.31}% 
-\contentsline {figure}{\numberline {4.6}{\ignorespaces Arithmetic Shift Operations\relax }}{4}{figure.caption.32}% 
-\contentsline {figure}{\numberline {4.7}{\ignorespaces Multiplication Optimization\relax }}{5}{figure.caption.33}% 
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Lexer detecting error where newline is inserted in a string\relax }}{30}{figure.caption.27}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Website: \href {https://tigercompiler.ml}{tigercompiler.ml}\relax }}{30}{figure.caption.28}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Automated testing using \href {https://travis-ci.org/sourabh2311/btp}{Travis}\relax }}{31}{figure.caption.29}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces As many function arguments possible\relax }}{31}{figure.caption.30}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Git commit showing addition of this feature\relax }}{32}{figure.caption.31}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Arithmetic Shift Operations\relax }}{32}{figure.caption.32}%
+\contentsline {figure}{\numberline {4.7}{\ignorespaces Multiplication Optimization\relax }}{33}{figure.caption.33}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {7.1}{\ignorespaces Illustration of Frame\relax }}{27}{figure.caption.36}% 
+\contentsline {figure}{\numberline {7.1}{\ignorespaces Illustration of Frame\relax }}{55}{figure.caption.36}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {8.1}{\ignorespaces ESEQ Removal. Image source: \cite {tigerbook}\relax }}{35}{figure.caption.37}% 
-\contentsline {figure}{\numberline {8.2}{\ignorespaces Tree Patterns showing arithmetic and memory instructions. Image source: \cite {tigerbook}\relax }}{37}{figure.caption.38}% 
-\contentsline {figure}{\numberline {8.3}{\ignorespaces A tree tiled in two ways. Image source: \cite {tigerbook}\relax }}{38}{figure.caption.39}% 
+\contentsline {figure}{\numberline {8.1}{\ignorespaces ESEQ Removal. Image source: \cite {tigerbook}\relax }}{63}{figure.caption.37}%
+\contentsline {figure}{\numberline {8.2}{\ignorespaces Tree Patterns showing arithmetic and memory instructions. Image source: \cite {tigerbook}\relax }}{65}{figure.caption.38}%
+\contentsline {figure}{\numberline {8.3}{\ignorespaces A tree tiled in two ways. Image source: \cite {tigerbook}\relax }}{66}{figure.caption.39}%

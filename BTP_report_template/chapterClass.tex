@@ -1,5 +1,4 @@
 \chapter{Adding Objective Support in Tiger}
-\pagenumbering{arabic}\hspace{3mm}
 
 As explained in first Chapter, Classes can have only two type of fields, viz., \textit{vars} and \textit{functions}.
 
@@ -14,49 +13,49 @@ Unlike \textit{vars}, which could be "stored", \textit{functions} are "declared"
 \section{Supporting Single Inheritance}
 
 \begin{figure}
-\centering
-\iph{0.50}{../sem8_presentation2/singleInheritance.png}
-\caption{Single Inheritance Program}
-\label{fig:SI1}
+	\centering
+	\iph{0.50}{../sem8_presentation2/singleInheritance.png}
+	\caption{Single Inheritance Program}
+	\label{fig:SI1}
 \end{figure}
 
 \begin{figure}
-\centering
-\iph{0.50}{../sem8_presentation2/SIV.png}
-\caption{Single Inheritance Fields Allocation}
-\label{fig:SI2}
+	\centering
+	\iph{0.50}{../sem8_presentation2/SIV.png}
+	\caption{Single Inheritance Fields Allocation}
+	\label{fig:SI2}
 \end{figure}
 
 Since we must support backward compatibility, the idea of "SUPERTYPE". Superclass's fields should be listed before the Subclass's fields as shown in figure \ref{fig:SI2} of program \ref{fig:SI1}. Since I support for fields redefinition, one should be cautious when implementing this.
 
 \section{Support for Multiple Inheritance}
 
-This would have been easy in case we were to not support "SUPERTYPE". It is the combination of Multiple Inheritance and backward compatibility that makes this problem tough. 
+This would have been easy in case we were to not support "SUPERTYPE". It is the combination of Multiple Inheritance and backward compatibility that makes this problem tough.
 
-To understand this, see \ref{fig:MI1} and \ref{fig:MI2}. We can see that we just can't list the fields linearly for any class and inevitably there are gaps left. 
+To understand this, see \ref{fig:MI1} and \ref{fig:MI2}. We can see that we just can't list the fields linearly for any class and inevitably there are gaps left.
 
 \begin{figure}
-\centering
-\iph{0.50}{../sem8_presentation2/MI.png}
-\caption{Multiple Inheritance Program}
-\label{fig:MI1}
+	\centering
+	\iph{0.50}{../sem8_presentation2/MI.png}
+	\caption{Multiple Inheritance Program}
+	\label{fig:MI1}
 \end{figure}
 
 \begin{figure}
-\centering
-\iph{0.50}{../sem8_presentation2/MI2.png}
-\caption{Multiple Inheritance Fields Allocation}
-\label{fig:MI2}
+	\centering
+	\iph{0.50}{../sem8_presentation2/MI2.png}
+	\caption{Multiple Inheritance Fields Allocation}
+	\label{fig:MI2}
 \end{figure}
 
 \begin{figure}
-\centering
-\iph{0.50}{../sem8_presentation2/MI3.png}
-\caption{UFDS Example}
-\label{fig:MI3}
+	\centering
+	\iph{0.50}{../sem8_presentation2/MI3.png}
+	\caption{UFDS Example}
+	\label{fig:MI3}
 \end{figure}
 
-To handle this, we can "statically" analyse the complete program and reduce this problem to graph coloring. Idea is to add an edge between \textit{vars} which could possibly end being in the same class. Then we would be ended with disjoint Cliques which could then be colored. 
+To handle this, we can "statically" analyse the complete program and reduce this problem to graph coloring. Idea is to add an edge between \textit{vars} which could possibly end being in the same class. Then we would be ended with disjoint Cliques which could then be colored.
 
 But we can do better. As the graph is simply disjoint cliques, each node in a component would receive different color. Thus we can simply use UFDS data structure and color each element of the set with different color. Here we just need to join the set containing \textit{vars} of Superclasses with Subclass. See \ref{fig:MI3} for an example for the code \ref{fig:MI1}.
 
@@ -64,4 +63,4 @@ But we can do better. As the graph is simply disjoint cliques, each node in a co
 
 With this section, I will also explain on how to support type casting. Basically for type casting we just need to check whether this type is even compatible with given type which would be possible if the Class concerned is Superclass or original class of the given object. So for given class, one should store the list of all classes which it extends. Now to see type casting or type compatibility, we try to match the given class with the classes in this list and continue recursively until we reach the base Object Class.
 
-Now \textit{ISTYPE} uses this procedure to check validity. This is done in \texttt{semant.sml} and after determining, I here itself replace this program code with simply its answer which is either integer 0 or 1. 
+Now \textit{ISTYPE} uses this procedure to check validity. This is done in \texttt{semant.sml} and after determining, I here itself replace this program code with simply its answer which is either integer 0 or 1.

@@ -1,6 +1,6 @@
 \chapter{Phase III : Generating Assembly Code}
 
-This final phase generates the machine assembly code and thus completing the purpose of compiler. 
+This final phase generates the machine assembly code and thus completing the purpose of compiler.
 It involves the discussion of various concepts such as Canonisation, Instruction Selection, Liveness Analysis and Register Allocation.
 
 Each of these is explained in an understandable order below.
@@ -10,7 +10,7 @@ Each of these is explained in an understandable order below.
 \tfbox{\ghref{canon.sml}}
 
 \hypertarget{abstract}{%
-\subsection{Abstract}\label{abstract}}
+	\subsection{Abstract}\label{abstract}}
 
 It's useful to be able to evaluate the sub-expressions of an expression
 in any order. If tree expressions did not contain
@@ -20,10 +20,10 @@ and
 nodes, then the order of evaluation would not matter.
 
 \hypertarget{why-call-nodes-are-an-issue}{%
-\subsection{\texorpdfstring{Why
-\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{CALL}
-nodes are an
-issue?}{Why  nodes are an issue?}}\label{why-call-nodes-are-an-issue}}
+	\subsection{\texorpdfstring{Why
+			\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{CALL}
+			nodes are an
+			issue?}{Why  nodes are an issue?}}\label{why-call-nodes-are-an-issue}}
 
 In actual implementation,
 \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{CALL}
@@ -41,10 +41,10 @@ Remedy is to do the transformation;
 \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{CALL(fun, args) -> ESEQ(MOVE(TEMP t, CALL(fun, args)), TEMP t)}
 
 \hypertarget{why-eseq-nodes-are-an-issue}{%
-\subsection{\texorpdfstring{Why
-\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{ESEQ}
-nodes are an
-issue?}{Why  nodes are an issue?}}\label{why-eseq-nodes-are-an-issue}}
+	\subsection{\texorpdfstring{Why
+			\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{ESEQ}
+			nodes are an
+			issue?}{Why  nodes are an issue?}}\label{why-eseq-nodes-are-an-issue}}
 
 Clearly in case of simple
 \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{ESEQ(s, e)},
@@ -59,9 +59,9 @@ higher until they become
 nodes).
 
 \begin{figure}
-\centering
-\iph{0.70}{assets/canon1.png}
-\caption{ESEQ Removal. Image source: \cite{tigerbook}}
+	\centering
+	\iph{0.70}{assets/canon1.png}
+	\caption{ESEQ Removal. Image source: \cite{tigerbook}}
 \end{figure}
 
 The transformation is done in three stages: First, a tree is rewritten
@@ -80,8 +80,8 @@ seeing the well documented code.
 \tfbox{\ghref{assem.sml} \\ \ghref{codegen.sml} \\ \ghref{accessConv.sml}}
 
 \hypertarget{instruction-representation}{%
-\subsection{Instruction
-Representation}\label{instruction-representation}}
+	\subsection{Instruction
+		Representation}\label{instruction-representation}}
 
 Now that we have done Canonisation, our compiler will now call code
 generator. It will basically convert the body into assembly language
@@ -148,7 +148,7 @@ temporaries are assigned to the same register, the
 can later be deleted (as done in my register allocator).
 
 \hypertarget{code-generation}{%
-\subsection{Code Generation}\label{code-generation}}
+	\subsection{Code Generation}\label{code-generation}}
 
 Finding the appropriate machine instructions to implement a given
 intermediate representation tree is the job of the instruction selection
@@ -160,9 +160,9 @@ selection becomes the task of tiling the tree with a minimal set of tree
 patterns.
 
 \begin{figure}
-\centering
-\iph{0.7}{assets/is1.png}
-\caption{Tree Patterns showing arithmetic and memory instructions. Image source: \cite{tigerbook}}
+	\centering
+	\iph{0.7}{assets/is1.png}
+	\caption{Tree Patterns showing arithmetic and memory instructions. Image source: \cite{tigerbook}}
 \end{figure}
 
 The very first entry is not really an instruction, but expresses the
@@ -196,13 +196,13 @@ Two possible tilings for this instruction is shown in the diagram.
 really the frame offset of the pointer to an array)
 
 \begin{figure}
-\centering
-\iph{0.7}{assets/is2.png}
-\caption{A tree tiled in two ways. Image source: \cite{tigerbook}}
+	\centering
+	\iph{0.7}{assets/is2.png}
+	\caption{A tree tiled in two ways. Image source: \cite{tigerbook}}
 \end{figure}
 
 \hypertarget{maximal-munch-algorithm}{%
-\subsection{Maximal Munch Algorithm}\label{maximal-munch-algorithm}}
+	\subsection{Maximal Munch Algorithm}\label{maximal-munch-algorithm}}
 
 Suppose we could give each kind of instruction a cost. Then we could
 define an optimum tiling as the one whose tiles sum to the lowest
@@ -242,7 +242,7 @@ This algorithm is implemented in the file
 \tfbox{\ghref{flowgraph.sml} \\ \ghref{makegraph.sml} \\ \ghref{liveness.sml}}
 
 \hypertarget{liveness-analysis}{%
-\subsection{Liveness Analysis}\label{liveness-analysis}}
+	\subsection{Liveness Analysis}\label{liveness-analysis}}
 
 Two temporaries
 \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{a} and
@@ -296,45 +296,43 @@ both live at the same program point, then they cannot be put in the same
 register.
 
 \hypertarget{interference-graph}{%
-\subsection{Interference Graph}\label{interference-graph}}
+	\subsection{Interference Graph}\label{interference-graph}}
 
 Interference graph is created with vertices as temporaries and edges as
 follows$^{\cite{tigerbook}}$:-
 
 \begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\item
-  At any nonmove instruction that defines a variable \(a\), where the
-  live-out variables are \(b_1, \dots, b_j\), add interference edges
-  \((a, b_1), \dots, (a, b_j)\).
-\item
-  At a move instruction \(a \leftarrow c\), where variables
-  \(b_1, \dots, b_j\) are live-out, add interference edges
-  \((a, b_1), \dots, (a, b_j)\) for any \(b_i\) that is not the same as
-  \(c\).
+	\def\labelenumi{\arabic{enumi}.}
+	\item
+	      At any nonmove instruction that defines a variable \(a\), where the
+	      live-out variables are \(b_1, \dots, b_j\), add interference edges
+	      \((a, b_1), \dots, (a, b_j)\).
+	\item
+	      At a move instruction \(a \leftarrow c\), where variables
+	      \(b_1, \dots, b_j\) are live-out, add interference edges
+	      \((a, b_1), \dots, (a, b_j)\) for any \(b_i\) that is not the same as
+	      \(c\).
 \end{enumerate}
-
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \section{Register Allocation}
 
 \tfbox{\ghref{regalloc.sml} \\ \ghref{regalloc.sig}}
 
-Here we will be constructing our interference graph and then coloring it. We would follow variety of optimizations and techniques such as Coalescing and Spilling. Since we have two type of temporaries, I have two $K$'s, where $K$ denotes the number of total colors available for a specific temporary. $K1 = |\text{normal saved registers}| + |\text{normal temporary registers}|$, $K2 = |\text{real caller save registers}| + |\text{real callee save registers}|$. 
+Here we will be constructing our interference graph and then coloring it. We would follow variety of optimizations and techniques such as Coalescing and Spilling. Since we have two type of temporaries, I have two $K$'s, where $K$ denotes the number of total colors available for a specific temporary. $K1 = |\text{normal saved registers}| + |\text{normal temporary registers}|$, $K2 = |\text{real caller save registers}| + |\text{real callee save registers}|$.
 
 Note that graph coloring problem is not fixed parameter tractable with
 respect to number of colors.
 
 \hypertarget{algorithm}{%
-\subsection{Algorithm}\label{algorithm}}
+	\subsection{Algorithm}\label{algorithm}}
 
 The algorithm is as given in the book with few modifications:-
 \begin{enumerate}
-  \item Whenever one needs to check for inequality with respect to $K$ then one should call $getK(temporary)$. Where $temporary$ is the concerned temporary.
-  \item Also when checking for the conservative coalescing, the $K$ to be used will be decided by the temporary which is calling the function for this check.
-  \item Whenever one is calling $AddEdge$ functions, then before calling it or inside this function, one should check whether both temporaries are real or both are non real. As one cannot add an edge between a real temporary and a non real one as they don't interfere as such.
-  \item Due to the above modification, one need not store a pair degree map (pair degree map was a degree map where for a temporary it returns a pair denoting number of real and non real neighbours respectively) but can store a simple integer degree map.
-  \item When assigning colors to a temporary, $okColors$ should be assigned with either $K1$ or $K2$ set of registers depending upon the nature of temporary.
-  \item On page 248, all the three occurrences of $nodeMoves$ are to be replace by $moveList$. Also add a line below this assignment, $EnableMoves(v)$.
-  \item AND most importantly, there is a major bug in their algorithm, which is in procedure $FreezeMoves(u)$, where in the last $if$ condition, they should also add a check that whether $v$ is not precolored because we cannot simplify a precolored nodes.
+	\item Whenever one needs to check for inequality with respect to $K$ then one should call $getK(temporary)$. Where $temporary$ is the concerned temporary.
+	\item Also when checking for the conservative coalescing, the $K$ to be used will be decided by the temporary which is calling the function for this check.
+	\item Whenever one is calling $AddEdge$ functions, then before calling it or inside this function, one should check whether both temporaries are real or both are non real. As one cannot add an edge between a real temporary and a non real one as they don't interfere as such.
+	\item Due to the above modification, one need not store a pair degree map (pair degree map was a degree map where for a temporary it returns a pair denoting number of real and non real neighbours respectively) but can store a simple integer degree map.
+	\item When assigning colors to a temporary, $okColors$ should be assigned with either $K1$ or $K2$ set of registers depending upon the nature of temporary.
+	\item On page 248, all the three occurrences of $nodeMoves$ are to be replace by $moveList$. Also add a line below this assignment, $EnableMoves(v)$.
+	\item AND most importantly, there is a major bug in their algorithm, which is in procedure $FreezeMoves(u)$, where in the last $if$ condition, they should also add a check that whether $v$ is not precolored because we cannot simplify a precolored nodes.
 \end{enumerate}
