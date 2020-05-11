@@ -1,0 +1,10 @@
+Truck after moving 55 units starting from 15: 70
+Truck after trying to move 56 (not allowed): 70
+Car after moving 100 units starting from 10: 110
+Car awaiting for truck, now truck's position is: 110
+Car passengers: 0
+Car passengers: 2
+Car is a Vehicle too!
+Exited with code: 0
+
+Program terminated by calling exit
