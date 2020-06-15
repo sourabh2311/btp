@@ -1,5 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k+kr}{datatype} \PYG{k+kt}{exp} \PYG{p}{=}  \PYG{n+nc}{Ex} \PYG{k+kr}{of} \PYG{n+nn}{Tr}\PYG{p}{.}\PYG{n}{exp}
-							\PYG{p}{|} \PYG{n+nc}{Nx} \PYG{k+kr}{of} \PYG{n+nn}{Tr}\PYG{p}{.}\PYG{n}{stm}
-              \PYG{p}{|} \PYG{n+nc}{Cx} \PYG{k+kr}{of} \PYG{n+nn}{Temp}\PYG{p}{.}\PYG{n}{label} \PYG{n}{*} \PYG{n+nn}{Temp}\PYG{p}{.}\PYG{n}{label} \PYG{p}{\PYGZhy{}\PYGZgt{}} \PYG{n+nn}{Tr}\PYG{p}{.}\PYG{n}{stm}
-\end{Verbatim}

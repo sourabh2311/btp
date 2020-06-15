@@ -2,7 +2,7 @@
 
 \section{Choosing a Simulator}
 
-In case of MIPS, it was straight forward to compile and run the assembly code but in case of RISC V, I had to struggle for some time as I couldn't find an appropriate documentation for it. After many iterations, I found the most suitable simulator, namely, \href{https://github.com/TheThirdOne/rars}{RARS}.
+In case of MIPS, it was straight forward to compile and run the assembly code but in case of RISC V, I couldn't find an appropriate documentation \& thus after trying various simulators, I chose \href{https://github.com/TheThirdOne/rars}{RARS}.
 
 Please see the corresponding description of system calls \href{https://github.com/TheThirdOne/rars/wiki/Environment-Calls}{here}. It as well have a nice companion \href{https://github.com/TheThirdOne/rars/wiki}{documentation} which I expect one to read before proceeding further with the report.
 
@@ -10,13 +10,13 @@ There are other ways to compile and run RISC V code:
 
 \begin{itemize}
 
-  \item \href{http://www.kvakil.me/venus/}{Venus}, \href{https://github.com/kvakil/venus}{Github repo}. Note that for system calls, their argument register is different, see \href{https://github.com/TheThirdOne/rars/issues/45}{this}. 
+	\item \href{http://www.kvakil.me/venus/}{Venus}, \href{https://github.com/kvakil/venus}{Github repo}. Note that for system calls, their argument register is different, see \href{https://github.com/TheThirdOne/rars/issues/45}{this}.
 
-  \item \texttt{spike} (sort of an official simulator), installed when using \texttt{riscv-gnu-toolchain}. Note it was as well required to install \href{https://github.com/riscv/riscv-pk}{pk}. System calls are different than RARS, basically it follows linux system calls. Can see these system calls \href{https://github.com/riscv/riscv-pk/blob/master/pk/syscall.c}{here} and \href{https://github.com/riscv/riscv-pk/blob/master/pk/syscall.h}{here}. And linux system calls \href{http://man7.org/linux/man-pages/man2/syscalls.2.html}{here}, note that system calls of interest can be concisely seen \href{https://rv8.io/syscalls.html}{here}.
-  
-  So to compile and run the program, do: (Don't know if this is the intended way but after a lot of trial and error, I found this)
-  
-  \begin{minted}{bash}
+	\item \texttt{spike} (sort of an official simulator), installed when using \texttt{riscv-gnu-toolchain}. Note that it was as well required to install \href{https://github.com/riscv/riscv-pk}{pk}. System calls are different than RARS, basically it follows linux system calls. Can see these system calls \href{https://github.com/riscv/riscv-pk/blob/master/pk/syscall.c}{here} and \href{https://github.com/riscv/riscv-pk/blob/master/pk/syscall.h}{here}. And linux system calls \href{http://man7.org/linux/man-pages/man2/syscalls.2.html}{here}, note that system calls of interest can be concisely seen \href{https://rv8.io/syscalls.html}{here}.
+
+	      So to compile and run the program, do: (Don't know if this is the intended way)
+
+	      \begin{minted}{bash}
   >> riscv64-unknown-elf-as -o filename.o filename.s 
   >> riscv64-unknown-elf-ld -o filename filename.o 
   >> spike pk filename
@@ -29,25 +29,22 @@ There are other ways to compile and run RISC V code:
 Few things to keep in mind:
 
 \begin{itemize}
-  \item Note that dont use \texttt{\$reg}, instead simply use \texttt{reg}.
-  \item Always have two sections, one for data and another for text.
-  \item During \texttt{ecall} all registers besides the output are guaranteed not to change.
-  \item Put return value in \texttt{a0}.
-  \item When we want our register value to be saved across system call, we can simply put it in stack instead of using registers $s_i$ as anyway we would have to save their value first in stack so no change in overhead.
-  \item \texttt{a7} is used to tell which system call.
-  \item Save \texttt{ra} register if executing \texttt{jal} inside a function.
+	\item Don't use \texttt{\$reg}, instead simply use \texttt{reg}.
+	\item Always have two sections, one for data and another for text.
+	\item During \texttt{ecall} all registers besides the output are guaranteed not to change.
+	\item Put return value in \texttt{a0}.
+	\item When we want our register value to be saved across system call, we can simply put it in stack instead of using registers $s_i$ as anyway we would have to save their value first in stack so no change in overhead.
+	\item \texttt{a7} is used to tell which system call.
+	\item Save \texttt{ra} register if executing \texttt{jal} inside a function.
 \end{itemize}
 
 \subsection{Hello World}
 
 \begin{minted}{asm}
 .data # Tell the assembler we are defining data not code
-
 msg: # Label this position in memory so it can be referred to in our code
   .string "hello world" # Copy the string "hello world" into memory 
-
 .text # Tell the assembler that we are writing code (text) now 
-
 start:
   li a7, 4 # li means to Load Immediate and we want to load the value 4 into register a7
   la a0, msg  # la is similar to li, but works for loading addresses
@@ -56,23 +53,20 @@ start:
   ecall
 \end{minted}
 
-To get the same code working using spike. 
+To get the same code working using spike.
 
 \begin{minted}{asm}
 .globl _start # We must need to give _start, .globl helps to see it outside this file
 .data 
 str:   
   .string "Hello World!\n" 
-
 .text 
 _start: 
-
   li a0, 1   
   la a1, str 
   li a2, 13  # length of the string as required for linux system call. We can write a function which will determine the length of the string by checking for terminating null character.
   li a7, 64  
   ecall 
-
   li a0, 0   # The exit code we will be returning is 0
   li a7, 93  # Again we need to indicate what system call we are making and this time we are calling exit(93)
   ecall 
@@ -81,13 +75,10 @@ _start:
 \subsection{Saving callee save registers}
 \begin{minted}{asm}
 .data
-
   bef: .string "Before modification, value is: "
   dur: .string "\nInside function, value is: "
   aft: .string "\nAfter function call, value is: "
-
 .text 
-
 main:
   addi s0, zero, 1
   # Print bef
@@ -110,9 +101,6 @@ main:
   # Exit
   li a7, 10
   ecall
-
-
-
 increment:
   addi sp, sp, -4
   sw s0, 0(sp) # '0' denotes the offset, in case of 0, we can simply omit it.
@@ -134,4 +122,4 @@ increment:
 
 \tfbox{\href{\git runtime.s}{runtime.s}}
 
-There are some standard functions which our Tiger program can use (like \texttt{print}, etc.). They are written in \texttt{runtime.s}. I could have as well used \href{https://www.cs.princeton.edu/~appel/modern/spim/runtime.s}{file} provided by author but as I want to augment it further and implement things my way, I decided to write runtime myself. Each of the functions of runtime is explained in the code for easy understanding. 
+There are some standard functions which our Tiger program can use (like \texttt{print}, etc.). They are written in \texttt{runtime.s}. I could have as well used \href{https://www.cs.princeton.edu/~appel/modern/spim/runtime.s}{file} provided by author but as I want to augment it further and implement things my way, I decided to write runtime myself. Each of the functions of runtime is explained in the code for easy understanding.

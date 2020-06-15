@@ -10,61 +10,61 @@
 \contentsline {section}{\numberline {2.2}Support for \textit {functions/methods}}{7}{section.2.2}%
 \contentsline {section}{\numberline {2.3}Supporting Single Inheritance}{8}{section.2.3}%
 \contentsline {section}{\numberline {2.4}Support for Multiple Inheritance}{9}{section.2.4}%
-\contentsline {section}{\numberline {2.5}Support for \textit {ISTYPE}}{11}{section.2.5}%
-\contentsline {chapter}{\numberline {3}What Has Been Achieved This Semester}{13}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Miscellaneous Improvements}{13}{section.3.1}%
-\contentsline {subsection}{\numberline {3.1.1}More Graceful Error Termination}{13}{subsection.3.1.1}%
-\contentsline {subsection}{\numberline {3.1.2}Simplified "Make" Process}{13}{subsection.3.1.2}%
-\contentsline {subsection}{\numberline {3.1.3}Drew My Own Tiger}{15}{subsection.3.1.3}%
-\contentsline {subsection}{\numberline {3.1.4}Printing IR Tree As Well As Generated Code Before Register Allocation}{15}{subsection.3.1.4}%
-\contentsline {subsection}{\numberline {3.1.5}Others}{18}{subsection.3.1.5}%
-\contentsline {section}{\numberline {3.2}Simplified String Comparisons}{18}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Suggestions for Mistyped Words}{19}{section.3.3}%
-\contentsline {subsection}{\numberline {3.3.1}Algorithm I}{19}{subsection.3.3.1}%
-\contentsline {subsection}{\numberline {3.3.2}Algorithm II}{20}{subsection.3.3.2}%
-\contentsline {section}{\numberline {3.4}Real (Float) Implementation - Phase I}{20}{section.3.4}%
-\contentsline {section}{\numberline {3.5}Register Allocator}{21}{section.3.5}%
-\contentsline {section}{\numberline {3.6}Real (Float) Implementation - Phase II}{24}{section.3.6}%
-\contentsline {section}{\numberline {3.7}Support for Objective Tiger}{27}{section.3.7}%
-\contentsline {chapter}{\numberline {4}Work of Last Semester}{29}{chapter.4}%
-\contentsline {section}{\numberline {4.1}What Was Achieved This Semester}{29}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Road Ahead}{34}{section.4.2}%
-\contentsline {chapter}{\numberline {5}Introduction to RISC V and Runtime}{37}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Choosing a Simulator}{37}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Basic Examples}{38}{section.5.2}%
-\contentsline {subsection}{\numberline {5.2.1}Hello World}{38}{subsection.5.2.1}%
-\contentsline {subsection}{\numberline {5.2.2}Saving callee save registers}{40}{subsection.5.2.2}%
-\contentsline {section}{\numberline {5.3}Runtime}{42}{section.5.3}%
-\contentsline {chapter}{\numberline {6}Phase I : Constructing Abstract Syntax Tree}{43}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Linking Lexer and Parser}{43}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Intermediate Error Handling}{44}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Lexer}{45}{section.6.3}%
-\contentsline {subsubsection}{Guidelines}{45}{section*.34}%
-\contentsline {section}{\numberline {6.4}Key Map}{47}{section.6.4}%
-\contentsline {section}{\numberline {6.5}Symbols in Tiger}{48}{section.6.5}%
-\contentsline {section}{\numberline {6.6}Parser}{48}{section.6.6}%
-\contentsline {subsubsection}{Guidelines}{48}{section*.35}%
-\contentsline {chapter}{\numberline {7}Phase II : Constructing Intermediate Representation Tree}{51}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Type Interface}{51}{section.7.1}%
-\contentsline {section}{\numberline {7.2}Types/Variables Environment}{52}{section.7.2}%
-\contentsline {section}{\numberline {7.3}Finding Escaped Variables}{52}{section.7.3}%
-\contentsline {section}{\numberline {7.4}Intermediate Tree Representation}{53}{section.7.4}%
-\contentsline {section}{\numberline {7.5}Understanding Functions Calls in Tiger}{55}{section.7.5}%
-\contentsline {section}{\numberline {7.6}RISC Frame}{58}{section.7.6}%
-\contentsline {section}{\numberline {7.7}Translating to IR}{58}{section.7.7}%
-\contentsline {section}{\numberline {7.8}Semantic Analysis}{60}{section.7.8}%
-\contentsline {chapter}{\numberline {8}Phase III : Generating Assembly Code}{61}{chapter.8}%
-\contentsline {section}{\numberline {8.1}Canonisation}{61}{section.8.1}%
-\contentsline {subsection}{\numberline {8.1.1}Abstract}{61}{subsection.8.1.1}%
-\contentsline {subsection}{\numberline {8.1.2}Why \mintinline [breaklines=true, tabsize=2, breaksymbolleft=]{text}{CALL} nodes are an issue?}{62}{subsection.8.1.2}%
-\contentsline {subsection}{\numberline {8.1.3}Why \mintinline [breaklines=true, tabsize=2, breaksymbolleft=]{text}{ESEQ} nodes are an issue?}{62}{subsection.8.1.3}%
-\contentsline {section}{\numberline {8.2}Instruction Selection}{62}{section.8.2}%
-\contentsline {subsection}{\numberline {8.2.1}Instruction Representation}{64}{subsection.8.2.1}%
-\contentsline {subsection}{\numberline {8.2.2}Code Generation}{65}{subsection.8.2.2}%
-\contentsline {subsection}{\numberline {8.2.3}Maximal Munch Algorithm}{66}{subsection.8.2.3}%
-\contentsline {section}{\numberline {8.3}Liveness Analysis and Interference Graph}{67}{section.8.3}%
-\contentsline {subsection}{\numberline {8.3.1}Liveness Analysis}{67}{subsection.8.3.1}%
-\contentsline {subsection}{\numberline {8.3.2}Interference Graph}{68}{subsection.8.3.2}%
-\contentsline {section}{\numberline {8.4}Register Allocation}{68}{section.8.4}%
-\contentsline {subsection}{\numberline {8.4.1}Algorithm}{69}{subsection.8.4.1}%
-\contentsline {chapter}{References}{71}{Item.52}%
+\contentsline {section}{\numberline {2.5}Support for \textit {ISTYPE}}{10}{section.2.5}%
+\contentsline {chapter}{\numberline {3}What Has Been Achieved This Semester}{11}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Miscellaneous Improvements}{11}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}More Graceful Error Termination}{11}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Simplified \csqQQ {34}Make\csqQQ {34} Process}{11}{subsection.3.1.2}%
+\contentsline {subsection}{\numberline {3.1.3}Drew My Own Tiger Logo}{13}{subsection.3.1.3}%
+\contentsline {subsection}{\numberline {3.1.4}Printing IR Tree As Well As Generated Code Before Register Allocation}{13}{subsection.3.1.4}%
+\contentsline {subsection}{\numberline {3.1.5}Others}{13}{subsection.3.1.5}%
+\contentsline {section}{\numberline {3.2}Simplified String Comparisons}{15}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Suggestions for Mistyped Words}{15}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Algorithm I}{16}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Algorithm II}{16}{subsection.3.3.2}%
+\contentsline {section}{\numberline {3.4}Real (Float) Implementation - Phase I}{17}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Register Allocator}{18}{section.3.5}%
+\contentsline {section}{\numberline {3.6}Real (Float) Implementation - Phase II}{21}{section.3.6}%
+\contentsline {section}{\numberline {3.7}Support for Objective Tiger}{24}{section.3.7}%
+\contentsline {chapter}{\numberline {4}Work of Last Semester}{25}{chapter.4}%
+\contentsline {section}{\numberline {4.1}What Was Achieved This Semester}{25}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Road Ahead}{30}{section.4.2}%
+\contentsline {chapter}{\numberline {5}Introduction to RISC V and Runtime}{33}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Choosing a Simulator}{33}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Basic Examples}{34}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Hello World}{34}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Saving callee save registers}{35}{subsection.5.2.2}%
+\contentsline {section}{\numberline {5.3}Runtime}{37}{section.5.3}%
+\contentsline {chapter}{\numberline {6}Phase I : Constructing Abstract Syntax Tree}{39}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Linking Lexer and Parser}{39}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Intermediate Error Handling}{40}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Lexer}{41}{section.6.3}%
+\contentsline {subsubsection}{Guidelines}{41}{section*.34}%
+\contentsline {section}{\numberline {6.4}Key Map}{43}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Symbols in Tiger}{43}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Parser}{44}{section.6.6}%
+\contentsline {subsubsection}{Guidelines}{44}{section*.35}%
+\contentsline {chapter}{\numberline {7}Phase II : Constructing Intermediate Representation Tree}{47}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Type Interface}{47}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Types/Variables Environment}{48}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Finding Escaped Variables}{48}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Intermediate Tree Representation}{49}{section.7.4}%
+\contentsline {section}{\numberline {7.5}Understanding Functions Calls in Tiger}{50}{section.7.5}%
+\contentsline {section}{\numberline {7.6}RISC Frame}{53}{section.7.6}%
+\contentsline {section}{\numberline {7.7}Translating to IR}{54}{section.7.7}%
+\contentsline {section}{\numberline {7.8}Semantic Analysis}{55}{section.7.8}%
+\contentsline {chapter}{\numberline {8}Phase III : Generating Assembly Code}{57}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Canonisation}{57}{section.8.1}%
+\contentsline {subsection}{\numberline {8.1.1}Abstract}{57}{subsection.8.1.1}%
+\contentsline {subsection}{\numberline {8.1.2}Why \mintinline [breaklines=true, tabsize=2, breaksymbolleft=]{text}{CALL} nodes are an issue?}{58}{subsection.8.1.2}%
+\contentsline {subsection}{\numberline {8.1.3}Why \mintinline [breaklines=true, tabsize=2, breaksymbolleft=]{text}{ESEQ} nodes are an issue?}{58}{subsection.8.1.3}%
+\contentsline {section}{\numberline {8.2}Instruction Selection}{58}{section.8.2}%
+\contentsline {subsection}{\numberline {8.2.1}Instruction Representation}{60}{subsection.8.2.1}%
+\contentsline {subsection}{\numberline {8.2.2}Code Generation}{60}{subsection.8.2.2}%
+\contentsline {subsection}{\numberline {8.2.3}Maximal Munch Algorithm}{62}{subsection.8.2.3}%
+\contentsline {section}{\numberline {8.3}Liveness Analysis and Interference Graph}{63}{section.8.3}%
+\contentsline {subsection}{\numberline {8.3.1}Liveness Analysis}{63}{subsection.8.3.1}%
+\contentsline {subsection}{\numberline {8.3.2}Interference Graph}{64}{subsection.8.3.2}%
+\contentsline {section}{\numberline {8.4}Register Allocation}{64}{section.8.4}%
+\contentsline {subsection}{\numberline {8.4.1}Algorithm}{65}{subsection.8.4.1}%
+\contentsline {chapter}{References}{67}{Item.51}%

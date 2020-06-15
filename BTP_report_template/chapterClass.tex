@@ -14,7 +14,7 @@ Unlike \textit{vars}, which could be "stored", \textit{functions} are "declared"
 
 \begin{figure}
 	\centering
-	\iph{0.50}{../sem8_presentation2/singleInheritance.png}
+	\iph{0.35}{../sem8_presentation2/singleInheritance.png}
 	\caption{Single Inheritance Program}
 	\label{fig:SI1}
 \end{figure}
@@ -36,7 +36,7 @@ To understand this, see \ref{fig:MI1} and \ref{fig:MI2}. We can see that we just
 
 \begin{figure}
 	\centering
-	\iph{0.50}{../sem8_presentation2/MI.png}
+	\iph{0.35}{../sem8_presentation2/MI.png}
 	\caption{Multiple Inheritance Program}
 	\label{fig:MI1}
 \end{figure}
@@ -57,7 +57,7 @@ To understand this, see \ref{fig:MI1} and \ref{fig:MI2}. We can see that we just
 
 To handle this, we can "statically" analyse the complete program and reduce this problem to graph coloring. Idea is to add an edge between \textit{vars} which could possibly end being in the same class. Then we would be ended with disjoint Cliques which could then be colored.
 
-But we can do better. As the graph is simply disjoint cliques, each node in a component would receive different color. Thus we can simply use UFDS data structure and color each element of the set with different color. Here we just need to join the set containing \textit{vars} of Superclasses with Subclass. See \ref{fig:MI3} for an example for the code \ref{fig:MI1}.
+But we can do better. As the graph is simply disjoint cliques, each node in a component would receive different color. Thus we can simply use \textit{Union Find Disjoint Set} (UFDS) data structure \textit{[Which is practically a constant time algorithm]} and color each element of the set with different color. Here we just need to join the set containing \textit{vars} of Superclasses with Subclass. See \ref{fig:MI3} for an example for the code \ref{fig:MI1}.
 
 \section{Support for \textit{ISTYPE}}
 

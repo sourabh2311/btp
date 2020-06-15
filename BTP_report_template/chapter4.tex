@@ -55,163 +55,160 @@ and relop = EQ | NE | LT | GT | LE | GE | ULT | ULE | UGT | UGE
 
 \section{Understanding Functions Calls in Tiger}
 
-\begin{tcolorbox}
-  Note that some of this material will become clear after reading Phase III.
-\end{tcolorbox}
+\nbox{Some of this material will become clear after reading Phase III.}
 
 \begin{figure}
-\centering
-\iph{0.60}{assets/myFrame.png}
-\caption{Illustration of Frame}
-\label{fig:myframe}
+	\centering
+	\iph{0.35}{assets/myFrame.png}
+	\caption{Illustration of Frame}
+	\label{fig:myframe}
 \end{figure}
 
 Below is explained in chronological sequence of what happens and for
 what reason when function call is executed in this compiler. Also see \ref{fig:myframe}.
 
 \begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\item
-  When a function is called. The current frame is extended to include
-  outgoing parameters (at the offset already determined by the callee)
-  in case some of them escape; rest of the arguments are put in argument
-  registers.
+	\def\labelenumi{\arabic{enumi}.}
+	\item
+	      When a function is called. The current frame is extended to include
+	      outgoing parameters (at the offset already determined by the callee)
+	      in case some of them escape; rest of the arguments are put in argument
+	      registers.
 
-  \begin{enumerate}
-  \def\labelenumii{\arabic{enumii}.}
-  \item
-    This step is done by our code generator.
-  \item
-    After moving escaped arguments to their pre-determined location and
-    remaining arguments to argument registers, it will then emit
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{jal}
-    instruction which will have
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{src = argTemps}
-    (\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{argTemps}
-    are chosen argument registers, this is done as these argument
-    registers are used in this time) and
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{dst = [ra] @ F.getFirstL F.callersaves};
-    as we know that caller is supposed to save some registers if it was
-    using them and thus setting
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{dst = F.getFirstL F.callersaves}
-    would enable the garbage collection to know that if function being
-    called \textbf{uses} these registers then it would clearly
-    interfere. For all but those functions which are at top most, we as well pass the static link for the function enclosing the called function. Please see the example code in the text. 
-  \item
-    Let
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{fp},
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{sp}
-    denote the current frame and stack pointer.
-  \item
-    To extend the current frame, we must subtract it by the amount
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{escaped-arguments * word-size}.
-    But since we should as well store the old frame pointer (as we will
-    update it with the current stack pointer, this frame pointer is not same as static link); we must subtract
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{sp}
-    by
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{(escaped-arguments + 1) * word-size}.
-  \item
-    Now old value of fp is saved in 0th location of this
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{sp},
-    and other arguments are saved respectively at the offsets already
-    determined by the callee. (Callee predetermined these offsets
-    considering the fact that we will save old
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{fp}
-    at 0th word)
-  \item
-    Now as we are moving to the frame of other function
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{fp}
-    is updated to
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{sp},
-    and
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{sp}
-    value will be deducted by the amount needed by the callee stack.
-  \item
-    Thus local variables allocated will be referred with negative offset
-    wrt to
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{fp}
-    and escaped argument parameters will be referred with non negative
-    offset wrt
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{fp}.
-  \item
-    Thus it is evident that our code generator would need to know the
-    access list of the callee which wasn't there in the design mentioned
-    in the book, so I added it in
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{tree.sml}
-    but to avoid cyclic dependency between
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{tree.sml}
-    and
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{riscframe.sml},
-    I had to redefine
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{access}
-    and had to create
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{accessConv.sml}
-    to facilitate conversion between access of
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{tree}
-    and
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{riscframe}.
-  \item
-    Also since code generator must save escaped arguments with respect
-    to the new frame pointer which is not equal to current frame pointer
-    as this whole thing is updated in
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{procEntryExit3},
-    but since new frame pointer = current stack pointer - (escape-count
-    + 1) * word-size, I created new function
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{callexp}
-    in
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{riscframe}
-    to do this arithmetic.
-  \end{enumerate}
-\item
-  Now inside this called function, we must create new temporary for each
-  passed argument \textbf{in argument register} and move that register's
-  value to this new temporary. This might seem unnecessary but consider
-  \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{function m(x : int, y : int) = (h(y, y); h(x, x))}.
-  If \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{x}
-  stays in ``parameter register 1'' throughout
-  \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{m},
-  and \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{y}
-  is passed to
-  \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{h} in
-  parameter register 1, then there is a problem. The register allocator
-  will eventually choose which machine register should hold the
-  temporary. If there is no interference of the type shown in function
-  \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{m},
-  then (on the RISC) the allocator will take care to choose register the
-  same register as temporary to hold that register (not implemented as of now). Then the move
-  instructions will be unnecessary and will be deleted at that time.
+	      \begin{enumerate}
+		      \def\labelenumii{\arabic{enumii}.}
+		      \item
+		            This step is done by our code generator.
+		      \item
+		            After moving escaped arguments to their pre-determined location and
+		            remaining arguments to argument registers, it will then emit
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{jal}
+		            instruction which will have
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{src = argTemps}
+		            (\mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{argTemps}
+		            are chosen argument registers, this is done as these argument
+		            registers are used in this time) and
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{dst = [ra] @ F.getFirstL F.callersaves};
+		            as we know that caller is supposed to save some registers if it was
+		            using them and thus setting
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{dst = F.getFirstL F.callersaves}
+		            would enable the garbage collection to know that if function being
+		            called \textbf{uses} these registers then it would clearly
+		            interfere. For all but those functions which are at top most, we as well pass the static link for the function enclosing the called function. Please see the example code in the text.
+		      \item
+		            Let
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{fp},
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{sp}
+		            denote the current frame and stack pointer.
+		      \item
+		            To extend the current frame, we must subtract it by the amount
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{escaped-arguments * word-size}.
+		            But since we should as well store the old frame pointer (as we will
+		            update it with the current stack pointer, this frame pointer is not same as static link); we must subtract
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{sp}
+		            by
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{(escaped-arguments + 1) * word-size}.
+		      \item
+		            Now old value of fp is saved in 0th location of this
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{sp},
+		            and other arguments are saved respectively at the offsets already
+		            determined by the callee. (Callee predetermined these offsets
+		            considering the fact that we will save old
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{fp}
+		            at 0th word)
+		      \item
+		            Now as we are moving to the frame of other function
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{fp}
+		            is updated to
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{sp},
+		            and
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{sp}
+		            value will be deducted by the amount needed by the callee stack.
+		      \item
+		            Thus local variables allocated will be referred with negative offset
+		            wrt to
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{fp}
+		            and escaped argument parameters will be referred with non negative
+		            offset wrt
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{fp}.
+		      \item
+		            Thus it is evident that our code generator would need to know the
+		            access list of the callee which wasn't there in the design mentioned
+		            in the book, so I added it in
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{tree.sml}
+		            but to avoid cyclic dependency between
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{tree.sml}
+		            and
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{riscframe.sml},
+		            I had to redefine
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{access}
+		            and had to create
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{accessConv.sml}
+		            to facilitate conversion between access of
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{tree}
+		            and
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{riscframe}.
+		      \item
+		            Also since code generator must save escaped arguments with respect
+		            to the new frame pointer which is not equal to current frame pointer
+		            as this whole thing is updated in
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{procEntryExit3},
+		            but since new frame pointer = current stack pointer - (escape-count
+		            + 1) * word-size, I created new function
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{callexp}
+		            in
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{riscframe}
+		            to do this arithmetic.
+	      \end{enumerate}
+	\item
+	      Now inside this called function, we must create new temporary for each
+	      passed argument \textbf{in argument register} and move that register's
+	      value to this new temporary. This might seem unnecessary but consider
+	      \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{function m(x : int, y : int) = (h(y, y); h(x, x))}.
+	      If \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{x}
+	      stays in ``parameter register 1'' throughout
+	      \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{m},
+	      and \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{y}
+	      is passed to
+	      \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{h} in
+	      parameter register 1, then there is a problem. The register allocator
+	      will eventually choose which machine register should hold the
+	      temporary. If there is no interference of the type shown in function
+	      \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{m},
+	      then (on the RISC) the allocator will take care to choose register the
+	      same register as temporary to hold that register (not implemented as of now). Then the move
+	      instructions will be unnecessary and will be deleted at that time.
 
-  \begin{enumerate}
-  \def\labelenumii{\arabic{enumii}.}
-  \item
-    This is done in
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{newFrame}
-    of
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{riscframe},
-    named as
-    \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{shiftInstr}
-    (shift instructions).
-  \end{enumerate}
-\item
-  Called function must save callee-save registers include
-  \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{ra},
-  this is done in
-  \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{procEntryExit1},
-  similarly restoring them in the end of function body is as well done
-  here.
+	      \begin{itemize}
+		      \item
+		            This is done in
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{newFrame}
+		            of
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{riscframe},
+		            named as
+		            \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{shiftInstr}
+		            (shift instructions).
+	      \end{itemize}
+	\item
+	      Called function must save callee-save registers include
+	      \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{ra},
+	      this is done in
+	      \mintinline[breaklines=true, tabsize=2, breaksymbolleft=]{text}{procEntryExit1},
+	      similarly restoring them in the end of function body is as well done
+	      here.
 \end{enumerate}
 
 \section{RISC Frame}
 
 \tfbox{\href{\git riscframe.sml}{riscframe.sml}}
 
-File \texttt{riscframe.sml} contains an interface for RISC V, which finds some use in this phase, but is mainly there for code generation phase. Its applications and purpose will become clear by seeing the written code. Before proceeding please read and understand about \textbf{static links} given at page 132-134 of the \textit{Tiger Book}. Basic gist is that in languages that allow nested function declarations, the inner functions may use variables declared in outer functions. One way to accomplish this is that whenever a function $f$ is called, it can be passed a pointer to the frame of the function statically enclosing $f$; this pointer is the static link. 
+File \texttt{riscframe.sml} contains an interface for RISC V, which finds some use in this phase, but is mainly there for code generation phase. Its applications and purpose will become clear by seeing the written code. Before proceeding please read and understand about \textbf{static links} given at page 132-134 of the \textit{Tiger Book}\cite{tigerbook}. Basic gist is that in languages that allow nested function declarations, the inner functions may use variables declared in outer functions. One way to accomplish this is that whenever a function $f$ is called, it can be passed a pointer to the frame of the function statically enclosing $f$; this pointer is the static link.
 
 \section{Translating to IR}
 
 \tfbox{\ghref{translate.sml}}
 
-Done by \texttt{translate.sml} and is used by \texttt{semant.sml} to generate IR tree code. 
+Done by \texttt{translate.sml} and is used by \texttt{semant.sml} to generate IR tree code.
 
 \texttt{semant.sml} will generate an \texttt{exp} of translate type for a frame and then in the end, it will call translate's \texttt{procEntryExit} which will \texttt{unEx} that expression.
 
@@ -226,18 +223,18 @@ datatype exp =  Ex of Tr.exp
 
 \begin{itemize}
 
-\item \textbf{Ex} stands for an "expression," represented as a \texttt{Tree.exp}.
-\item \textbf{Nx} stands for "no result," represented as a Tree statement.
-\item \textbf{Cx} stands for "conditional," represented as a function from label-pair to  statement. If you pass it a true-destination and a false-destination, it will make a statement that evaluates some conditionals and then jumps to one of the  destinations (the statement will never "fall through"). For example, the Tiger expression 
-  \begin{minted}{sml}
+	\item \textbf{Ex} stands for an "expression," represented as a \texttt{Tree.exp}.
+	\item \textbf{Nx} stands for "no result," represented as a Tree statement.
+	\item \textbf{Cx} stands for "conditional," represented as a function from label-pair to  statement. If you pass it a true-destination and a false-destination, it will make a statement that evaluates some conditionals and then jumps to one of the  destinations (the statement will never "fall through"). For example, the Tiger expression
+	      \begin{minted}{sml}
   a > b | c < d
-  \end{minted} 
-  might translate to the  conditional:
-  \begin{minted}{sml}
+  \end{minted}
+	      might translate to the  conditional:
+	      \begin{minted}{sml}
   Cx(fn (t,f) => SEQ(CJUMP(GT, a, b, t, z),
   SEQ(LABEL z, CJUMP (LT, c, d, t, f))))
   \end{minted}
-  for some new label \texttt{z}.
+	      for some new label \texttt{z}.
 \end{itemize}
 
 Sometimes we will have an expression of one kind and we will need to convert it to an equivalent expression of another kind. For example, the Tiger statement
@@ -246,11 +243,11 @@ flag := (a>b | c<d)
 \end{minted}
 . This is achieved by \texttt{unEx}. Similarly we have \texttt{unNx} and \texttt{unCx}.
 
-Similarly each function call defines a level which is encapsulated as 
+Similarly each function call defines a level which is encapsulated as
 \begin{minted}{sml}
 datatype level =  Top
                 | Lev of {parent: level, frame: F.frame} * unit ref
-\end{minted} 
+\end{minted}
 
 \texttt{unit ref} is used to easily check for equality.
 

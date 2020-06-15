@@ -10,6 +10,7 @@
 \usepackage{epsfig,color}
 \usepackage{tcolorbox}
 \usepackage{minted}
+\usepackage[autostyle, english = american]{csquotes}
 % \usepackage[superscript, biblabel, nomove]{cite}
 % Custom packages
 %\usepackage[first]{datestamp}   % Datestamp on first page of each chapter
@@ -23,6 +24,7 @@
 % Below margin is space below footer
 %\abovemargin = 1.5in \belowmargin = 0.05in
 
+\MakeOuterQuote{"}
 
 \newcommand{\git}{https://github.com/sourabh2311/btp/blob/master/Compiler/}
 \newcommand{\iph}[2]{
@@ -32,7 +34,8 @@
    \includegraphics[width=0.5\textwidth,height=0.5\textheight,keepaspectratio]{#1}
 }
 \newcommand{\tfbox}[1]{
-\begin{tcolorbox}[colframe=purple!75!black,title=Associated File(s) Link]
+\begin{tcolorbox}[boxrule=0pt,toprule=1pt, bottomrule=1pt, arc=0pt, title=Associated File(s) Link,
+   colback=white]
 #1
 
 \textit{Please see comments in the file(s) for more details.}
@@ -40,7 +43,9 @@
 }
 
 \newcommand{\nbox}[1]{
-\begin{tcolorbox}[colframe=purple!75!black,title=Note]
+\begin{tcolorbox}[
+   boxrule=0pt,toprule=1pt, bottomrule=1pt, arc=0pt, title=Note,
+   colback=white]
 #1
 
 \end{tcolorbox}
@@ -55,7 +60,7 @@
 \email = {111601025@smail.iitpkd.ac.in}
 \guide = {Dr. Piyush P. Kurur}
 
-\setminted{breaklines=true, tabsize=2, breaksymbolleft=}
+\setminted{breaklines=true, fontsize=\footnotesize, escapeinside=||,autogobble,framesep=3mm,tabsize=2, breaksymbolleft=}
 
 \begin{document}
 
@@ -65,12 +70,12 @@
 
 \include{acknowledgement}
 
-\tableofcontents 
+\tableofcontents
 
 \cleardoublepage
 \phantomsection
-\addcontentsline{toc}{chapter}{List of Figures} 
-\listoffigures 
+\addcontentsline{toc}{chapter}{List of Figures}
+\listoffigures
 
 % \cleardoublepage
 % \phantomsection
@@ -92,19 +97,19 @@
 \cleardoublepage
 \typeout{}
 \include{chapter1}
-\cleardoublepage 
+\cleardoublepage
 \typeout{}
 \include{chapter2}
-\cleardoublepage 
+\cleardoublepage
 \typeout{}
 \include{chapter3}
-\cleardoublepage 
+\cleardoublepage
 \typeout{}
 \include{chapter4}
-\cleardoublepage 
+\cleardoublepage
 \typeout{}
 \include{chapter5}
-\cleardoublepage 
+\cleardoublepage
 \typeout{}
 
 \bibliographystyle{IEEEtran}

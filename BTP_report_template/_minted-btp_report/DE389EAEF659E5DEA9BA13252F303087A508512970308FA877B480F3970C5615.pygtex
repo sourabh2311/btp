@@ -1,3 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{flag} \PYG{n}{:=} \PYG{p}{(}\PYG{n}{a\PYGZgt{}b} \PYG{n}{|} \PYG{n}{c\PYGZlt{}d}\PYG{p}{)}
-\end{Verbatim}

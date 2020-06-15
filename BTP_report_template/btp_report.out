@@ -15,7 +15,7 @@
 \BOOKMARK [1][-]{section.3.1}{Miscellaneous Improvements}{chapter.3}% 15
 \BOOKMARK [2][-]{subsection.3.1.1}{More Graceful Error Termination}{section.3.1}% 16
 \BOOKMARK [2][-]{subsection.3.1.2}{Simplified "Make" Process}{section.3.1}% 17
-\BOOKMARK [2][-]{subsection.3.1.3}{Drew My Own Tiger}{section.3.1}% 18
+\BOOKMARK [2][-]{subsection.3.1.3}{Drew My Own Tiger Logo}{section.3.1}% 18
 \BOOKMARK [2][-]{subsection.3.1.4}{Printing IR Tree As Well As Generated Code Before Register Allocation}{section.3.1}% 19
 \BOOKMARK [2][-]{subsection.3.1.5}{Others}{section.3.1}% 20
 \BOOKMARK [1][-]{section.3.2}{Simplified String Comparisons}{chapter.3}% 21
@@ -65,4 +65,4 @@
 \BOOKMARK [2][-]{subsection.8.3.2}{Interference Graph}{section.8.3}% 65
 \BOOKMARK [1][-]{section.8.4}{Register Allocation}{chapter.8}% 66
 \BOOKMARK [2][-]{subsection.8.4.1}{Algorithm}{section.8.4}% 67
-\BOOKMARK [0][-]{Item.52}{References}{}% 68
+\BOOKMARK [0][-]{Item.51}{References}{}% 68

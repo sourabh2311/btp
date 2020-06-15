@@ -1,4 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k+kr}{datatype} \PYG{k+kt}{level} \PYG{p}{=}  \PYG{n+nc}{Top}
-                \PYG{p}{|} \PYG{n+nc}{Lev} \PYG{k+kr}{of} \PYG{p}{\PYGZob{}}\PYG{n}{parent}\PYG{p}{:} \PYG{n}{level}\PYG{p}{,} \PYG{n}{frame}\PYG{p}{:} \PYG{n+nn}{F}\PYG{p}{.}\PYG{n}{frame}\PYG{p}{\PYGZcb{}} \PYG{n}{*} \PYG{n}{unit} \PYG{n}{ref}
-\end{Verbatim}

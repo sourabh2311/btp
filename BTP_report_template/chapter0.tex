@@ -14,7 +14,7 @@ Earlier in lexical phase, as soon as an error was found, I was raising an except
 \end{figure}
 \begin{figure}
 	\centering
-	\iph{0.80}{assets/lexError3-min.png}
+	\iph{1}{assets/lexError3-min.png}
 	\caption{Graceful error termination - after}
 	\label{fig:gr2}
 \end{figure}
@@ -25,18 +25,16 @@ Earlier, the bash script to compile the given file required to concatenate the o
 
 \begin{figure}
 	\centering
-	\iph{0.80}{assets/makeS-min.png}
+	\iph{0.40}{assets/makeS-min.png}
 	\caption{Simplified Make}
 	\label{fig:sm}
 \end{figure}
 
-\subsection{Drew My Own Tiger}
-
-Just for fun, I drew my own Tiger logo. See \ref{fig:tig}.
-
+\subsection{Drew My Own Tiger Logo}
+See \ref{fig:tig}.
 \begin{figure}
 	\centering
-	\iph{0.80}{assets/tiger-min.png}
+	\iph{0.40}{assets/tiger-min.png}
 	\caption{Tiger Logo}
 	\label{fig:tig}
 \end{figure}
@@ -47,7 +45,7 @@ The author of the book gives the program to achieve this. But due to changes com
 
 \begin{figure}
 	\centering
-	\iph{0.80}{assets/ir-min.png}
+	\iph{0.50}{assets/ir-min.png}
 	\caption{IR Tree}
 	\label{fig:ir}
 \end{figure}
@@ -55,7 +53,7 @@ The author of the book gives the program to achieve this. But due to changes com
 
 \begin{figure}
 	\centering
-	\iph{0.80}{assets/ba-min.png}
+	\iph{0.50}{assets/ba-min.png}
 	\caption{Code before register allocation}
 	\label{fig:ba}
 \end{figure}
@@ -115,7 +113,7 @@ Example of changes required in this phase are given in figure \ref{fig:rphi1} an
 
 \begin{figure}
 	\centering
-	\iph{0.80}{assets/rphi1-min.png}
+	\iph{0.70}{assets/rphi1-min.png}
 	\caption{Real I Implementation Glimpse (a)}
 	\label{fig:rphi1}
 \end{figure}
@@ -129,11 +127,11 @@ Example of changes required in this phase are given in figure \ref{fig:rphi1} an
 
 \section{Register Allocator}
 
-My last sem's compiler's register allocator was incomplete and a crude implementation of the algorithm given in the text. It was without coalescing which is essential to minimize the spills and different register's use (in move instruction). The book has a whole chapter dedicated to this subject. It takes time to read and understand this algorithm, so it took me some days to finally appreciate this algorithm. While implementing this algorithm, for purpose of optimizations, I did modifications among other files as well list using set everywhere from which one can easily add / delete an entry.
+My last sem's compiler's register allocator was incomplete and a crude implementation of the algorithm given in the text. It was without coalescing which is essential to minimize the spills and different register's use (in move instruction). The book has a whole chapter dedicated to this subject. While implementing this algorithm, for purpose of optimizations, I did modifications among other files as well list using set everywhere from which one can easily add / delete an entry.
 
-The algorithm given in the book is huge and requires careful implementation. After the algorithm's implementation there were major issues I was facing due to some errors. Each morning, I could get an insight on a potential bug.
+The algorithm given in the book is huge and requires careful implementation. After the algorithm's implementation there were major issues I was facing due to some errors.
 
-To identify bugs, one require critical scrutiny of the generated assembly code. One need's to generate small examples which break the code, i.e. deviate from expected behavior. After careful examination of one such program, I realised that \texttt{ra} register isn't getting backed up. And after \textbf{circling} through many places, I found the error was at incorrectly setting up \texttt{dst} registers when calling a function, here I missed to include \texttt{ra} register due to which it wasn't causing an interference with its use. See \ref{fig:eb}.
+After carefully generating small examples which break the code, I realised that \texttt{ra} register isn't getting backed up. Error was at incorrectly setting up \texttt{dst} registers when calling a function, here I missed to include \texttt{ra} register due to which it wasn't causing an interference with its use. See \ref{fig:eb}.
 
 \begin{figure}
 	\centering
@@ -142,22 +140,22 @@ To identify bugs, one require critical scrutiny of the generated assembly code. 
 	\label{fig:eb}
 \end{figure}
 
-I have taken this example to highlight, how a little bit of mistake could be the cause of stress and so much of time.
+Similarly other errors like inserting in stack in opposite direction, etc, took much time.
 
-Juggling through these errors (like one of my major error was that I had been inserting in stack in reverse direction), I came to a point where I felt stuck, I was loosing hope each passing moment and felt that I finally have to give up on this, on so much of changes that I have done. The issue was with the algorithm presented by the author where he missed very important line. Refer \ref{fig:culprit} where you can see that checking whether \texttt{v} is in the precolored nodes or not was critical as precolored nodes should not be touched.
+But after fixing all this, there was still an unexpected behaviour as the algorithm presented by the author missed an important line. Refer \ref{fig:culprit} where you can see that checking whether \texttt{v} is in the precolored nodes or not was critical as precolored nodes should not be touched.
 
 \begin{figure}
 	\centering
 	\iph{0.80}{assets/culprit-min.png}
-	\caption{Critical Error in Book's Algorithm}
+	\caption{Error in Book's Algorithm}
 	\label{fig:culprit}
 \end{figure}
 
-This was a real relief and a mark of something really innovative done in this project. Final generated code was significantly lower than earlier, demonstrating the power of coalescing.
+Final generated code was significantly lower than earlier, demonstrating the power of coalescing.
 
 \section{Real (Float) Implementation - Phase II}
 
-As remarked, this phase attempted to provide full fledged real numbers support. I did huge number of modifications as:-
+As remarked, this phase attempted to provide full fledged real numbers support. Huge number of modifications were needed like:-
 
 \begin{enumerate}
 	\item Everywhere when doing \texttt{T.newtemp} one need to \textbf{specify} whether, real or an integer register is needed.
@@ -168,13 +166,13 @@ As remarked, this phase attempted to provide full fledged real numbers support. 
 	      \end{enumerate}
 	\item Assign statement needed to know whether parameters are real or not as then only one can do \texttt{RMOVE} or an integer move, \texttt{MOVE}. This is needed as floating points are moved differently.
 	\item Similarly floating points are loaded and stored using different instructions than integer, this demanded for addition of \texttt{RMEM}.
-	\item Code generation was thus heavily modified as it needed to generate correct code for all these changes. This requires a great amount of thinking as same things can be obtained using different means and one should try to do least changes in IR tree.
+	\item Code generation was thus heavily modified as it needed to generate correct code for all these changes. Attempt was made for those possiblities which require least changes in IR tree.
 	\item The way code was generated when calling a function was as well heavily modified as one needs to differentiate a real and non real value as their moves, memory access is different. In that case also one needs to identify whether an access is in register or memory.
 	\item New frame generation in \texttt{riscframe.sml} was heavily modified as now shift instructions needed to take care for both ints and real temporaries and also access had to specifically generated according to argument type.
-	\item All in all there were heavy changes in almost all the files including the changes which were done previously as now reals can not be treated simply like strings, thus their basic expression had to be changed and this change has to be thoughtful as it seemingly could be done in many ways, so one has to really go through required files to determine what should be the most suitable instruction. This one line (line 117), as seen in \ref{fig:ft1} might seem trivial once it is written but there is a big background behind it.
+	\item All in all there were many changes in almost all the files including the changes which were done previously as now reals can not be treated simply like strings, thus their basic expression had to be changed and this change has to be thoughtful as it seemingly could be done in many ways, so one has to really go through required files to determine what should be the most suitable instruction. This one line (line 117), as seen in \ref{fig:ft1} might seem trivial once it is written but there is a big background behind it.
 	\item Clearly \texttt{temp.sml}, \texttt{temp.sig} required changes to support for new temporaries. Which is a tuple now, where first parameter is what was originally the temporary and second parameter is simply an integer, denoting whether the temporary is real or not. 1 for real and 0 for normal integer. Some other functions were added such as whether temporary is real or not, etc.
 	\item There was a constant shuffle between compiler and assembly code, to determine where exactly were the bugs coming from.
-	\item Register allocator too had to be cleverly modified. Every day, from my morning insight, I tried something like making \texttt{K} which is number of available colours a tuple as for different registers, this \texttt{K} is different. Similarly degree map should be change to give a tuple, telling which are non real, real neighbours respectively. These helped in passing of few test cases but it eventually stumbled. Again I was feeling stressed and hopeless. Then suddenly an idea once struck that why am I even adding an edge to a non real and a real temporary as they infact don't interfere. This solved my issue, and floating point implementation was complete. See \ref{fig:ft2} for an example.
+	\item Register allocator too had to be cleverly modified. Like making \texttt{K} which is number of available colours a tuple as for different registers, this \texttt{K} is different. Similarly degree map should be change to give a tuple, telling which are non real, real neighbours respectively. These helped in passing of few test cases but it eventually stumbled. Finally it can be seen that there is no point in adding an edge to a non real and a real temporary as they don't interfere. This solved my issue, and floating point implementation was complete. See \ref{fig:ft2} for an example.
 \end{enumerate}
 
 \begin{figure}
@@ -187,11 +185,11 @@ As remarked, this phase attempted to provide full fledged real numbers support. 
 
 \begin{figure}
 	\centering
-	\iph{0.80}{assets/ft2-min.png}
+	\iph{1}{assets/ft2-min.png}
 	\caption{Floating Point Example}
 	\label{fig:ft2}
 \end{figure}
 
 \section{Support for Objective Tiger}
 
-I added Objective support to my compiler, which is as explained in the first two chapters. Kindly look at them to understand the nature of work.
+I added Objective support to my compiler, which is as explained in the first two chapters.
